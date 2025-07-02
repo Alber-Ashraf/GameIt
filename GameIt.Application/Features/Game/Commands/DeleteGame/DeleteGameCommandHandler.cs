@@ -1,4 +1,5 @@
-﻿using GameIt.Application.Interfaces.Persistence;
+﻿using GameIt.Application.Exeptions;
+using GameIt.Application.Interfaces.Persistence;
 using MediatR;
 
 namespace GameIt.Application.Features.Game.Commands.DeleteGame
@@ -16,6 +17,8 @@ namespace GameIt.Application.Features.Game.Commands.DeleteGame
             var existingGame = await _unitOfWork.Games.GetByIdAsync(request.Id);
 
             // Validate if the game exists
+            if (existingGame == null)
+                throw new NotFoundException(nameof(Game), request.Id);
 
             // Delete the game entity from the repository
             await _unitOfWork.Games.DeleteAsync(existingGame);

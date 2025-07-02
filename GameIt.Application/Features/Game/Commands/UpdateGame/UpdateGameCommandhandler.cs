@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using GameIt.Application.Exeptions;
 using GameIt.Application.Interfaces.Persistence;
 using MediatR;
 
@@ -19,7 +20,8 @@ namespace GameIt.Application.Features.Game.Commands.UpdateGame
             var existingGame = await _unitOfWork.Games.GetByIdAsync(request.Id);
 
             // Validate if the game exists
-
+            if (existingGame == null)
+                throw new NotFoundException(nameof(Game), request.Id);
 
             // Get the category by name from the repository
             var category = await _unitOfWork.Categories
