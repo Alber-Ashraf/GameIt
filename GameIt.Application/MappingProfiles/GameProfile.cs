@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using GameIt.Application.Features.Game.Commands.CreateGame;
 using GameIt.Application.Features.Game.Queries.GetAllGameDetails;
 using GameIt.Application.Features.Game.Queries.GetAllGameLists;
 using GameIt.Application.Features.Review.Queries;
@@ -20,11 +21,17 @@ namespace GameIt.Application.MappingProfiles
                 .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src =>
                     src.Reviews.Any() ? src.Reviews.Average(r => r.Rating) : (double?)null));
 
+            CreateMap<CreateGameCommand, Game>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CategoryId, opt => opt.Ignore())
+                .ForMember(dest => dest.Category, opt => opt.Ignore());
+
             // Mapping configurations for Review entity to DTOs
             CreateMap<Review, ReviewDto>()
                 .ForMember(dest => dest.UserDisplayName, opt => opt.MapFrom(src => src.User.DisplayName))
                 .ForMember(dest => dest.UserProfilePictureUrl, opt => opt.MapFrom(src => src.User.ProfilePictureUrl));
-
+            
+            // 
         }
     }
 }

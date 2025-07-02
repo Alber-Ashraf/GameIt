@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Game\Commands\" />
     <Folder Include="Features\Review\Commands\" />
   </ItemGroup>
 
