@@ -18,6 +18,9 @@ namespace GameIt.Application.Features.Game.Commands.UpdateGame
             // Get existing game from DB
             var existingGame = await _unitOfWork.Games.GetByIdAsync(request.Id);
 
+            // Validate if the game exists
+
+
             // Get the category by name from the repository
             var category = await _unitOfWork.Categories
                 .GetByNameAsync(request.CategoryName);
@@ -27,7 +30,7 @@ namespace GameIt.Application.Features.Game.Commands.UpdateGame
             existingGame.CategoryId = category.Id;
 
             // Add the game entity to the repository
-            await _unitOfWork.Games.Update(existingGame);
+            await _unitOfWork.Games.UpdateAsync(existingGame);
 
             // Save changes to the database
             await _unitOfWork.SaveChangesAsync();

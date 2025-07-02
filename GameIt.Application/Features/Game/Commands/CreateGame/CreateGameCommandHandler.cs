@@ -27,7 +27,7 @@ namespace GameIt.Application.Features.Game.Commands.CreateGame
             gameToCreate.CategoryId = category.Id;
 
             // Add the game entity to the repository
-            await _unitOfWork.Games.AddAsync(gameToCreate);
+            await _unitOfWork.Games.CreateAsync(gameToCreate);
 
             // Save changes to the database
             await _unitOfWork.SaveChangesAsync();
