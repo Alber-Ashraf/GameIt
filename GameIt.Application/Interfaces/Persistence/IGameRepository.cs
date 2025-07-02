@@ -11,5 +11,9 @@ namespace GameIt.Application.Interfaces.Persistence
     {
         Task<Game> GetByIdWithDetailsAsync(Guid id);
         Task<List<Game>> GetAllWithCategoryAsync();
+        Task<bool> IsGameUniqueForCreate(string name);
+        Task<bool> IsGameNameUniqueForUpdate(Guid id, string name);
+
     }
 }
+    
