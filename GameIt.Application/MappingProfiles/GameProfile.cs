@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using GameIt.Application.Features.Game.Commands.CreateGame;
+using GameIt.Application.Features.Game.Commands.UpdateGame;
 using GameIt.Application.Features.Game.Queries.GetAllGameDetails;
 using GameIt.Application.Features.Game.Queries.GetAllGameLists;
 using GameIt.Application.Features.Review.Queries;
@@ -11,7 +12,7 @@ namespace GameIt.Application.MappingProfiles
     {
         public GameProfile()
         {
-            // Mapping configurations for Game entity to DTOs
+            // Mapping configurations for Game entity to DTOs and commands
             CreateMap<Game, GamesListDto>()
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name));
 
@@ -24,7 +25,20 @@ namespace GameIt.Application.MappingProfiles
             CreateMap<CreateGameCommand, Game>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.CategoryId, opt => opt.Ignore())
-                .ForMember(dest => dest.Category, opt => opt.Ignore());
+                .ForMember(dest => dest.Category, opt => opt.Ignore())
+                .ForMember(dest => dest.Reviews, opt => opt.Ignore())
+                .ForMember(dest => dest.Comments, opt => opt.Ignore())
+                .ForMember(dest => dest.Purchases, opt => opt.Ignore())
+                .ForMember(dest => dest.Wishlists, opt => opt.Ignore());
+            
+            CreateMap<UpdateGameCommand, Game>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CategoryId, opt => opt.Ignore())
+                .ForMember(dest => dest.Category, opt => opt.Ignore())
+                .ForMember(dest => dest.Reviews, opt => opt.Ignore())
+                .ForMember(dest => dest.Comments, opt => opt.Ignore())
+                .ForMember(dest => dest.Purchases, opt => opt.Ignore())
+                .ForMember(dest => dest.Wishlists, opt => opt.Ignore());
 
             // Mapping configurations for Review entity to DTOs
             CreateMap<Review, ReviewDto>()

@@ -2,38 +2,38 @@
 using GameIt.Application.Interfaces.Persistence;
 using MediatR;
 
-namespace GameIt.Application.Features.Game.Commands.CreateGame
+namespace GameIt.Application.Features.Game.Commands.UpdateGame
 {
-    class CreateGameCommandHandler : IRequestHandler<CreateGameCommand, Guid>
+    public class UpdateGameCommandhandler : IRequestHandler<UpdateGameCommand, Unit>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public CreateGameCommandHandler(IMapper mapper, IUnitOfWork unitOfWork)
+        public UpdateGameCommandhandler(IMapper mapper, IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public async Task<Guid> Handle(CreateGameCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpdateGameCommand request, CancellationToken cancellationToken)
         {
-            // Validate the request (you can add validation logic here if needed)
-
+            // Get existing game from DB
+            var existingGame = await _unitOfWork.Games.GetByIdAsync(request.Id);
 
             // Get the category by name from the repository
             var category = await _unitOfWork.Categories
                 .GetByNameAsync(request.CategoryName);
 
             // Map the CreateGameCommand to a Game entity
-            var gameToCreate = _mapper.Map<Domain.Game>(request);
-            gameToCreate.CategoryId = category.Id;
+            _mapper.Map(request, existingGame);
+            existingGame.CategoryId = category.Id;
 
             // Add the game entity to the repository
-            await _unitOfWork.Games.AddAsync(gameToCreate);
+            await _unitOfWork.Games.Update(existingGame);
 
             // Save changes to the database
             await _unitOfWork.SaveChangesAsync();
 
             // Return the ID of the created game
-            return gameToCreate.Id;
+            return Unit.Value;
         }
     }
 }
