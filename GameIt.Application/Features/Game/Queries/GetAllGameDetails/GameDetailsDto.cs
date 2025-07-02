@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GameIt.Application.Features.Review.Queries;
 
-namespace GameIt.Application.Features.Game.Queries
+namespace GameIt.Application.Features.Game.Queries.GetAllGameDetails
 {
     public class GameDetailsDto
     {

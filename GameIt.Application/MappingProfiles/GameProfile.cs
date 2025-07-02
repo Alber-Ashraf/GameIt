@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
-using GameIt.Application.Features.Game.Queries;
+using GameIt.Application.Features.Game.Queries.GetAllGameDetails;
+using GameIt.Application.Features.Game.Queries.GetAllGameLists;
 using GameIt.Application.Features.Review.Queries;
 using GameIt.Domain;
 

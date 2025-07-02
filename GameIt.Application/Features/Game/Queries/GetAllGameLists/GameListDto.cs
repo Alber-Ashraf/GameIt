@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GameIt.Application.Features.Game.Queries
+namespace GameIt.Application.Features.Game.Queries.GetAllGameLists
 {
     public class GameListDto
     {
