@@ -2,5 +2,5 @@
 
 namespace GameIt.Application.Features.Game.Queries.GetAllGameDetails
 {
-    public class GetAllGameDetailsQuery : IRequest<List<GameDetailsDto>> {}
+    public record GetGameDetailsQuery(Guid Id) : IRequest<GameDetailsDto>;
 }

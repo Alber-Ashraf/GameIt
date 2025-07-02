@@ -2,5 +2,5 @@
 
 namespace GameIt.Application.Features.Game.Queries.GetAllGameLists
 {
-    public class GetAllGameListsQuery : IRequest<List<GameListDto>> {}
+    public class GetAllGamesListQuery : IRequest<List<GamesListDto>> {}
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GameIt.Application.Features.Game.Queries.GetAllGameLists
 {
-    public class GameListDto
+    public class GamesListDto
     {
         public Guid Id { get; set; }
         public string Name { get; set; }

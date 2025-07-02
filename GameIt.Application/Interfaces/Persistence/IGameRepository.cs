@@ -9,6 +9,7 @@ namespace GameIt.Application.Interfaces.Persistence
 {
     public interface IGameRepository : IGenericRepository<Game>
     {
-
+        Task<Game> GetByIdWithDetailsAsync(Guid id);
+        Task<List<Game>> GetAllWithCategoryAsync();
     }
 }

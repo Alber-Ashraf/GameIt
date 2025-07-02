@@ -11,7 +11,7 @@ namespace GameIt.Application.MappingProfiles
         public GameProfile()
         {
             // Mapping configurations for Game entity to DTOs
-            CreateMap<Game, GameListDto>()
+            CreateMap<Game, GamesListDto>()
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name));
 
             CreateMap<Game, GameDetailsDto>()

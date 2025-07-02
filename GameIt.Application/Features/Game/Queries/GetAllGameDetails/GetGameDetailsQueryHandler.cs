@@ -4,22 +4,22 @@ using MediatR;
 
 namespace GameIt.Application.Features.Game.Queries.GetAllGameDetails
 {
-    public class GetAllGameDetailsQueryHandler : IRequestHandler<GetAllGameDetailsQuery, List<GameDetailsDto>>
+    public class GetGameDetailsQueryHandler : IRequestHandler<GetGameDetailsQuery, GameDetailsDto>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public GetAllGameDetailsQueryHandler(IMapper mapper, IUnitOfWork unitOfWork)
+        public GetGameDetailsQueryHandler(IMapper mapper, IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public async Task<List<GameDetailsDto>> Handle(GetAllGameDetailsQuery request, CancellationToken cancellationToken)
+        public async Task<GameDetailsDto> Handle(GetGameDetailsQuery request, CancellationToken cancellationToken)
         {
             // Query the database for all games Details
-            var games = await _unitOfWork.Games.GetAllAsync();
+            var game = await _unitOfWork.Games.GetByIdWithDetailsAsync(request.Id);
 
             // Convert the game entities to GameDetailsDto using AutoMapper
-            var data = _mapper.Map<List<GameDetailsDto>>(games);
+            var data = _mapper.Map<GameDetailsDto>(game);
 
             // Return the list of GameDetailsDto
             return data;
