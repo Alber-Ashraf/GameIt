@@ -11,11 +11,9 @@ namespace GameIt.Domain
     public class Wishlist : BaseEntity
     {
         // Relationships
-        [Required]
         public string UserId { get; set; }
         public ApplicationUser User { get; set; }
 
-        [Required]
         public Guid GameId { get; set; }
         public Game Game { get; set; }
     }

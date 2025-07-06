@@ -11,16 +11,13 @@ namespace GameIt.Domain
 {
     public class Purchase : BaseEntity
     {
+        public DateTime PurchaseDate { get; set; } = DateTime.UtcNow;
+
         // Relationships
-        [Required]
         public string UserId { get; set; }
         public ApplicationUser User { get; set; }
 
-        [Required]
         public Guid GameId { get; set; }
         public Game Game { get; set; }
-
-        [Required]
-        public DateTime PurchaseDate { get; set; } = DateTime.UtcNow;
     }
 }

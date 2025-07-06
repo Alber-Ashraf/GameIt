@@ -11,11 +11,7 @@ namespace GameIt.Domain
 {
     public class ApplicationUser : IdentityUser
     {
-        [Required]
-        [MaxLength(100)]
         public string DisplayName { get; set; }
-
-        [MaxLength(200)]
         public string ProfilePictureUrl { get; set; }
 
         // Navigation Properties

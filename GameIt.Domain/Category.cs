@@ -10,8 +10,6 @@ namespace GameIt.Domain
 {
     public class Category : BaseEntity
     {
-        [Required]
-        [MaxLength(100)]
         public string Name { get; set; }
 
         // Navigation
