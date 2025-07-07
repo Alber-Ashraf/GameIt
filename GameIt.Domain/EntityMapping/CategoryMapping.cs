@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace GameIt.Domain.EntityMapping
@@ -13,17 +8,35 @@ namespace GameIt.Domain.EntityMapping
         public void Configure(EntityTypeBuilder<Category> builder)
         {
             builder.ToTable("Categories");
+
+            // Primary Key Configuration
             builder.HasKey(c => c.Id);
 
+            // Properties Configuration
             builder.Property(c => c.Name)
                 .IsRequired()
-                .HasMaxLength(100);
+                .HasMaxLength(100)
+                .HasColumnName("CategoryName");  // Explicit column naming
+
+            // Timestamps
+            builder.Property(p => p.CreatedAt)
+                .IsRequired()
+                .HasDefaultValueSql("GETUTCDATE()")
+                .ValueGeneratedOnAdd();
+
+            builder.Property(p => p.UpdatedAt)
+                .IsRequired(false)
+                .ValueGeneratedOnUpdate();
 
             // Relationships
             builder.HasMany(c => c.Games)
-                .WithOne(c => c.Category)
+                .WithOne(g => g.Category)
                 .HasForeignKey(g => g.CategoryId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict);  // Prevent accidental category deletion
+
+            // Indexs
+            builder.HasIndex(c => c.Name)
+                .HasDatabaseName("IX_Categories_Name");
         }
     }
 }

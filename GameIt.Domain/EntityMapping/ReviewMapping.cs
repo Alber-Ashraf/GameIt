@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace GameIt.Domain.EntityMapping
@@ -13,32 +7,54 @@ namespace GameIt.Domain.EntityMapping
     {
         public void Configure(EntityTypeBuilder<Review> builder)
         {
-            builder.ToTable("Reviews");
-            builder.HasKey(x => x.Id);
+            builder.ToTable("Reviews", schema: "GameIt");  // Explicit schema
 
+            // Primary Key
+            builder.HasKey(r => r.Id);
+            builder.Property(r => r.Id)
+                .HasDefaultValueSql("NEWID()")
+                .ValueGeneratedOnAdd();
+
+            // Properties
             builder.Property(r => r.Rating)
-                .IsRequired();
+                .IsRequired()
+                .HasComment("Rating value (1-5 stars)");
 
             builder.HasCheckConstraint("CK_Reviews_Rating", "[Rating] BETWEEN 1 AND 5");
 
             builder.Property(r => r.Comment)
-                .HasMaxLength(1000);
+                .HasMaxLength(1000)
+                .IsRequired(false)
+                .HasComment("Optional review text content");
+
+            // Timestamps
+            builder.Property(p => p.CreatedAt)
+                .IsRequired()
+                .HasDefaultValueSql("GETUTCDATE()")
+                .ValueGeneratedOnAdd();
+
+            builder.Property(p => p.UpdatedAt)
+                .IsRequired(false)
+                .ValueGeneratedOnUpdate();
 
             // Relationships
             builder.HasOne(r => r.User)
                 .WithMany(u => u.Reviews)
                 .HasForeignKey(r => r.UserId)
-                .OnDelete(DeleteBehavior.ClientCascade);
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_Reviews_Users");
 
             builder.HasOne(r => r.Game)
                 .WithMany(g => g.Reviews)
                 .HasForeignKey(r => r.GameId)
-                .OnDelete(DeleteBehavior.ClientCascade);
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_Reviews_Games");
 
-            // Composite Index
+            // Unique Index on UserId and GameId
+
             builder.HasIndex(r => new { r.UserId, r.GameId })
                 .IsUnique()
-                .HasDatabaseName("IX_Reviews_UserGame");
+                .HasDatabaseName("IX_Reviews_User_Game");
         }
     }
 }

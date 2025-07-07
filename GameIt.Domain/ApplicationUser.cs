@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 
 namespace GameIt.Domain
 {
@@ -13,9 +6,14 @@ namespace GameIt.Domain
     {
         public string DisplayName { get; set; }
         public string ProfilePictureUrl { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? LastLoginDate { get; set; }
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedAt { get; set; }
 
         // Navigation Properties
         public ICollection<Purchase> Purchases { get; set; } = new List<Purchase>();
+        public ICollection<Game> OwnedGames => Purchases.Select(p => p.Game).ToList();
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
         public ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();

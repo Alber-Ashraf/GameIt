@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GameIt.Domain.Common;
+﻿using GameIt.Domain.Common;
 
 namespace GameIt.Domain
 {
     public class Purchase : BaseEntity
     {
         public DateTime PurchaseDate { get; set; } = DateTime.UtcNow;
+        public decimal AmountPaid { get; set; }
+        public decimal? OriginalPrice { get; set; }
+        public string Currency { get; set; }
+        public string TransactionId { get; set; }
+        public PaymentMethod PaymentMethod { get; set; }
+        public PaymentStatus PaymentStatus { get; set; }
+        public bool IsRefunded { get; set; }
 
         // Relationships
         public string UserId { get; set; }
@@ -19,5 +19,19 @@ namespace GameIt.Domain
 
         public Guid GameId { get; set; }
         public Game Game { get; set; }
+    }
+    public enum PaymentMethod
+    {
+        CreditCard,
+        PayPal,
+        Crypto,
+        GiftCard
+    }
+    public enum PaymentStatus
+    {
+        Pending,
+        Completed,
+        Failed,
+        Refunded
     }
 }

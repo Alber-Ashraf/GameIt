@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace GameIt.Domain.EntityMapping
@@ -12,22 +7,42 @@ namespace GameIt.Domain.EntityMapping
     {
         public void Configure(EntityTypeBuilder<Comment> builder)
         {
-            builder.ToTable("Comments");
-            builder.HasKey(c => c.Id);
+            builder.ToTable("Comments", schema: "GameIt");  // Explicit schema
 
+            // Primary Key
+            builder.HasKey(c => c.Id);
+            builder.Property(c => c.Id)
+                .HasDefaultValueSql("NEWID()")
+                .ValueGeneratedOnAdd();
+
+            // Properties
             builder.Property(c => c.Content)
                 .IsRequired()
-                .HasMaxLength(500);
+                .HasMaxLength(500)
+                .HasColumnName("CommentText");  // Explicit column name
 
+            // Timestamps
+            builder.Property(p => p.CreatedAt)
+                .IsRequired()
+                .HasDefaultValueSql("GETUTCDATE()")
+                .ValueGeneratedOnAdd();
+
+            builder.Property(p => p.UpdatedAt)
+                .IsRequired(false)
+                .ValueGeneratedOnUpdate();
+
+            // Relationships
             builder.HasOne(c => c.User)
                 .WithMany(u => u.Comments)
                 .HasForeignKey(c => c.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.ClientCascade)
+                .HasConstraintName("Comments_Users");
 
             builder.HasOne(c => c.Game)
                 .WithMany(g => g.Comments)
                 .HasForeignKey(c => c.GameId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.ClientCascade)
+                .HasConstraintName("Comments_Games");
         }
     }
 }

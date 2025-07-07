@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GameIt.Domain.Common;
+﻿using GameIt.Domain.Common;
 
 namespace GameIt.Domain
 {
@@ -19,12 +12,16 @@ namespace GameIt.Domain
         public bool IsFeatured { get; set; } = false;
         public string Size { get; set; }
         public string DownloadLink { get; set; }
+        public string SystemRequirements { get; set; }
 
         public DateTime ReleaseDate { get; set; } = DateTime.UtcNow;
 
         // Relationships
         public Guid CategoryId { get; set; }
         public Category Category { get; set; }
+
+        public Guid? PublisherId { get; set; }
+        public Publisher Publisher { get; set; }
 
         public Discount Discount { get; set; }
 
