@@ -25,13 +25,15 @@ namespace GameIt.Domain.EntityMapping
             // Date Configuration
             builder.Property(d => d.StartDate)
                 .IsRequired()
-                .HasColumnType("datetime2");
+                .HasColumnType("datetime2")
+                .HasComment("Start date of the discount period");
 
             builder.Property(d => d.EndDate)
                 .IsRequired()
-                .HasColumnType("datetime2");
+                .HasColumnType("datetime2")
+                .HasComment("End date of the discount period");
 
-            builder.HasCheckConstraint("CK_Discounts_DateRange", "[StartDate] < [EndDate]");
+            builder.HasCheckConstraint("CK_Discounts_DateRange", "[StartDate] < [EndDate] AND [EndDate] > GETDATE()");
 
             // Status Flags
             builder.Property(d => d.IsActive)
@@ -42,17 +44,20 @@ namespace GameIt.Domain.EntityMapping
             // Metadata
             builder.Property(d => d.Description)
                 .HasMaxLength(500)
-                .IsRequired(false);
+                .IsRequired(false)
+                .HasComment("Optional description of the discount");
 
             // Timestamps
-            builder.Property(p => p.CreatedAt)
+            builder.Property(w => w.CreatedAt)
                 .IsRequired()
-                .HasDefaultValueSql("GETUTCDATE()")
-                .ValueGeneratedOnAdd();
+                .HasDefaultValueSql("GETDATE()")
+                .ValueGeneratedOnAdd()
+                .HasComment("When the item was added to wishlist");
 
-            builder.Property(p => p.UpdatedAt)
+            builder.Property(w => w.UpdatedAt)
                 .IsRequired(false)
-                .ValueGeneratedOnUpdate();
+                .ValueGeneratedOnUpdate()
+                .HasComment("Last modification timestamp");
 
             // Relationships
             builder.HasOne(d => d.Game)

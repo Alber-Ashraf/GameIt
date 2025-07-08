@@ -16,48 +16,64 @@ namespace GameIt.Domain.EntityMapping
             builder.Property(g => g.Name)
                 .IsRequired()
                 .HasMaxLength(100)
-                .HasColumnName("GameName");
+                .HasColumnName("GameName")
+                .HasComment("Official game title");
 
             builder.Property(g => g.Description)
                 .IsRequired()
-                .HasMaxLength(1000);
+                .HasMaxLength(1000)
+                .HasComment("Detailed game description");
 
             builder.Property(g => g.ImageUrl)
                 .IsRequired()
-                .HasMaxLength(300);
+                .HasMaxLength(300)
+                .HasComment("URL to game cover image");
 
             builder.Property(g => g.Price)
                 .IsRequired()
-                .HasColumnType("decimal(18,2)")
-                .HasDefaultValue(0);
+                .HasColumnType("decimal(10,2)")
+                .HasDefaultValue(0)
+                .HasComment("Base price of the game");
 
             builder.Property(g => g.IsFree)
-                .HasDefaultValue(false);
+                .HasDefaultValue(false)
+                .HasComment("Indicates if the game is free to play");
 
             builder.Property(g => g.IsFeatured)
-                .HasDefaultValue(false);
+                .HasDefaultValue(false)
+                .HasComment("Indicates if the game is featured on the platform");
 
             builder.Property(g => g.Size)
                 .IsRequired()
-                .HasMaxLength(50);
+                .HasMaxLength(50)
+                .HasComment("Game file size (e.g., '15GB')");
+
+            builder.Property(g => g.SystemRequirements)
+                .IsRequired()
+                .HasColumnType("nvarchar(max)")
+                .HasComment("JSON formatted system requirements for the game");
 
             builder.Property(g => g.DownloadLink)
                 .IsRequired()
-                .HasMaxLength(500);
+                .HasMaxLength(500)
+                .HasComment("Direct download link for the game");
 
             builder.Property(g => g.ReleaseDate)
                 .IsRequired()
-                .HasDefaultValueSql("GETUTCDATE()");
+                .HasDefaultValueSql("GETDATE()")
+                .HasComment("Release date of the game");
 
             // Timestamps
-            builder.Property(p => p.CreatedAt)
+            builder.Property(w => w.CreatedAt)
                 .IsRequired()
-                .HasDefaultValueSql("GETUTCDATE()")
-                .ValueGeneratedOnAdd();
+                .HasDefaultValueSql("GETDATE()")
+                .ValueGeneratedOnAdd()
+                .HasComment("When the item was added to wishlist");
 
-            builder.Property(p => p.UpdatedAt)
+            builder.Property(w => w.UpdatedAt)
                 .IsRequired(false)
-                .ValueGeneratedOnUpdate();
+                .ValueGeneratedOnUpdate()
+                .HasComment("Last modification timestamp");
 
             // Relationships
             builder.HasOne(g => g.Category)
@@ -75,7 +91,7 @@ namespace GameIt.Domain.EntityMapping
                 .WithMany(p => p.Games)
                 .HasForeignKey(g => g.PublisherId)
                 .IsRequired(false)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

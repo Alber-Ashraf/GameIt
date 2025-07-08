@@ -7,7 +7,7 @@ namespace GameIt.Domain.EntityMapping
     {
         public void Configure(EntityTypeBuilder<Comment> builder)
         {
-            builder.ToTable("Comments", schema: "GameIt");  // Explicit schema
+            builder.ToTable("Comments");
 
             // Primary Key
             builder.HasKey(c => c.Id);
@@ -19,17 +19,21 @@ namespace GameIt.Domain.EntityMapping
             builder.Property(c => c.Content)
                 .IsRequired()
                 .HasMaxLength(500)
-                .HasColumnName("CommentText");  // Explicit column name
+                .HasDefaultValue("")
+                .HasColumnName("CommentText")
+                .HasComment("Text content of the comment");
 
             // Timestamps
-            builder.Property(p => p.CreatedAt)
+            builder.Property(w => w.CreatedAt)
                 .IsRequired()
-                .HasDefaultValueSql("GETUTCDATE()")
-                .ValueGeneratedOnAdd();
+                .HasDefaultValueSql("GETDATE()")
+                .ValueGeneratedOnAdd()
+                .HasComment("When the item was added to wishlist");
 
-            builder.Property(p => p.UpdatedAt)
+            builder.Property(w => w.UpdatedAt)
                 .IsRequired(false)
-                .ValueGeneratedOnUpdate();
+                .ValueGeneratedOnUpdate()
+                .HasComment("Last modification timestamp");
 
             // Relationships
             builder.HasOne(c => c.User)

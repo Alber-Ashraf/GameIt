@@ -7,7 +7,7 @@ namespace GameIt.Domain.EntityMapping
     {
         public void Configure(EntityTypeBuilder<Purchase> builder)
         {
-            builder.ToTable("Purchases", schema: "GameIt");
+            builder.ToTable("Purchases");
 
             // Primary Key Configuration
             builder.HasKey(p => p.Id);
@@ -19,7 +19,7 @@ namespace GameIt.Domain.EntityMapping
             builder.Property(p => p.PurchaseDate)
                 .IsRequired()
                 .HasColumnType("datetime2")
-                .HasDefaultValueSql("GETUTCDATE()")
+                .HasDefaultValueSql("GETDATE()")
                 .HasComment("UTC timestamp of purchase");
 
             builder.Property(p => p.AmountPaid)
@@ -32,27 +32,42 @@ namespace GameIt.Domain.EntityMapping
                 .HasComment("List price at time of purchase");
 
             builder.Property(p => p.Currency)
-                .IsRequired()
                 .HasMaxLength(3)
+                .HasColumnType("char")
                 .HasDefaultValue("USD")
                 .IsFixedLength()
                 .HasComment("ISO 4217 currency code");
-
-            builder.Property(p => p.PaymentMethod)
-                .IsRequired()
-                .HasMaxLength(20)
-                .HasConversion<string>();
 
             builder.Property(p => p.TransactionId)
                 .IsRequired()
                 .HasMaxLength(100)
                 .HasComment("Payment gateway reference");
 
+            builder.Property(p => p.PaymentMethod)
+                .IsRequired()
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasConversion<string>()
+                .HasComment("Payment method used (CreditCard, PayPal, Crypto, GiftCard)");
+
             builder.Property(p => p.PaymentStatus)
                 .IsRequired()
                 .HasMaxLength(20)
-                .HasDefaultValue("Completed")
-                .HasConversion<string>();
+                .IsUnicode(false)
+                .HasConversion<string>()
+                .HasComment("Status of the payment (Completed, Pending, Failed, Refunded)");
+
+            // Timestamps
+            builder.Property(w => w.CreatedAt)
+                .IsRequired()
+                .HasDefaultValueSql("GETDATE()")
+                .ValueGeneratedOnAdd()
+                .HasComment("When the item was added to wishlist");
+
+            builder.Property(w => w.UpdatedAt)
+                .IsRequired(false)
+                .ValueGeneratedOnUpdate()
+                .HasComment("Last modification timestamp");
 
             // Relationships
             builder.HasOne(p => p.User)
@@ -69,6 +84,8 @@ namespace GameIt.Domain.EntityMapping
 
             // Query Filter
             builder.HasQueryFilter(p => !p.IsRefunded);
+
+            builder.HasIndex(p => p.TransactionId).IsUnique();
         }
     }
 }

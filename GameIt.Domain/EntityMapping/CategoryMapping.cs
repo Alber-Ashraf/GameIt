@@ -16,17 +16,20 @@ namespace GameIt.Domain.EntityMapping
             builder.Property(c => c.Name)
                 .IsRequired()
                 .HasMaxLength(100)
-                .HasColumnName("CategoryName");  // Explicit column naming
+                .HasColumnName("CategoryName")
+                .HasComment("Official category name for grouping games");
 
             // Timestamps
-            builder.Property(p => p.CreatedAt)
+            builder.Property(w => w.CreatedAt)
                 .IsRequired()
-                .HasDefaultValueSql("GETUTCDATE()")
-                .ValueGeneratedOnAdd();
+                .HasDefaultValueSql("GETDATE()")
+                .ValueGeneratedOnAdd()
+                .HasComment("When the item was added to wishlist");
 
-            builder.Property(p => p.UpdatedAt)
+            builder.Property(w => w.UpdatedAt)
                 .IsRequired(false)
-                .ValueGeneratedOnUpdate();
+                .ValueGeneratedOnUpdate()
+                .HasComment("Last modification timestamp");
 
             // Relationships
             builder.HasMany(c => c.Games)

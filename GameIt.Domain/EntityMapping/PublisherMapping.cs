@@ -7,7 +7,7 @@ namespace GameIt.Domain.EntityMapping
     {
         public void Configure(EntityTypeBuilder<Publisher> builder)
         {
-            builder.ToTable("Publishers", schema: "GameIt");
+            builder.ToTable("Publishers");
 
             // Primary Key
             builder.HasKey(p => p.Id);
@@ -29,14 +29,16 @@ namespace GameIt.Domain.EntityMapping
                 .HasComment("URL to publisher's logo image");
 
             // Timestamps
-            builder.Property(p => p.CreatedAt)
+            builder.Property(w => w.CreatedAt)
                 .IsRequired()
-                .HasDefaultValueSql("GETUTCDATE()")
-                .ValueGeneratedOnAdd();
+                .HasDefaultValueSql("GETDATE()")
+                .ValueGeneratedOnAdd()
+                .HasComment("When the item was added to wishlist");
 
-            builder.Property(p => p.UpdatedAt)
+            builder.Property(w => w.UpdatedAt)
                 .IsRequired(false)
-                .ValueGeneratedOnUpdate();
+                .ValueGeneratedOnUpdate()
+                .HasComment("Last modification timestamp");
 
             // Relationships
             builder.HasMany(p => p.Games)

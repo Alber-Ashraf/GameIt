@@ -7,7 +7,7 @@ namespace GameIt.Domain
         public DateTime PurchaseDate { get; set; } = DateTime.UtcNow;
         public decimal AmountPaid { get; set; }
         public decimal? OriginalPrice { get; set; }
-        public string Currency { get; set; }
+        public string? Currency { get; set; }
         public string TransactionId { get; set; }
         public PaymentMethod PaymentMethod { get; set; }
         public PaymentStatus PaymentStatus { get; set; }

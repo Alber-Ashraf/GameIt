@@ -12,18 +12,15 @@ namespace GameIt.Domain.EntityMapping
     {
         public void Configure(EntityTypeBuilder<Wishlist> builder)
         {
-            builder.ToTable("Wishlists", schema: "GameIt");  // Explicit schema
+            builder.ToTable("Wishlists");
 
             // Primary Key
-            builder.HasKey(w => w.Id);
-            builder.Property(w => w.Id)
-                .HasDefaultValueSql("NEWID()")
-                .ValueGeneratedOnAdd();
+            builder.HasKey(w => new { w.UserId, w.GameId });
 
             // Timestamps
             builder.Property(w => w.CreatedAt)
                 .IsRequired()
-                .HasDefaultValueSql("GETUTCDATE()")
+                .HasDefaultValueSql("GETDATE()")
                 .ValueGeneratedOnAdd()
                 .HasComment("When the item was added to wishlist");
 
@@ -51,6 +48,8 @@ namespace GameIt.Domain.EntityMapping
             builder.HasIndex(w => new { w.UserId, w.GameId })
                 .IsUnique()
                 .HasDatabaseName("IX_Wishlists_User_Game");
+
+            builder.HasIndex(w => w.GameId);
         }
     }
 }

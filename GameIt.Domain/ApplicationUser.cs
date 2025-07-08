@@ -8,8 +8,6 @@ namespace GameIt.Domain
         public string ProfilePictureUrl { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? LastLoginDate { get; set; }
-        public bool IsDeleted { get; set; } = false;
-        public DateTime? DeletedAt { get; set; }
 
         // Navigation Properties
         public ICollection<Purchase> Purchases { get; set; } = new List<Purchase>();

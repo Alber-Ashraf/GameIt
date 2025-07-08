@@ -7,7 +7,7 @@ namespace GameIt.Domain.EntityMapping
     {
         public void Configure(EntityTypeBuilder<Review> builder)
         {
-            builder.ToTable("Reviews", schema: "GameIt");  // Explicit schema
+            builder.ToTable("Reviews");
 
             // Primary Key
             builder.HasKey(r => r.Id);
@@ -26,16 +26,17 @@ namespace GameIt.Domain.EntityMapping
                 .HasMaxLength(1000)
                 .IsRequired(false)
                 .HasComment("Optional review text content");
-
             // Timestamps
-            builder.Property(p => p.CreatedAt)
+            builder.Property(w => w.CreatedAt)
                 .IsRequired()
-                .HasDefaultValueSql("GETUTCDATE()")
-                .ValueGeneratedOnAdd();
+                .HasDefaultValueSql("GETDATE()")
+                .ValueGeneratedOnAdd()
+                .HasComment("When the item was added to wishlist");
 
-            builder.Property(p => p.UpdatedAt)
+            builder.Property(w => w.UpdatedAt)
                 .IsRequired(false)
-                .ValueGeneratedOnUpdate();
+                .ValueGeneratedOnUpdate()
+                .HasComment("Last modification timestamp");
 
             // Relationships
             builder.HasOne(r => r.User)
