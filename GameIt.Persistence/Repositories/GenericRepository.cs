@@ -1,10 +1,11 @@
 ﻿using GameIt.Application.Interfaces.Persistence;
+using GameIt.Domain.Common;
 using GameIt.Persistence.DatabaseContext;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameIt.Persistence.Repositories;
 
-public class GenericRepository<T> : IGenericRepository<T> where T : class
+public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
 {
     protected readonly GameItDbContext _context;
     protected readonly DbSet<T> _dbSet;
@@ -17,11 +18,13 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
     public async Task<T?> GetByIdAsync(Guid id)
     {
-        return await _dbSet.FindAsync(id);
+        // Use AsNoTracking for better performance when not tracking changes
+        return await _dbSet.AsNoTracking().FirstOrDefaultAsync(g => g.Id == id);
     }
 
     public async Task<IEnumerable<T>> GetAllAsync()
     {
+        // Use AsNoTracking for better performance when not tracking changes
         return await _dbSet.AsNoTracking().ToListAsync();
     }
 
