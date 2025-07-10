@@ -17,6 +17,6 @@ namespace GameIt.Application.Interfaces.Persistence
         ICategoryRepository Categories { get; }
         IPurchaseRepository Purchases { get; }
 
-        Task<int> SaveChangesAsync();
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

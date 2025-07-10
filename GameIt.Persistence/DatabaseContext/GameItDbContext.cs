@@ -14,8 +14,8 @@ public class GameItDbContext : DbContext
 
     public DbSet<Game> Games { get; set; }
     public DbSet<Category> Categories { get; set; }
-    public DbSet<Comment> comments { get; set; }
-    public DbSet<Discount> discounts { get; set; }
+    public DbSet<Comment> Comments { get; set; }
+    public DbSet<Discount> Discounts { get; set; }
     public DbSet<Publisher> Publishers { get; set; }
     public DbSet<Review> Reviews { get; set; }
     public DbSet<Purchase> Purchases { get; set; }
@@ -24,8 +24,6 @@ public class GameItDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-
-
         // Apply configurations for each entity
         modelBuilder.ApplyConfiguration(new GameConfiguration());
         modelBuilder.ApplyConfiguration(new CategoryConfiguration());
