@@ -24,15 +24,18 @@ public class GameItDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfiguration(new GameMapping());
-        modelBuilder.ApplyConfiguration(new CategoryMapping());
-        modelBuilder.ApplyConfiguration(new CommentMapping());
-        modelBuilder.ApplyConfiguration(new DiscountMapping());
-        modelBuilder.ApplyConfiguration(new PublisherMapping());
-        modelBuilder.ApplyConfiguration(new PurchaseMapping());
-        modelBuilder.ApplyConfiguration(new ReviewMapping());
-        modelBuilder.ApplyConfiguration(new WishlistMapping());
-        modelBuilder.ApplyConfiguration(new ApplicationUserMapping());
+
+
+        // Apply configurations for each entity
+        modelBuilder.ApplyConfiguration(new GameConfiguration());
+        modelBuilder.ApplyConfiguration(new CategoryConfiguration());
+        modelBuilder.ApplyConfiguration(new CommentConfiguration());
+        modelBuilder.ApplyConfiguration(new DiscountConfiguration());
+        modelBuilder.ApplyConfiguration(new PublisherConfiguration());
+        modelBuilder.ApplyConfiguration(new PurchaseConfiguration());
+        modelBuilder.ApplyConfiguration(new ReviewConfiguration());
+        modelBuilder.ApplyConfiguration(new WishlistConfiguration());
+        modelBuilder.ApplyConfiguration(new ApplicationUserConfiguration());
 
         base.OnModelCreating(modelBuilder);
     }

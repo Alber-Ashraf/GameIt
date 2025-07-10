@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace GameIt.Domain.EntityMapping
 {
-    public class PurchaseMapping : IEntityTypeConfiguration<Purchase>
+    public class PurchaseConfiguration : IEntityTypeConfiguration<Purchase>
     {
         public void Configure(EntityTypeBuilder<Purchase> builder)
         {

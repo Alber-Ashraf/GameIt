@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace GameIt.Domain.EntityMapping
 {
-    public class WishlistMapping : IEntityTypeConfiguration<Wishlist>
+    public class WishlistConfiguration : IEntityTypeConfiguration<Wishlist>
     {
         public void Configure(EntityTypeBuilder<Wishlist> builder)
         {
