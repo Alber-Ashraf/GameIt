@@ -6,46 +6,55 @@ using GameIt.Application.Features.Game.Queries.GetAllGameLists;
 using GameIt.Application.Features.Review.Queries;
 using GameIt.Domain;
 
-namespace GameIt.Application.MappingProfiles
+namespace GameIt.Application.MappingProfiles;
+
+public class GameProfile : Profile
 {
-    public class GameProfile : Profile
+    public GameProfile()
     {
-        public GameProfile()
-        {
-            // Mapping configurations for Game entity to DTOs and commands
-            CreateMap<Game, GamesListDto>()
-                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name));
+        // Mapping configurations for Game entity to DTOs and commands
+        // GamesListDto Mapping
+        CreateMap<Game, GamesListDto>()
+            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
+            .ForMember(dest => dest.IsOnSale, opt => opt.MapFrom(src => src.Discount != null))
+            .ForMember(dest => dest.Discount, opt => opt.MapFrom(src => src.Discount != null ? (int?)src.Discount.Percentage : null))
+            .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src =>
+                src.Reviews.Any() ? src.Reviews.Average(r => r.Rating) : (double?)null));
 
-            CreateMap<Game, GameDetailsDto>()
-                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
-                .ForMember(dest => dest.TotalReviews, opt => opt.MapFrom(src => src.Reviews.Count))
-                .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src =>
-                    src.Reviews.Any() ? src.Reviews.Average(r => r.Rating) : (double?)null));
+        // GameDetailsDto Mapping
+        CreateMap<Game, GameDetailsDto>()
+            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
+            .ForMember(dest => dest.PublisherName, opt => opt.MapFrom(src => src.Publisher != null ? src.Publisher.Name : string.Empty))
+            .ForMember(dest => dest.DiscountPercentage, opt => opt.MapFrom(src => src.Discount != null ? (decimal?)src.Discount.Percentage : null))
+            .ForMember(dest => dest.TotalReviews, opt => opt.MapFrom(src => src.Reviews.Count))
+            .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src =>
+                src.Reviews.Any() ? src.Reviews.Average(r => r.Rating) : (double?)null))
+            .ForMember(dest => dest.Reviews, opt => opt.MapFrom(src =>
+                src.Reviews.Select(r => new ReviewDto
+                {
+                    Id = r.Id,
+                    Rating = r.Rating,
+                    Comment = r.Comment,
+                    UserDisplayName = r.User.DisplayName
+                }).ToList()));
 
-            CreateMap<CreateGameCommand, Game>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.CategoryId, opt => opt.Ignore())
-                .ForMember(dest => dest.Category, opt => opt.Ignore())
-                .ForMember(dest => dest.Reviews, opt => opt.Ignore())
-                .ForMember(dest => dest.Comments, opt => opt.Ignore())
-                .ForMember(dest => dest.Purchases, opt => opt.Ignore())
-                .ForMember(dest => dest.Wishlists, opt => opt.Ignore());
-            
-            CreateMap<UpdateGameCommand, Game>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.CategoryId, opt => opt.Ignore())
-                .ForMember(dest => dest.Category, opt => opt.Ignore())
-                .ForMember(dest => dest.Reviews, opt => opt.Ignore())
-                .ForMember(dest => dest.Comments, opt => opt.Ignore())
-                .ForMember(dest => dest.Purchases, opt => opt.Ignore())
-                .ForMember(dest => dest.Wishlists, opt => opt.Ignore());
-
-            // Mapping configurations for Review entity to DTOs
-            CreateMap<Review, ReviewDto>()
-                .ForMember(dest => dest.UserDisplayName, opt => opt.MapFrom(src => src.User.DisplayName))
-                .ForMember(dest => dest.UserProfilePictureUrl, opt => opt.MapFrom(src => src.User.ProfilePictureUrl));
-            
-            // 
-        }
+        // Commands Mapping
+        CreateMap<CreateGameCommand, Game>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.CategoryId, opt => opt.Ignore())
+            .ForMember(dest => dest.Category, opt => opt.Ignore())
+            .ForMember(dest => dest.Reviews, opt => opt.Ignore())
+            .ForMember(dest => dest.Comments, opt => opt.Ignore())
+            .ForMember(dest => dest.Purchases, opt => opt.Ignore())
+            .ForMember(dest => dest.Wishlists, opt => opt.Ignore());
+        
+        CreateMap<UpdateGameCommand, Game>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.CategoryId, opt => opt.Ignore())
+            .ForMember(dest => dest.Category, opt => opt.Ignore())
+            .ForMember(dest => dest.Reviews, opt => opt.Ignore())
+            .ForMember(dest => dest.Comments, opt => opt.Ignore())
+            .ForMember(dest => dest.Purchases, opt => opt.Ignore())
+            .ForMember(dest => dest.Wishlists, opt => opt.Ignore());            
     }
 }

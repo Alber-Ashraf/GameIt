@@ -1,31 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GameIt.Application.Features.Review.Queries;
+﻿using GameIt.Application.Features.Review.Queries;
 
-namespace GameIt.Application.Features.Game.Queries.GetAllGameDetails
+namespace GameIt.Application.Features.Game.Queries.GetAllGameDetails;
+
+public class GameDetailsDto
 {
-    public class GameDetailsDto
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string ImageUrl { get; set; }
-        public decimal Price { get; set; }
-        public bool IsFree { get; set; }
-        public bool IsFeatured { get; set; }
-        public string Size { get; set; }
-        public string DownloadLink { get; set; }
-        public DateTime ReleaseDate { get; set; }
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public string ImageUrl { get; set; } = string.Empty;
+    public decimal Price { get; set; }
+    public bool IsFree { get; set; }
+    public string Size { get; set; } = "0 MB";
+    public string DownloadLink { get; set; } = string.Empty;
+    public string SystemRequirements { get; set; } = string.Empty;
+    public DateTime ReleaseDate { get; set; }
 
-        public Guid CategoryId { get; set; }
-        public string CategoryName { get; set; }
+    // Category details
+    public string CategoryName { get; set; } = string.Empty;
 
-        public double? AverageRating { get; set; }
+    // Publisher details
+    public string PublisherName { get; set; } = string.Empty;
 
-        public int TotalReviews { get; set; }
-        public List<ReviewDto> Reviews { get; set; }
-    }
+    // Discount details
+    public decimal? DiscountPercentage { get; set; }
+
+    // Reviews
+    public double? AverageRating { get; set; }
+    public int TotalReviews { get; set; }
+    public List<ReviewDto> Reviews { get; set; } = new();
 }
