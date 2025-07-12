@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GameIt.Domain;
+﻿using GameIt.Domain;
 
-namespace GameIt.Application.Interfaces.Persistence
+namespace GameIt.Application.Interfaces.Persistence;
+
+public interface ICategoryRepository : IGenericRepository<Category>
 {
-    public interface ICategoryRepository : IGenericRepository<Category>
-    {
-        Task<Category?> GetByNameAsync(string name);
-    }
+    Task<Category?> GetByNameAsync(string name);
 }

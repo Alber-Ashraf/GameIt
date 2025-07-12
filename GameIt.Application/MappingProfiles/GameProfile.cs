@@ -1,11 +1,9 @@
 ﻿using AutoMapper;
-using GameIt.Application.Exeptions;
 using GameIt.Application.Features.Game.Commands.CreateGame;
 using GameIt.Application.Features.Game.Commands.UpdateGame;
 using GameIt.Application.Features.Game.Queries.GetAllGameDetails;
 using GameIt.Application.Features.Game.Queries.GetAllGameLists;
 using GameIt.Application.Features.Review.Queries;
-using GameIt.Application.Interfaces.Persistence;
 using GameIt.Domain;
 
 namespace GameIt.Application.MappingProfiles;

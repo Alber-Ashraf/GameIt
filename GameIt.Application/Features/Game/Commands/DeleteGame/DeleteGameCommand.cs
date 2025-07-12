@@ -1,9 +1,8 @@
 ﻿using MediatR;
 
-namespace GameIt.Application.Features.Game.Commands.DeleteGame
+namespace GameIt.Application.Features.Game.Commands.DeleteGame;
+
+public class DeleteGameCommand : IRequest<Unit>
 {
-    public class DeleteGameCommand : IRequest<Unit>
-    {
-        public Guid Id { get; set; }
-    }
+    public Guid Id { get; set; }
 }

@@ -1,21 +1,20 @@
 ﻿using MediatR;
 
-namespace GameIt.Application.Features.Game.Commands.UpdateGame
+namespace GameIt.Application.Features.Game.Commands.UpdateGame;
+
+public class UpdateGameCommand : IRequest<Unit>
 {
-    public class UpdateGameCommand : IRequest<Unit>
-    {
-        public Guid Id { get; set; }
-        public string? Name { get; set; }
-        public string? Description { get; set; }
-        public string? ImageUrl { get; set; }
-        public decimal? Price { get; set; }
-        public bool? IsFree { get; set; } = false;
-        public bool? IsFeatured { get; set; } = false;
-        public string? Size { get; set; }
-        public string? DownloadLink { get; set; }
-        public string? CategoryName { get; set; }
-        public string? SystemRequirements { get; set; }
-        public DateTime? ReleaseDate { get; set; }
-        public Guid? PublisherId { get; set; }
-    }
+    public Guid Id { get; set; }
+    public string? Name { get; set; }
+    public string? Description { get; set; }
+    public string? ImageUrl { get; set; }
+    public decimal? Price { get; set; }
+    public bool? IsFree { get; set; } = false;
+    public bool? IsFeatured { get; set; } = false;
+    public string? Size { get; set; }
+    public string? DownloadLink { get; set; }
+    public string? CategoryName { get; set; }
+    public string? SystemRequirements { get; set; }
+    public DateTime? ReleaseDate { get; set; }
+    public Guid? PublisherId { get; set; }
 }

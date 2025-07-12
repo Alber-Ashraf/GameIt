@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using GameIt.Application.Interfaces.Persistence;
+﻿using GameIt.Application.Interfaces.Persistence;
 using GameIt.Domain;
 using GameIt.Persistence.DatabaseContext;
 using Microsoft.EntityFrameworkCore;

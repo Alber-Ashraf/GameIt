@@ -1,17 +1,16 @@
 ﻿using GameIt.Domain.Common;
 
-namespace GameIt.Domain
+namespace GameIt.Domain;
+
+public class Review : BaseEntity
 {
-    public class Review : BaseEntity
-    {
-        public int Rating { get; set; }
-        public string Comment { get; set; }
+    public int Rating { get; set; }
+    public string Comment { get; set; }
 
-        // Relationships
-        public string UserId { get; set; }
-        public ApplicationUser User { get; set; }
+    // Relationships
+    public string UserId { get; set; }
+    public ApplicationUser User { get; set; }
 
-        public Guid GameId { get; set; }
-        public Game Game { get; set; }
-    }
+    public Guid GameId { get; set; }
+    public Game Game { get; set; }
 }
