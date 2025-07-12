@@ -31,4 +31,20 @@ public class GameController : ControllerBase
 
         return result;
     }
+
+    // Get: api/game/{id}
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetGameById(Guid id)
+    {
+        var query = new GetGameDetailsQuery(id);
+        var result = await _mediator.Send(query);
+
+        // If the game is not found, return a 404 Not Found response
+        if (result == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(result);
+    }
 }
