@@ -2,7 +2,7 @@
 using GameIt.Application.Features.Game.Commands.CreateGame;
 using GameIt.Application.Features.Game.Commands.DeleteGame;
 using GameIt.Application.Features.Game.Commands.UpdateGame;
-using GameIt.Application.Features.Game.Queries.GetAllGameDetails;
+using GameIt.Application.Features.Game.Queries.GetGameDetails;
 using GameIt.Application.Features.Game.Queries.GetAllGameLists;
 using GameIt.Application.Features.Game.Queries.GetFeaturedGames;
 using GameIt.Application.Features.Game.Queries.GetGamesByCategory;

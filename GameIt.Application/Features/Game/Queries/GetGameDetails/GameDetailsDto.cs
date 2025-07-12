@@ -1,6 +1,6 @@
 ﻿using GameIt.Application.Features.Review.Queries;
 
-namespace GameIt.Application.Features.Game.Queries.GetAllGameDetails;
+namespace GameIt.Application.Features.Game.Queries.GetGameDetails;
 
 public class GameDetailsDto
 {

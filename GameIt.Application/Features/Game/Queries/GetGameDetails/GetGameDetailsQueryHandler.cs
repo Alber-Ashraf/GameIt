@@ -3,7 +3,7 @@ using GameIt.Application.Exeptions;
 using GameIt.Application.Interfaces.Persistence;
 using MediatR;
 
-namespace GameIt.Application.Features.Game.Queries.GetAllGameDetails;
+namespace GameIt.Application.Features.Game.Queries.GetGameDetails;
 
 public class GetGameDetailsQueryHandler : IRequestHandler<GetGameDetailsQuery, GameDetailsDto>
 {
