@@ -1,4 +1,5 @@
-﻿using GameIt.Application.Interfaces.Persistence;
+﻿using System.Linq.Expressions;
+using GameIt.Application.Interfaces.Persistence;
 using GameIt.Domain;
 using GameIt.Persistence.DatabaseContext;
 using Microsoft.EntityFrameworkCore;
@@ -72,14 +73,16 @@ public class GameRepository : GenericRepository<Game>, IGameRepository
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
-    public async Task<List<Game>> GetFeaturedGamesAsync(int count = 5,
-        CancellationToken token = default)
+    public async Task<List<Game>> GetFeaturedGamesAsync(int limit = 5,
+    CancellationToken token = default)
     {
-        return await _context.Games
+        var query = _context.Games
             .Where(g => g.IsFeatured)
             .OrderByDescending(g => g.ReleaseDate)
-            .Take(count)
+            .Take(limit);
+
+        return await query
             .AsNoTracking()
-            .ToListAsync();
+            .ToListAsync(token);
     }
 }

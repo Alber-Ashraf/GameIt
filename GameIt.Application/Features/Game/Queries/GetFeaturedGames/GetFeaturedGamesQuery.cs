@@ -3,7 +3,4 @@ using MediatR;
 
 namespace GameIt.Application.Features.Game.Queries.GetFeaturedGames;
 
-public class GetFeaturedGamesQuery : IRequest<List<GamesListDto>> 
-{
-    public int Limit { get; set; }
-}
+public record GetFeaturedGamesQuery(int Limit = 5) : IRequest<List<GamesListDto>>;

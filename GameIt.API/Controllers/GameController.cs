@@ -1,5 +1,7 @@
-﻿using GameIt.Application.Features.Game.Queries.GetAllGameDetails;
+﻿using System.ComponentModel.DataAnnotations;
+using GameIt.Application.Features.Game.Queries.GetAllGameDetails;
 using GameIt.Application.Features.Game.Queries.GetAllGameLists;
+using GameIt.Application.Features.Game.Queries.GetFeaturedGames;
 using GameIt.Application.Features.Game.Queries.GetGamesByCategory;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -58,6 +60,22 @@ public class GameController : ControllerBase
         if (!result.Any())
         {
             return NotFound($"No games found for category {categoryId}");
+        }
+
+        return Ok(result);
+    }
+
+    // Get: api/game/featured
+    [HttpGet("featured")]
+    public async Task<IActionResult> GetFeaturedGames(
+    [FromQuery, Range(1, 20)] int limit = 5)
+    {
+        var result = await _mediator.Send(new GetFeaturedGamesQuery(limit));
+
+        // If no featured games are found, return a 404 Not Found response
+        if (!result.Any()) 
+        {
+            return NotFound("No featured games currently available");
         }
 
         return Ok(result);
