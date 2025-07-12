@@ -6,5 +6,4 @@ public class CategoriesListDto
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
-    public List<GamesListDto> Games { get; set; } = new List<GamesListDto>();
 }
