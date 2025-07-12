@@ -42,7 +42,7 @@ namespace GameIt.Application.Features.Game.Commands.UpdateGame
             existingGame.CategoryId = category.Id;
 
             // Add the game entity to the repository
-            await _unitOfWork.Games.UpdateAsync(existingGame);
+            _unitOfWork.Games.Update(existingGame);
 
             // Save changes to the database
             await _unitOfWork.SaveChangesAsync();

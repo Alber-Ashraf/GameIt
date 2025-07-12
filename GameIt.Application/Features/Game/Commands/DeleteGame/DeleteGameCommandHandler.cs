@@ -31,7 +31,7 @@ namespace GameIt.Application.Features.Game.Commands.DeleteGame
                 throw new NotFoundException(nameof(Game), request.Id);
 
             // Delete the game entity from the repository
-            await _unitOfWork.Games.Delete(existingGame);
+            _unitOfWork.Games.Delete(existingGame);
 
             // Save changes to the database
             await _unitOfWork.SaveChangesAsync();
