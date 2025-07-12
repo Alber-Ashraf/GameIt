@@ -5,7 +5,7 @@ using MediatR;
 
 namespace GameIt.Application.Features.Game.Commands.CreateGame
 {
-    class CreateGameCommandHandler : IRequestHandler<CreateGameCommand, Guid>
+    public class CreateGameCommandHandler : IRequestHandler<CreateGameCommand, Guid>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;

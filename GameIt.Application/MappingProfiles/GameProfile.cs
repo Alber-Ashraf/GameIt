@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using GameIt.Application.Exeptions;
 using GameIt.Application.Features.Game.Commands.CreateGame;
 using GameIt.Application.Features.Game.Commands.UpdateGame;
 using GameIt.Application.Features.Game.Queries.GetAllGameDetails;
 using GameIt.Application.Features.Game.Queries.GetAllGameLists;
 using GameIt.Application.Features.Review.Queries;
+using GameIt.Application.Interfaces.Persistence;
 using GameIt.Domain;
 
 namespace GameIt.Application.MappingProfiles;
@@ -41,13 +43,8 @@ public class GameProfile : Profile
         // Commands Mapping
         CreateMap<CreateGameCommand, Game>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.CategoryId, opt => opt.Ignore())
-            .ForMember(dest => dest.Category, opt => opt.Ignore())
-            .ForMember(dest => dest.Reviews, opt => opt.Ignore())
-            .ForMember(dest => dest.Comments, opt => opt.Ignore())
-            .ForMember(dest => dest.Purchases, opt => opt.Ignore())
-            .ForMember(dest => dest.Wishlists, opt => opt.Ignore());
-        
+            .ForMember(dest => dest.ReleaseDate, opt => opt.MapFrom(_ => DateTime.UtcNow));
+
         CreateMap<UpdateGameCommand, Game>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.CategoryId, opt => opt.Ignore())

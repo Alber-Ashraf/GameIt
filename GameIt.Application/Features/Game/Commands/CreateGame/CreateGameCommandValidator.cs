@@ -40,6 +40,22 @@ namespace GameIt.Application.Features.Game.Commands.CreateGame
             RuleFor(x => x)
                 .MustAsync(BeUniqueName)
                 .WithMessage("A game with the same name already exists.");
+
+            RuleFor(x => x.ReleaseDate)
+                .GreaterThanOrEqualTo(new DateTime(2000, 1, 1))
+                .WithMessage("Release date must be after 2000")
+                .When(x => x.ReleaseDate.HasValue);
+
+            RuleFor(x => x.Price)
+                .Must((cmd, price) => cmd.IsFree ? price == 0 : price >= 0)
+                .WithMessage("Free games must have price 0");
+
+            RuleFor(x => x.Name)
+                .NotEmpty().WithMessage("Game name is required")
+                .MaximumLength(100).WithMessage("Name must not exceed 100 characters")
+                .MustAsync(async (name, token) =>
+                    await _unitOfWork.Games.IsGameUniqueForCreate(name, token))
+                .WithMessage("A game with this name already exists");
         }
 
         private async Task<bool> BeUniqueName(CreateGameCommand command, CancellationToken token)

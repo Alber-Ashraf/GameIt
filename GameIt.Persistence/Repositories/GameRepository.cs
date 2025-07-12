@@ -33,6 +33,7 @@ public class GameRepository : GenericRepository<Game>, IGameRepository
         CancellationToken token = default)
     {
         return !await _context.Games
+            .AsNoTracking()
             .AnyAsync(g => g.Id != id && g.Name == name);
     }
 
@@ -40,6 +41,7 @@ public class GameRepository : GenericRepository<Game>, IGameRepository
         CancellationToken token = default)
     {
         return !await _context.Games
+            .AsNoTracking()
             .AnyAsync(g => g.Name == name);
     }
     public async Task<List<Game>> GetSimilarGamesAsync(Guid gameId,

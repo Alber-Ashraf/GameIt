@@ -13,5 +13,8 @@ namespace GameIt.Application.Features.Game.Commands.CreateGame
         public string Size { get; set; }
         public string DownloadLink { get; set; }
         public string CategoryName { get; set; }
+        public string SystemRequirements { get; set; }
+        public DateTime? ReleaseDate { get; set; }
+        public Guid? PublisherId { get; set; }
     }
 }

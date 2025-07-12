@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using GameIt.Application.Features.Game.Commands.CreateGame;
 using GameIt.Application.Features.Game.Queries.GetAllGameDetails;
 using GameIt.Application.Features.Game.Queries.GetAllGameLists;
 using GameIt.Application.Features.Game.Queries.GetFeaturedGames;
@@ -98,5 +99,13 @@ public class GameController : ControllerBase
             return NotFound($"No similar games found for game {gameId}");
         }
         return Ok(result);
+    }
+
+    // Post: api/game
+    [HttpPost]
+    public async Task<IActionResult> CreateGame([FromBody] CreateGameCommand command)
+    {
+        var gameId = await _mediator.Send(command);
+        return CreatedAtAction(nameof(GetGameById), new { id = gameId }, gameId);
     }
 }
