@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using GameIt.Application.Exeptions;
 using GameIt.Application.Features.Game.Queries.GetAllGameLists;
 using GameIt.Application.Interfaces.Persistence;
 
@@ -18,7 +19,12 @@ public class GetSimilarGamesQueryHandler
         // Query the database for similar games
         var games = await _unitOfWork.Games.GetSimilarGamesAsync(request.GameId,
                     request.Limit,
-                    cancellationToken);        
+                    cancellationToken);
+
+        // Validate if any similar games were found
+        if (games == null || !games.Any())
+            throw new NotFoundException(nameof(games), "No similar games found for the specified game ID.");
+
         // Convert the game entities to GameDetailsDto using AutoMapper
         var data = _mapper.Map<List<GamesListDto>>(games);
         // Return the list of GameDetailsDto

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using GameIt.Application.Exeptions;
 using GameIt.Application.Interfaces.Persistence;
 using MediatR;
 
@@ -18,6 +19,10 @@ public class GetAllGamesListQueryHandler : IRequestHandler<GetAllGamesListQuery,
     {
         // Query the database for all games Lists
         var games = await _unitOfWork.Games.GetAllWithCategoryAsync();
+
+        // Validate if any games exist
+        if (games == null || !games.Any())
+            throw new NotFoundException(nameof(games), "No games found");
 
         // Convert the game entities to GameDetailsDto using AutoMapper
         var data = _mapper.Map<List<GamesListDto>>(games);

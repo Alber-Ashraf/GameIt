@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using GameIt.Application.Exeptions;
 using GameIt.Application.Features.Game.Queries.GetAllGameLists;
 using GameIt.Application.Interfaces.Persistence;
 
@@ -18,6 +19,11 @@ public class GetFeaturedGamesQueryHandler
         // Query the database for all featured games
         var games = await _unitOfWork.Games.GetFeaturedGamesAsync(request.Limit,
                     cancellationToken);
+
+        // Validate if any games were found
+        if (games == null || !games.Any())
+            throw new NotFoundException(nameof(games), "No featured games found");
+
         // Convert the game entities to GameDetailsDto using AutoMapper
         var data = _mapper.Map<List<GamesListDto>>(games);
         // Return the list of GameDetailsDto

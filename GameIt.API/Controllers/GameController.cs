@@ -28,12 +28,6 @@ public class GameController : ControllerBase
     {
         var query = new GetAllGamesListQuery();
         var result = await _mediator.Send(query);
-
-        // If no games are found, return an empty list
-        if (result == null || !result.Any())
-        {
-            return NotFound("No games found!");
-        }
         return Ok(result);
     }
 
@@ -43,13 +37,6 @@ public class GameController : ControllerBase
     {
         var query = new GetGameDetailsQuery(id);
         var result = await _mediator.Send(query);
-
-        // If the game is not found, return a 404 Not Found response
-        if (result == null)
-        {
-            return NotFound($"No Game found with id: {id}!");
-        }
-
         return Ok(result);
     }
 
@@ -61,13 +48,6 @@ public class GameController : ControllerBase
     {
         var query = new GetGamesByCategoryQuery(categoryId, limit);
         var result = await _mediator.Send(query);
-
-        // If no games are found for the specified category, return a 404 Not Found response
-        if (!result.Any())
-        {
-            return NotFound($"No games found for category {categoryId}");
-        }
-
         return Ok(result);
     }
 
@@ -77,13 +57,6 @@ public class GameController : ControllerBase
     [FromQuery, Range(1, 20)] int limit = 5)
     {
         var result = await _mediator.Send(new GetFeaturedGamesQuery(limit));
-
-        // If no featured games are found, return a 404 Not Found response
-        if (!result.Any()) 
-        {
-            return NotFound("No featured games currently available");
-        }
-
         return Ok(result);
     }
 
@@ -95,11 +68,6 @@ public class GameController : ControllerBase
     {
         var query = new GetSimilarGamesQuery(gameId, limit);
         var result = await _mediator.Send(query);
-        // If no similar games are found, return a 404 Not Found response
-        if (!result.Any())
-        {
-            return NotFound($"No similar games found for game {gameId}");
-        }
         return Ok(result);
     }
 
