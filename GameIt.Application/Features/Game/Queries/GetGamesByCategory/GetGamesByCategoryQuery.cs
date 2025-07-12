@@ -3,8 +3,5 @@ using MediatR;
 
 namespace GameIt.Application.Features.Game.Queries.GetGamesByCategory;
 
-public class GetGamesByCategoryQuery : IRequest<List<GamesListDto>>
-{
-    public Guid CategoryId { get; set; }
-    public int Limit { get; set; }
-}
+public record GetGamesByCategoryQuery(Guid CategoryId, int Limit = 10)
+    : IRequest<List<GamesListDto>>;

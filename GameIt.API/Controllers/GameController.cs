@@ -28,7 +28,6 @@ public class GameController : ControllerBase
         {
             return new List<GamesListDto>();
         }
-
         return result;
     }
 
@@ -43,6 +42,22 @@ public class GameController : ControllerBase
         if (result == null)
         {
             return NotFound();
+        }
+
+        return Ok(result);
+    }
+
+    // Get: api/game/category/{categoryId}
+    [HttpGet("category/{categoryId}")]
+    public async Task<IActionResult> GetGamesByCategory(Guid categoryId, [FromQuery] int limit = 10)
+    {
+        var query = new GetGamesByCategoryQuery(categoryId, limit);
+        var result = await _mediator.Send(query);
+
+        // If no games are found for the specified category, return a 404 Not Found response
+        if (!result.Any())
+        {
+            return NotFound($"No games found for category {categoryId}");
         }
 
         return Ok(result);
