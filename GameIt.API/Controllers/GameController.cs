@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using GameIt.Application.Features.Game.Commands.CreateGame;
+using GameIt.Application.Features.Game.Commands.UpdateGame;
 using GameIt.Application.Features.Game.Queries.GetAllGameDetails;
 using GameIt.Application.Features.Game.Queries.GetAllGameLists;
 using GameIt.Application.Features.Game.Queries.GetFeaturedGames;
@@ -22,7 +23,7 @@ public class GameController : ControllerBase
 
     // Get: api/game
     [HttpGet]
-    public async Task<List<GamesListDto>> GetGames()
+    public async Task<IActionResult> GetGames()
     {
         var query = new GetAllGamesListQuery();
         var result = await _mediator.Send(query);
@@ -30,9 +31,9 @@ public class GameController : ControllerBase
         // If no games are found, return an empty list
         if (result == null || !result.Any())
         {
-            return new List<GamesListDto>();
+            return NotFound("No games found!");
         }
-        return result;
+        return Ok(result);
     }
 
     // Get: api/game/{id}
@@ -45,7 +46,7 @@ public class GameController : ControllerBase
         // If the game is not found, return a 404 Not Found response
         if (result == null)
         {
-            return NotFound();
+            return NotFound($"No Game found with id: {id}!");
         }
 
         return Ok(result);
@@ -107,5 +108,15 @@ public class GameController : ControllerBase
     {
         var gameId = await _mediator.Send(command);
         return CreatedAtAction(nameof(GetGameById), new { id = gameId }, gameId);
+    }
+
+    // Put: api/game/{id}
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateGame(
+        [FromRoute] Guid id,
+        [FromBody] UpdateGameCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return NoContent();
     }
 }
