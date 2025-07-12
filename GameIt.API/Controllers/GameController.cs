@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using GameIt.Application.Features.Game.Commands.CreateGame;
+using GameIt.Application.Features.Game.Commands.DeleteGame;
 using GameIt.Application.Features.Game.Commands.UpdateGame;
 using GameIt.Application.Features.Game.Queries.GetAllGameDetails;
 using GameIt.Application.Features.Game.Queries.GetAllGameLists;
@@ -117,6 +118,15 @@ public class GameController : ControllerBase
         [FromBody] UpdateGameCommand command)
     {
         var result = await _mediator.Send(command);
+        return NoContent();
+    }
+
+    // Delete: api/game/{id}
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteGame([FromRoute] Guid id)
+    {
+        var command = new DeleteGameCommand() { Id = id};
+        await _mediator.Send(command);
         return NoContent();
     }
 }
