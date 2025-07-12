@@ -19,7 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Category\Queries\GetCategoryByName\" />
     <Folder Include="Features\Review\Commands\" />
   </ItemGroup>
 

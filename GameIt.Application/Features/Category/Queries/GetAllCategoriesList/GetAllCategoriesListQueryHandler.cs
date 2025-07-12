@@ -4,7 +4,7 @@ using GameIt.Application.Features.Category.Queries.GetAllGameLists;
 using GameIt.Application.Interfaces.Persistence;
 using MediatR;
 
-namespace CategoryIt.Application.Features.Category.Queries.GetAllCategoryLists;
+namespace GameIt.Application.Features.Category.Queries.GetAllCategoryLists;
 
 public class GetAllCategoriesListQueryHandler : IRequestHandler<GetAllCategoriesListQuery, List<CategoriesListDto>>
 {

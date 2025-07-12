@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace CategoryIt.Application.Features.Category.Commands.DeleteCategory;
+namespace GameIt.Application.Features.Category.Commands.DeleteCategory;
 
 public class DeleteCategoryCommand : IRequest<Unit>
 {

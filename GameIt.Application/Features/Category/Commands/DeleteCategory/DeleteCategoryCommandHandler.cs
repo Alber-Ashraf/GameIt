@@ -2,7 +2,7 @@
 using GameIt.Application.Interfaces.Persistence;
 using MediatR;
 
-namespace CategoryIt.Application.Features.Category.Commands.DeleteCategory;
+namespace GameIt.Application.Features.Category.Commands.DeleteCategory;
 
 public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommand, Unit>
 {

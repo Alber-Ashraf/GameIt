@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
 using GameIt.Application.Exeptions;
-using GameIt.Application.Features.Category.Commands.UpdateCategory;
 using GameIt.Application.Interfaces.Persistence;
 using MediatR;
 
-namespace CategoryIt.Application.Features.Category.Commands.UpdateCategory;
+namespace GameIt.Application.Features.Category.Commands.UpdateCategory;
 
 public class UpdateCategoryCommandhandler : IRequestHandler<UpdateCategoryCommand, Unit>
 {

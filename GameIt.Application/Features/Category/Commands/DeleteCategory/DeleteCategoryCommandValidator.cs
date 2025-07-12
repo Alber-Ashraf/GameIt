@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using GameIt.Application.Interfaces.Persistence;
 
-namespace CategoryIt.Application.Features.Category.Commands.DeleteCategory;
+namespace GameIt.Application.Features.Category.Commands.DeleteCategory;
 
 public class DeleteCategoryCommandValidator : AbstractValidator<DeleteCategoryCommand>
 {

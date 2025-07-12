@@ -1,8 +1,7 @@
 ﻿using FluentValidation;
-using GameIt.Application.Features.Category.Commands.UpdateCategory;
 using GameIt.Application.Interfaces.Persistence;
 
-namespace CategoryIt.Application.Features.Category.Commands.UpdateCategory;
+namespace GameIt.Application.Features.Category.Commands.UpdateCategory;
 
 public class UpdateCategoryCommandValidator : AbstractValidator<UpdateCategoryCommand>
 {

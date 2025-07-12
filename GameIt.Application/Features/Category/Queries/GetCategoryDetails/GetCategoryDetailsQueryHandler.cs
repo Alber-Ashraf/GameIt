@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
 using GameIt.Application.Exeptions;
-using GameIt.Application.Features.Category.Queries.GetCategoryDetails;
 using GameIt.Application.Interfaces.Persistence;
 using MediatR;
 
-namespace CategoryIt.Application.Features.Category.Queries.GetCategoryDetails;
+namespace GameIt.Application.Features.Category.Queries.GetCategoryDetails;
 
 public class GetCategoryDetailsQueryHandler : IRequestHandler<GetCategoryDetailsQuery, CategoryDetailsDto>
 {

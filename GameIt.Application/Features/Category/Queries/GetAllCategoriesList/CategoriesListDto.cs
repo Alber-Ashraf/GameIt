@@ -1,6 +1,4 @@
-﻿using GameIt.Application.Features.Game.Queries.GetAllGameLists;
-
-namespace GameIt.Application.Features.Category.Queries.GetAllGameLists;
+﻿namespace GameIt.Application.Features.Category.Queries.GetAllGameLists;
 
 public class CategoriesListDto
 {
