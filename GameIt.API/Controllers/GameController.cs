@@ -3,6 +3,7 @@ using GameIt.Application.Features.Game.Queries.GetAllGameDetails;
 using GameIt.Application.Features.Game.Queries.GetAllGameLists;
 using GameIt.Application.Features.Game.Queries.GetFeaturedGames;
 using GameIt.Application.Features.Game.Queries.GetGamesByCategory;
+using GameIt.Application.Features.Game.Queries.GetSimilarGames;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,7 +36,7 @@ public class GameController : ControllerBase
 
     // Get: api/game/{id}
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetGameById(Guid id)
+    public async Task<IActionResult> GetGameById([FromRoute] Guid id)
     {
         var query = new GetGameDetailsQuery(id);
         var result = await _mediator.Send(query);
@@ -51,7 +52,9 @@ public class GameController : ControllerBase
 
     // Get: api/game/category/{categoryId}
     [HttpGet("category/{categoryId}")]
-    public async Task<IActionResult> GetGamesByCategory(Guid categoryId, [FromQuery] int limit = 10)
+    public async Task<IActionResult> GetGamesByCategory(
+        [FromRoute] Guid categoryId,
+        [FromQuery] int limit = 10)
     {
         var query = new GetGamesByCategoryQuery(categoryId, limit);
         var result = await _mediator.Send(query);
@@ -78,6 +81,22 @@ public class GameController : ControllerBase
             return NotFound("No featured games currently available");
         }
 
+        return Ok(result);
+    }
+
+    // Get: api/game/similar/{gameId}
+    [HttpGet("similar/{gameId}")]
+    public async Task<IActionResult> GetSimilarGames(
+    [FromRoute] Guid gameId,
+    [FromQuery, Range(1, 20)] int limit = 5)
+    {
+        var query = new GetSimilarGamesQuery(gameId, limit);
+        var result = await _mediator.Send(query);
+        // If no similar games are found, return a 404 Not Found response
+        if (!result.Any())
+        {
+            return NotFound($"No similar games found for game {gameId}");
+        }
         return Ok(result);
     }
 }

@@ -42,23 +42,26 @@ public class GameRepository : GenericRepository<Game>, IGameRepository
         return !await _context.Games
             .AnyAsync(g => g.Name == name);
     }
-
     public async Task<List<Game>> GetSimilarGamesAsync(Guid gameId,
-        int limit = 5,
-        CancellationToken token = default)
+    int limit = 5,
+    CancellationToken token = default)
     {
-        var game = await _context.Games
-            .AsNoTracking()
-            .FirstOrDefaultAsync(g => g.Id == gameId);
+        var baseGame = await _context.Games
+            .FirstOrDefaultAsync(g => g.Id == gameId, token);
 
-        if (game == null) return new List<Game>();
-
-        return await _context.Games
-            .Where(g => g.CategoryId == game.CategoryId && g.Id != gameId)
-            .OrderByDescending(g => g.Reviews.Average(r => r.Rating))
+        var query = _context.Games
+            .Where(g => g.CategoryId == baseGame.CategoryId && g.Id != gameId)
+            .Select(g => new {
+                Game = g,
+                AvgRating = g.Reviews.Average(r => (decimal?)r.Rating)
+            })
+            .OrderByDescending(x => x.AvgRating)
             .Take(limit)
+            .Select(x => x.Game);
+
+        return await query
             .AsNoTracking()
-            .ToListAsync();
+            .ToListAsync(token);
     }
     public async Task<List<Game>> GetGamesByCategoryAsync(Guid categoryId,
         int limit = 10,  
