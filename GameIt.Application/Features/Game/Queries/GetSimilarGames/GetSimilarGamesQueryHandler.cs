@@ -2,10 +2,11 @@
 using GameIt.Application.Exeptions;
 using GameIt.Application.Features.Game.Queries.GetAllGameLists;
 using GameIt.Application.Interfaces.Persistence;
+using MediatR;
 
 namespace GameIt.Application.Features.Game.Queries.GetSimilarGames;
 
-public class GetSimilarGamesQueryHandler
+public class GetSimilarGamesQueryHandler : IRequestHandler<GetSimilarGamesQuery, List<GamesListDto>>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;

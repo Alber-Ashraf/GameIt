@@ -2,10 +2,11 @@
 using GameIt.Application.Exeptions;
 using GameIt.Application.Features.Category.Queries.GetCategoryDetails;
 using GameIt.Application.Interfaces.Persistence;
+using MediatR;
 
 namespace GameIt.Application.Features.Category.Queries.GetCategoryByName;
 
-public class GetCategoryByNameQueryHandler
+public class GetCategoryByNameQueryHandler : IRequestHandler<GetCategoryByNameQuery, CategoryDetailsDto>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;

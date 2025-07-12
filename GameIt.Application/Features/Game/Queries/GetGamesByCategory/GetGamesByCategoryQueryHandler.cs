@@ -3,10 +3,11 @@ using GameIt.Application.Exeptions;
 using GameIt.Application.Features.Game.Queries.GetAllGameLists;
 using GameIt.Application.Features.Game.Queries.GetFeaturedGames;
 using GameIt.Application.Interfaces.Persistence;
+using MediatR;
 
 namespace GameIt.Application.Features.Game.Queries.GetGamesByCategory;
 
-public class GetGamesByCategoryQueryHandler
+public class GetGamesByCategoryQueryHandler : IRequestHandler<GetGamesByCategoryQuery, List<GamesListDto>>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
