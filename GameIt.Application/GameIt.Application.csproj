@@ -19,6 +19,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Features\Category\Commands\DeleteCategory\" />
+    <Folder Include="Features\Category\Commands\UpdateCategory\" />
+    <Folder Include="Features\Category\Queries\GetAllCategoriesList\" />
+    <Folder Include="Features\Category\Queries\GetCategoryDetails\" />
+    <Folder Include="Features\Category\Queries\GetCategoryByName\" />
     <Folder Include="Features\Review\Commands\" />
   </ItemGroup>
 
