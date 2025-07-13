@@ -34,8 +34,8 @@ public class UpdateGameCommandValidator : AbstractValidator<UpdateGameCommand>
         RuleFor(x => x.DownloadLink)
             .NotEmpty().WithMessage("Download link is required.");
 
-        RuleFor(x => x.CategoryName)
-            .NotEmpty().WithMessage("Category name is required.");
+        RuleFor(x => x.CategoryId)
+            .NotEmpty().WithMessage("Category id is required.");
 
         RuleFor(x => x)
             .MustAsync(BeUniqueName)

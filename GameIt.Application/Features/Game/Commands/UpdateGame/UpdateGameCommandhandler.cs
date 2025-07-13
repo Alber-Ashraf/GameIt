@@ -31,10 +31,10 @@ public class UpdateGameCommandhandler : IRequestHandler<UpdateGameCommand, Unit>
 
         // Get the category by name from the repository
         var category = await _unitOfWork.Categories
-            .GetByNameAsync(request.CategoryName);
+            .GetByIdAsync(request.CategoryId);
         // Validate if the category exists
         if (category == null)
-            throw new NotFoundException(nameof(category), request.CategoryName);
+            throw new NotFoundException(nameof(category), request.CategoryId);
 
         // Map the CreateGameCommand to a Game entity
         _mapper.Map(request, existingGame);

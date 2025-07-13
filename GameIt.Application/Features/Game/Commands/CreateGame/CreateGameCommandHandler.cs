@@ -23,16 +23,20 @@ public class CreateGameCommandHandler : IRequestHandler<CreateGameCommand, Guid>
         if (!validationResult.IsValid)
             throw new BadRequestException("Invalid Game", validationResult);
 
+        if (request.IsFree && request.Price != 0)
+            throw new ArgumentException("Price must be 0 for free games.");
+
         // Get the category by name from the repository
         var category = await _unitOfWork.Categories
-            .GetByNameAsync(request.CategoryName);
+            .GetByIdAsync(request.CategoryId);
 
         // Map the CreateGameCommand to a Game entity
         var gameToCreate = _mapper.Map<Domain.Game>(request);
         gameToCreate.CategoryId = category.Id;
+
         // Validate if the category exists
         if (category == null)
-            throw new NotFoundException(nameof(category), request.CategoryName);
+            throw new NotFoundException(nameof(category), request);
 
         // Add the game entity to the repository
         await _unitOfWork.Games.CreateAsync(gameToCreate);

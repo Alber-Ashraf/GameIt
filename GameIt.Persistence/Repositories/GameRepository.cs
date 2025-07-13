@@ -52,6 +52,7 @@ public class GameRepository : GenericRepository<Game>, IGameRepository
 
         var query = _context.Games
             .Where(g => g.CategoryId == baseGame.CategoryId && g.Id != gameId)
+            .Include(g => g.Category)
             .Select(g => new {
                 Game = g,
                 AvgRating = g.Reviews.Average(r => (decimal?)r.Rating)
@@ -70,6 +71,7 @@ public class GameRepository : GenericRepository<Game>, IGameRepository
     {
         var query = _context.Games
             .Where(g => g.CategoryId == categoryId)
+            .Include(g => g.Category)
             .OrderByDescending(g => g.ReleaseDate)
             .Take(limit);
 
@@ -82,6 +84,7 @@ public class GameRepository : GenericRepository<Game>, IGameRepository
     {
         var query = _context.Games
             .Where(g => g.IsFeatured)
+            .Include(g => g.Category)
             .OrderByDescending(g => g.ReleaseDate)
             .Take(limit);
 
