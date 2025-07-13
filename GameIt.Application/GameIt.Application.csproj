@@ -20,7 +20,6 @@
 
   <ItemGroup>
     <Folder Include="Features\Review\Commands\DeleteReview\" />
-    <Folder Include="Features\Review\Commands\UpdateReview\" />
   </ItemGroup>
 
 </Project>
