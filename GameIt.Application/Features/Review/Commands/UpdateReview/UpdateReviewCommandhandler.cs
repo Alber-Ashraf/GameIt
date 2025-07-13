@@ -24,8 +24,12 @@ public class UpdateReviewCommandhandler : IRequestHandler<UpdateReviewCommand, U
         // Fetch and verify
         var existingReview = await _unitOfWork.Reviews.GetByIdAsync(request.Id);
         // Validate if the review exists and belongs to the user
+
+        /*
         if (existingReview == null || existingReview.UserId != request.UserId)
             throw new NotFoundException("Review not found or access denied.");
+        */
+
         // AutoMapper update (preserves unchanged values)
         _mapper.Map(request, existingReview);
         // Update the review in the repository
