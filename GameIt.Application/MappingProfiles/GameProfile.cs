@@ -24,7 +24,6 @@ public class GameProfile : Profile
         // GameDetailsDto Mapping
         CreateMap<Game, GameDetailsDto>()
             .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
-            .ForMember(dest => dest.PublisherName, opt => opt.MapFrom(src => src.Publisher != null ? src.Publisher.Name : string.Empty))
             .ForMember(dest => dest.DiscountPercentage, opt => opt.MapFrom(src => src.Discount != null ? (decimal?)src.Discount.Percentage : null))
             .ForMember(dest => dest.TotalReviews, opt => opt.MapFrom(src => src.Reviews.Count))
             .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src =>

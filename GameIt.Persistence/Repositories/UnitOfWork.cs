@@ -20,7 +20,6 @@ public class UnitOfWork : IUnitOfWork
     public ICommentRepository Comments => new CommentRepository(_context);
     public ICategoryRepository Categories => new CategoryRepository(_context);
     public IPurchaseRepository Purchases => new PurchaseRepository(_context);
-    public IPublisherRepository Publishers => new PublisherRepository(_context);
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

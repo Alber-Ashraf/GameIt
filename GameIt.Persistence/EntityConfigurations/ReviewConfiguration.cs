@@ -9,52 +9,39 @@ public class ReviewConfiguration : IEntityTypeConfiguration<Review>
     {
         builder.ToTable("Reviews");
 
-        // Primary Key
+        // Primary Key (assuming BaseEntity handles Id)
         builder.HasKey(r => r.Id);
-        builder.Property(r => r.Id)
-            .HasDefaultValueSql("NEWID()")
-            .ValueGeneratedOnAdd();
 
         // Properties
         builder.Property(r => r.Rating)
-            .IsRequired()
-            .HasComment("Rating value (1-5 stars)");
-
-        builder.HasCheckConstraint("CK_Reviews_Rating", "[Rating] BETWEEN 1 AND 5");
+            .IsRequired();
 
         builder.Property(r => r.Comment)
-            .HasMaxLength(1000)
-            .IsRequired(false)
-            .HasComment("Optional review text content");
-        // Timestamps
-        builder.Property(w => w.CreatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETDATE()")
-            .ValueGeneratedOnAdd()
-            .HasComment("When the item was added to wishlist");
+            .HasMaxLength(1000);
 
-        builder.Property(w => w.UpdatedAt)
-            .IsRequired(false)
-            .ValueGeneratedOnUpdate()
-            .HasComment("Last modification timestamp");
+        // Timestamps 
+        builder.Property(g => g.CreatedAt)
+            .HasDefaultValueSql("GETDATE()");
+
+        builder.Property(g => g.UpdatedAt)
+            .IsRequired(false);
+
+        // Constraints
+        builder.HasCheckConstraint("CK_Reviews_Rating", "[Rating] BETWEEN 1 AND 5");
 
         // Relationships
         builder.HasOne(r => r.User)
             .WithMany(u => u.Reviews)
             .HasForeignKey(r => r.UserId)
-            .OnDelete(DeleteBehavior.Cascade)
-            .HasConstraintName("FK_Reviews_Users");
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(r => r.Game)
             .WithMany(g => g.Reviews)
             .HasForeignKey(r => r.GameId)
-            .OnDelete(DeleteBehavior.Cascade)
-            .HasConstraintName("FK_Reviews_Games");
+            .OnDelete(DeleteBehavior.Cascade);
 
-        // Unique Index on UserId and GameId
-
+        // Index
         builder.HasIndex(r => new { r.UserId, r.GameId })
-            .IsUnique()
-            .HasDatabaseName("IX_Reviews_User_Game");
+            .IsUnique();
     }
 }

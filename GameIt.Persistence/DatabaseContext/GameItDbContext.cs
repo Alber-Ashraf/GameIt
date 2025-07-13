@@ -16,7 +16,6 @@ public class GameItDbContext : DbContext
     public DbSet<Category> Categories { get; set; }
     public DbSet<Comment> Comments { get; set; }
     public DbSet<Discount> Discounts { get; set; }
-    public DbSet<Publisher> Publishers { get; set; }
     public DbSet<Review> Reviews { get; set; }
     public DbSet<Purchase> Purchases { get; set; }
     public DbSet<Wishlist> Wishlists { get; set; }
@@ -29,7 +28,6 @@ public class GameItDbContext : DbContext
         modelBuilder.ApplyConfiguration(new CategoryConfiguration());
         modelBuilder.ApplyConfiguration(new CommentConfiguration());
         modelBuilder.ApplyConfiguration(new DiscountConfiguration());
-        modelBuilder.ApplyConfiguration(new PublisherConfiguration());
         modelBuilder.ApplyConfiguration(new PurchaseConfiguration());
         modelBuilder.ApplyConfiguration(new ReviewConfiguration());
         modelBuilder.ApplyConfiguration(new WishlistConfiguration());

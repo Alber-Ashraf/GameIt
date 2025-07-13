@@ -5,14 +5,14 @@ namespace GameIt.Domain;
 public class Game : BaseEntity
 {
     public string Name { get; set; }
-    public string Description { get; set; }
-    public string ImageUrl { get; set; }
-    public decimal Price { get; set; }
+    public string? Description { get; set; }
+    public string? ImageUrl { get; set; }
+    public decimal? Price { get; set; }
     public bool IsFree { get; set; } = false;
     public bool IsFeatured { get; set; } = false;
-    public string Size { get; set; }
-    public string DownloadLink { get; set; }
-    public string SystemRequirements { get; set; }
+    public long? FileSizeInBytes { get; set; }
+    public string? DownloadLink { get; set; }
+    public string? SystemRequirements { get; set; }
 
     public DateTime ReleaseDate { get; set; } = DateTime.UtcNow;
 
@@ -21,9 +21,11 @@ public class Game : BaseEntity
     public Category Category { get; set; }
 
     public Guid? PublisherId { get; set; }
-    public Publisher Publisher { get; set; }
+    public ApplicationUser? Publisher { get; set; }
 
-    public Discount Discount { get; set; }
+    public Discount? Discount { get; set; }
+    public double AverageRating { get; private set; }
+    public int TotalReviews { get; private set; }
 
     public ICollection<Review> Reviews { get; set; } = new List<Review>();
     public ICollection<Comment> Comments { get; set; } = new List<Comment>();

@@ -9,41 +9,28 @@ public class WishlistConfiguration : IEntityTypeConfiguration<Wishlist>
     {
         builder.ToTable("Wishlists");
 
-        // Primary Key
+        // Composite Primary Key
         builder.HasKey(w => new { w.UserId, w.GameId });
 
-        // Timestamps
-        builder.Property(w => w.CreatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETDATE()")
-            .ValueGeneratedOnAdd()
-            .HasComment("When the item was added to wishlist");
+        // Timestamps 
+        builder.Property(g => g.CreatedAt)
+            .HasDefaultValueSql("GETDATE()");
 
-        builder.Property(w => w.UpdatedAt)
-            .IsRequired(false)
-            .ValueGeneratedOnUpdate()
-            .HasComment("Last modification timestamp");
+        builder.Property(g => g.UpdatedAt)
+            .IsRequired(false);
 
         // Relationships
         builder.HasOne(w => w.User)
             .WithMany(u => u.Wishlists)
             .HasForeignKey(w => w.UserId)
-            .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade)
-            .HasConstraintName("FK_Wishlists_Users");
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(w => w.Game)
             .WithMany(g => g.Wishlists)
             .HasForeignKey(w => w.GameId)
-            .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade)
-            .HasConstraintName("FK_Wishlists_Games");
+            .OnDelete(DeleteBehavior.Cascade);
 
-        // Unique Index on UserId and GameId
-        builder.HasIndex(w => new { w.UserId, w.GameId })
-            .IsUnique()
-            .HasDatabaseName("IX_Wishlists_User_Game");
-
+        // Indexes
         builder.HasIndex(w => w.GameId);
     }
 }

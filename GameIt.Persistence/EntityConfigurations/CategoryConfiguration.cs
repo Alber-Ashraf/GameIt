@@ -9,35 +9,29 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
     {
         builder.ToTable("Categories");
 
-        // Primary Key Configuration
+        // Primary Key
         builder.HasKey(c => c.Id);
 
-        // Properties Configuration
+        // Properties
         builder.Property(c => c.Name)
             .IsRequired()
             .HasMaxLength(100)
-            .HasColumnName("CategoryName")
-            .HasComment("Official category name for grouping games");
+            .HasColumnName("CategoryName");
 
         // Timestamps
-        builder.Property(w => w.CreatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETDATE()")
-            .ValueGeneratedOnAdd()
-            .HasComment("When the item was added to wishlist");
+        builder.Property(c => c.CreatedAt)
+            .HasDefaultValueSql("GETDATE()");
 
-        builder.Property(w => w.UpdatedAt)
-            .IsRequired(false)
-            .ValueGeneratedOnUpdate()
-            .HasComment("Last modification timestamp");
+        builder.Property(c => c.UpdatedAt)
+            .IsRequired(false);
 
         // Relationships
         builder.HasMany(c => c.Games)
             .WithOne(g => g.Category)
             .HasForeignKey(g => g.CategoryId)
-            .OnDelete(DeleteBehavior.Restrict);  // Prevent accidental category deletion
+            .OnDelete(DeleteBehavior.Restrict);
 
-        // Indexs
+        // Index
         builder.HasIndex(c => c.Name)
             .HasDatabaseName("IX_Categories_Name");
     }

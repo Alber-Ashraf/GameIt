@@ -9,43 +9,30 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
     {
         builder.ToTable("Comments");
 
-        // Primary Key
+        // Primary Key 
         builder.HasKey(c => c.Id);
-        builder.Property(c => c.Id)
-            .HasDefaultValueSql("NEWID()")
-            .ValueGeneratedOnAdd();
 
         // Properties
         builder.Property(c => c.Content)
             .IsRequired()
-            .HasMaxLength(500)
-            .HasDefaultValue("")
-            .HasColumnName("CommentText")
-            .HasComment("Text content of the comment");
+            .HasMaxLength(500);
 
-        // Timestamps
-        builder.Property(w => w.CreatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETDATE()")
-            .ValueGeneratedOnAdd()
-            .HasComment("When the item was added to wishlist");
+        // Timestamps 
+        builder.Property(c => c.CreatedAt)
+            .HasDefaultValueSql("GETDATE()");
 
-        builder.Property(w => w.UpdatedAt)
-            .IsRequired(false)
-            .ValueGeneratedOnUpdate()
-            .HasComment("Last modification timestamp");
+        builder.Property(c => c.UpdatedAt)
+            .IsRequired(false);
 
         // Relationships
         builder.HasOne(c => c.User)
             .WithMany(u => u.Comments)
             .HasForeignKey(c => c.UserId)
-            .OnDelete(DeleteBehavior.ClientCascade)
-            .HasConstraintName("Comments_Users");
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(c => c.Game)
             .WithMany(g => g.Comments)
             .HasForeignKey(c => c.GameId)
-            .OnDelete(DeleteBehavior.ClientCascade)
-            .HasConstraintName("Comments_Games");
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
