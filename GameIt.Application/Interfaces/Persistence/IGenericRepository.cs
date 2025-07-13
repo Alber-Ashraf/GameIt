@@ -9,4 +9,5 @@ public interface IGenericRepository<T> where T : BaseEntity
     Task CreateAsync(T entity);
     void Update(T entity);
     void Delete(T entity);
+    Task<bool> ExistsAsync(Guid id, CancellationToken token = default);
 }

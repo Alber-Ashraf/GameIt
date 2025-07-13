@@ -42,4 +42,8 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
         _dbSet.Remove(entity);
     }
+    public async Task<bool> ExistsAsync(Guid id, CancellationToken token = default)
+    {
+        return await _dbSet.AsNoTracking().AnyAsync(e => e.Id == id);
+    }
 }

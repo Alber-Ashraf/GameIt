@@ -3,8 +3,8 @@ using GameIt.Application.Features.Game.Commands.CreateGame;
 using GameIt.Application.Features.Game.Commands.UpdateGame;
 using GameIt.Application.Features.Game.Queries.GetGameDetails;
 using GameIt.Application.Features.Game.Queries.GetAllGameLists;
-using GameIt.Application.Features.Review.Queries;
 using GameIt.Domain;
+using GameIt.Application.Features.Review.Queries.GetReviewsByGame;
 
 namespace GameIt.Application.MappingProfiles;
 
@@ -29,7 +29,7 @@ public class GameProfile : Profile
             .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src =>
                 src.Reviews.Any() ? src.Reviews.Average(r => r.Rating) : (double?)null))
             .ForMember(dest => dest.Reviews, opt => opt.MapFrom(src =>
-                src.Reviews.Select(r => new ReviewDto
+                src.Reviews.Select(r => new ReviewListDto
                 {
                     Id = r.Id,
                     Rating = r.Rating,
