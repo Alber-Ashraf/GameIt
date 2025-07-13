@@ -19,7 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Review\Commands\" />
+    <Folder Include="Features\Review\Commands\CreateReview\" />
+    <Folder Include="Features\Review\Commands\DeleteReview\" />
+    <Folder Include="Features\Review\Commands\UpdateReview\" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿using GameIt.Application.Features.Review.Queries;
+﻿using GameIt.Application.Features.Review.Queries.GetReviewsByGame;
 
 namespace GameIt.Application.Features.Game.Queries.GetGameDetails;
 
@@ -27,5 +27,5 @@ public class GameDetailsDto
     // Reviews
     public double? AverageRating { get; set; }
     public int TotalReviews { get; set; }
-    public List<ReviewDto> Reviews { get; set; } = new();
+    public List<ReviewListDto> Reviews { get; set; } = new();
 }
