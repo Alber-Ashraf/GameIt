@@ -18,8 +18,4 @@
     <ProjectReference Include="..\GameIt.Domain\GameIt.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\Discount\Queries\GetActiveDiscounts\" />
-  </ItemGroup>
-
 </Project>
