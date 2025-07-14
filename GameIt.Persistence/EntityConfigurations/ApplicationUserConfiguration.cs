@@ -38,11 +38,6 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
             .HasForeignKey(r => r.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasMany(u => u.Comments)
-            .WithOne(c => c.User)
-            .HasForeignKey(c => c.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         builder.HasMany(u => u.Wishlists)
             .WithOne(w => w.User)
             .HasForeignKey(w => w.UserId)

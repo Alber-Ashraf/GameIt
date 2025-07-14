@@ -17,7 +17,6 @@ public class UnitOfWork : IUnitOfWork
     public IWishlistRepository Wishlists => new WishlistRepository(_context);
     public IDiscountRepository Discounts => new DiscountRepository(_context);
     public IReviewRepository Reviews => new ReviewRepository(_context);
-    public ICommentRepository Comments => new CommentRepository(_context);
     public ICategoryRepository Categories => new CategoryRepository(_context);
     public IPurchaseRepository Purchases => new PurchaseRepository(_context);
 

@@ -13,6 +13,5 @@ public class ApplicationUser : IdentityUser
     public ICollection<Purchase> Purchases { get; set; } = new List<Purchase>();
     public ICollection<Game> OwnedGames => Purchases.Select(p => p.Game).ToList();
     public ICollection<Review> Reviews { get; set; } = new List<Review>();
-    public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     public ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();
 }

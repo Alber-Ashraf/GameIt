@@ -14,7 +14,6 @@ public class GameItDbContext : DbContext
 
     public DbSet<Game> Games { get; set; }
     public DbSet<Category> Categories { get; set; }
-    public DbSet<Comment> Comments { get; set; }
     public DbSet<Discount> Discounts { get; set; }
     public DbSet<Review> Reviews { get; set; }
     public DbSet<Purchase> Purchases { get; set; }
@@ -26,7 +25,6 @@ public class GameItDbContext : DbContext
         // Apply configurations for each entity
         modelBuilder.ApplyConfiguration(new GameConfiguration());
         modelBuilder.ApplyConfiguration(new CategoryConfiguration());
-        modelBuilder.ApplyConfiguration(new CommentConfiguration());
         modelBuilder.ApplyConfiguration(new DiscountConfiguration());
         modelBuilder.ApplyConfiguration(new PurchaseConfiguration());
         modelBuilder.ApplyConfiguration(new ReviewConfiguration());

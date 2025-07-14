@@ -45,7 +45,6 @@ public class GameProfile : Profile
         CreateMap<UpdateGameCommand, Game>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.Reviews, opt => opt.Ignore())
-            .ForMember(dest => dest.Comments, opt => opt.Ignore())
             .ForMember(dest => dest.Purchases, opt => opt.Ignore())
             .ForMember(dest => dest.Wishlists, opt => opt.Ignore());            
     }

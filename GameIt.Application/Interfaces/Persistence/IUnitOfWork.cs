@@ -6,7 +6,6 @@ public interface IUnitOfWork
     IWishlistRepository Wishlists { get; }
     IDiscountRepository Discounts { get; }
     IReviewRepository Reviews { get; }
-    ICommentRepository Comments { get; }
     ICategoryRepository Categories { get; }
     IPurchaseRepository Purchases { get; }
 

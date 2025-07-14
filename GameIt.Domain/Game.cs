@@ -28,7 +28,6 @@ public class Game : BaseEntity
     public int TotalReviews { get; private set; }
 
     public ICollection<Review> Reviews { get; set; } = new List<Review>();
-    public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     public ICollection<Purchase> Purchases { get; set; } = new List<Purchase>();
     public ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();
 }
