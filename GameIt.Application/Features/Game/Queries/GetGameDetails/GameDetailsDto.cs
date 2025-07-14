@@ -22,7 +22,13 @@ public class GameDetailsDto
     public string PublisherName { get; set; } = string.Empty;
 
     // Discount details
+    public bool? IsDiscounted { get; set; } = false;  
     public decimal? DiscountPercentage { get; set; }
+    public DateTime? DiscountStartDate { get; set; }
+    public DateTime? DiscountEndDate { get; set; }
+    public decimal? DiscountedPrice => Price * ((100 - (DiscountPercentage ?? 0)) / 100);
+    public int? RemainingDiscountDays =>
+        DiscountEndDate.HasValue ? (int)(DiscountEndDate.Value - DateTime.UtcNow).TotalDays : null;
 
     // Reviews
     public double? AverageRating { get; set; }

@@ -25,6 +25,9 @@ public class GameProfile : Profile
         CreateMap<Game, GameDetailsDto>()
             .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
             .ForMember(dest => dest.DiscountPercentage, opt => opt.MapFrom(src => src.Discount != null ? (decimal?)src.Discount.Percentage : null))
+            .ForMember(dest => dest.DiscountStartDate, opt => opt.MapFrom(src => src.Discount != null ? (DateTime?)src.Discount.StartDate : null))
+            .ForMember(dest => dest.DiscountEndDate, opt => opt.MapFrom(src => src.Discount != null ? (DateTime?)src.Discount.EndDate : null))
+            .ForMember(dest => dest.IsDiscounted, opt => opt.MapFrom(src => src.Discount != null && src.Discount.IsActive))
             .ForMember(dest => dest.TotalReviews, opt => opt.MapFrom(src => src.Reviews.Count))
             .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src =>
                 src.Reviews.Any() ? src.Reviews.Average(r => r.Rating) : (double?)null))

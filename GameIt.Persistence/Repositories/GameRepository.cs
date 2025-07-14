@@ -13,6 +13,8 @@ public class GameRepository : GenericRepository<Game>, IGameRepository
     {
         return await _context.Games
             .Include(g => g.Category)
+            .Include(g => g.Reviews)
+            .Include(g => g.Discount)
             .AsNoTracking()
             .ToListAsync();
     }
@@ -22,8 +24,9 @@ public class GameRepository : GenericRepository<Game>, IGameRepository
     {
         return await _context.Games
             .Include(g => g.Category)
-            .Include(g => g.Publisher)
             .Include(g => g.Reviews)
+            .Include(g => g.Discount)
+            .AsNoTracking()
             .FirstOrDefaultAsync(g => g.Id == id);
     }
 
