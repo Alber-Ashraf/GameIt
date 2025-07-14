@@ -19,10 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Discount\Commands\CreateDiscountCommand\" />
-    <Folder Include="Features\Discount\Commands\DeleteDiscountCommand\" />
-    <Folder Include="Features\Discount\Commands\UpdateDiscountCommand\" />
-    <Folder Include="Features\Discount\Queries\GetActiveDiscountsQuery\" />
+    <Folder Include="Features\Discount\Commands\DeleteDiscount\" />
+    <Folder Include="Features\Discount\Commands\UpdateDiscount\" />
+    <Folder Include="Features\Discount\Queries\GetActiveDiscounts\" />
   </ItemGroup>
 
 </Project>
