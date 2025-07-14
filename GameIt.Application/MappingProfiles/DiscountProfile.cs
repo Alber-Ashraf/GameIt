@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using GameIt.Application.Features.Discount.Commands.CreateDiscount;
+using GameIt.Application.Features.Discount.Commands.UpdateDiscount;
 using GameIt.Domain;
 
 namespace GameIt.Application.MappingProfiles;
@@ -13,5 +14,11 @@ public class DiscountProfile : Profile
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.Game, opt => opt.Ignore())
             .ForMember(dest => dest.IsActive, opt => opt.Ignore());
+
+        // Map from UpdateDiscountCommand to Discount entity
+        CreateMap<UpdateDiscountCommand, Discount>()
+            .ForMember(dest => dest.Game, opt => opt.Ignore())
+            .ForMember(dest => dest.IsActive, opt => opt.Ignore())
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
     }
 }
