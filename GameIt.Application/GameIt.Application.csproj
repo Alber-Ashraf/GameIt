@@ -19,7 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Discount\Commands\DeleteDiscount\" />
     <Folder Include="Features\Discount\Queries\GetActiveDiscounts\" />
   </ItemGroup>
 
