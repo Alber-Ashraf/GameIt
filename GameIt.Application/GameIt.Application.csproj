@@ -18,4 +18,11 @@
     <ProjectReference Include="..\GameIt.Domain\GameIt.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Discount\Commands\CreateDiscountCommand\" />
+    <Folder Include="Features\Discount\Commands\DeleteDiscountCommand\" />
+    <Folder Include="Features\Discount\Commands\UpdateDiscountCommand\" />
+    <Folder Include="Features\Discount\Queries\GetActiveDiscountsQuery\" />
+  </ItemGroup>
+
 </Project>
