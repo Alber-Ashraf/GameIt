@@ -1,6 +1,8 @@
 using GameIt.Application;
+using GameIt.Application.Interfaces.IDiscount;
 using GameIt.Infrastructure;
 using GameIt.Persistence;
+using Hangfire;
 
 namespace GameIt.Api;
 
@@ -30,6 +32,12 @@ public class Program
         builder.Services.AddSwaggerGen();
 
         var app = builder.Build();
+
+        // For Hangfire dashboard and server
+        using (var scope = app.Services.CreateScope())
+        {
+            RecurringJobsInitializer.Initialize(scope.ServiceProvider);
+        }
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())

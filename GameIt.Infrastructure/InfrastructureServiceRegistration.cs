@@ -1,8 +1,11 @@
 ﻿using GameIt.Application.Interfaces.Email;
+using GameIt.Application.Interfaces.IDiscount;
 using GameIt.Application.Interfaces.Logging;
 using GameIt.Application.Models.Email;
+using GameIt.Infrastructure.DiscountService;
 using GameIt.Infrastructure.EmailService;
 using GameIt.Infrastructure.Logging;
+using Hangfire;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,6 +20,13 @@ public static class InfrastructureServiceRegistration
         services.AddTransient<IEmailSender, EmailSender>();
 
         services.AddScoped(typeof(IAppLogger<>), typeof(LoggerAdapter<>));
+
+        services.AddHangfire(config =>
+        config.UseSqlServerStorage(configuration.GetConnectionString("GameItDbConnectionString")));
+
+        services.AddHangfireServer();
+
+        services.AddScoped<IDiscountService, DiscountUpdate>();
 
         return services;
     }
