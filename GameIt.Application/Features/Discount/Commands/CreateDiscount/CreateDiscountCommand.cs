@@ -8,4 +8,6 @@ public class CreateDiscountCommand : IRequest<Guid>
     public decimal Percentage { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
+    public string Description { get; set; } = string.Empty;
 }
+    

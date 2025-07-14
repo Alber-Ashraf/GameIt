@@ -27,7 +27,7 @@ public class GetActiveDiscountsQueryHandler : IRequestHandler<GetActiveDiscounts
         var dtos = _mapper.Map<List<ActiveDiscountDto>>(discounts);
         dtos.ForEach(dto =>
         {
-            dto.DiscountedPrice = dto.OriginalPrice * (100 - dto.Percentage / 100);
+            dto.DiscountedPrice = dto.OriginalPrice * ((100 - dto.Percentage) / 100);
         });
 
         return dtos;

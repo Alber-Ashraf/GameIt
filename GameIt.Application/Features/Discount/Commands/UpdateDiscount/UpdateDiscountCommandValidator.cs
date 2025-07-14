@@ -13,7 +13,8 @@ public class UpdateDiscountCommandValidator : AbstractValidator<UpdateDiscountCo
 
         RuleFor(x => x.Id)
             .NotEmpty().WithMessage("Discount ID is required.")
-            .MustAsync(DiscountExists).WithMessage("Discount does not exist.");
+            .MustAsync(async (id, token) => await _unitOfWork.Discounts.ExistsAsync(id, token))
+            .WithMessage("Game does not exist.");
 
         RuleFor(x => x.Percentage)
             .InclusiveBetween(1, 100).WithMessage("Discount must be 1-100%.");
@@ -27,9 +28,5 @@ public class UpdateDiscountCommandValidator : AbstractValidator<UpdateDiscountCo
         RuleFor(x => x.EndDate)
             .GreaterThan(x => x.StartDate)
             .WithMessage("End date must be after start date.");
-    }
-    private async Task<bool> DiscountExists(Guid discountId, CancellationToken token)
-    {
-        return await _unitOfWork.Games.ExistsAsync(discountId, token);
     }
 }

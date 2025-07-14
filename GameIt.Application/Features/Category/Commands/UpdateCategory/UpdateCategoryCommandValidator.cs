@@ -12,7 +12,7 @@ public class UpdateCategoryCommandValidator : AbstractValidator<UpdateCategoryCo
         _unitOfWork = unitOfWork;
 
         RuleFor(x => x.Id)
-            .NotEmpty().WithMessage("Category ID is required    .");
+            .NotEmpty().WithMessage("Category ID is required.");
 
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Category name is required.")
