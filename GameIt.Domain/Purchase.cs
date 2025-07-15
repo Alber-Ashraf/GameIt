@@ -12,6 +12,9 @@ public class Purchase : BaseEntity
     public PaymentMethod PaymentMethod { get; set; }
     public PaymentStatus PaymentStatus { get; set; }
     public bool IsRefunded { get; set; }
+    public DateTime? RefundDate { get; set; }
+    public string? RefundReason { get; set; }
+    public string? RefundId { get; set; }
 
     // Relationships
     public string UserId { get; set; }
