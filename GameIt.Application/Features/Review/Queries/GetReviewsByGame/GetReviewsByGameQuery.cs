@@ -2,4 +2,4 @@
 
 namespace GameIt.Application.Features.Review.Queries.GetReviewsByGame;
 
-public record GetReviewsListQuery(Guid Id) : IRequest<ReviewListDto>;
+public record GetReviewsByGameQuery(Guid GameId) : IRequest<List<ReviewListDto>>;

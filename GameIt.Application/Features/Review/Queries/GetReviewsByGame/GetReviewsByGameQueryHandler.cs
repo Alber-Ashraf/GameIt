@@ -1,12 +1,8 @@
 ﻿using AutoMapper;
-using GameIt.Application.Exeptions;
-using GameIt.Application.Features.Review.Queries.GetReviewsByGame;
 using GameIt.Application.Interfaces.Persistence;
 using MediatR;
 
-namespace ReviewIt.Application.Features.Review.Queries.GetReviewDetails;
-
-public record GetReviewsByGameQuery(Guid GameId) : IRequest<List<ReviewListDto>>;
+namespace GameIt.Application.Features.Review.Queries.GetReviewsByGame;
 
 public class GetReviewsByGameQueryHandler
     : IRequestHandler<GetReviewsByGameQuery, List<ReviewListDto>>

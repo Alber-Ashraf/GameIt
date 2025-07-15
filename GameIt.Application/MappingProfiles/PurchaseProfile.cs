@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using GameIt.Application.Features.Purchase.Commands.CreatePurchase;
 using GameIt.Application.Features.Purchase.Commands.RefundPurchase;
+using GameIt.Application.Features.Purchase.Queries.GetUserPurchase;
 using GameIt.Domain;
 
 namespace GameIt.Application.MappingProfiles;
@@ -9,6 +10,13 @@ public class PurchaseProfile : Profile
 {
     public PurchaseProfile()
     {
+        // Entity -> List DTO
+        CreateMap<Purchase, PurchaseListDto>()
+            .ForMember(dest => dest.GameName, opt => opt.MapFrom(src => src.Game.Name))
+            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName))
+            .ForMember(dest => dest.OriginalPrice, opt => opt.MapFrom(src => src.Game.Price));
+
+
         // Create Command -> Entity
         CreateMap<CreatePurchaseCommand, Purchase>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
