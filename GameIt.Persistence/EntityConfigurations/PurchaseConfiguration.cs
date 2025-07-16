@@ -29,14 +29,7 @@ public class PurchaseConfiguration : IEntityTypeConfiguration<Purchase>
             .HasDefaultValue("USD")
             .IsFixedLength();
 
-        builder.Property(p => p.TransactionId)
-            .HasMaxLength(100);
-
-        builder.Property(p => p.PaymentMethod)
-            .HasConversion<string>()
-            .HasMaxLength(20);
-
-        builder.Property(p => p.PaymentStatus)
+        builder.Property(p => p.Status)
             .HasConversion<string>()
             .HasMaxLength(20);
 
@@ -57,10 +50,6 @@ public class PurchaseConfiguration : IEntityTypeConfiguration<Purchase>
             .WithMany(g => g.Purchases)
             .HasForeignKey(p => p.GameId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        // Indexes
-        builder.HasIndex(p => p.TransactionId)
-            .IsUnique();
 
         // Query Filter
         builder.HasQueryFilter(p => !p.IsRefunded);

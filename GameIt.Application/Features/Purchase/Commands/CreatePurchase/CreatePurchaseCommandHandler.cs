@@ -1,27 +1,29 @@
 ﻿using AutoMapper;
 using GameIt.Application.Exeptions;
 using GameIt.Application.Interfaces.Persistence;
+using GameIt.Application.Interfaces.Stripe;
+using GameIt.Application.Models.Stripe;
 using MediatR;
 
 namespace GameIt.Application.Features.Purchase.Commands.CreatePurchase;
 
-public class CreatePurchaseCommandHandler : IRequestHandler<CreatePurchaseCommand, PurchaseResponse>
+public class CreatePurchaseCommandHandler : IRequestHandler<CreatePurchaseCommand, PurchaseResult>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-    //private readonly IPaymentService _paymentService;
+    private readonly IStripeService _stripeService;
 
     public CreatePurchaseCommandHandler(
         IMapper mapper,
-        IUnitOfWork unitOfWork
-        /*IPaymentService paymentService*/)
+        IUnitOfWork unitOfWork,
+        IStripeService stripeService)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
-        /*_paymentService = paymentService*/;
+        _stripeService  = stripeService;
     }
 
-    public async Task<PurchaseResponse> Handle(
+    public async Task<PurchaseResult> Handle(
         CreatePurchaseCommand request,
         CancellationToken token)
     {
@@ -34,24 +36,25 @@ public class CreatePurchaseCommandHandler : IRequestHandler<CreatePurchaseComman
         // Verify game exists
         if (!await _unitOfWork.Games.ExistsAsync(request.GameId, token))
             throw new NotFoundException(nameof(Game), request.GameId);
-        /*
+        
         // Process payment
-        var paymentResult = await _paymentService.ProcessPaymentAsync(
+        var paymentResult = await _stripeService.CreatePurchaseAsync(
             request.AmountPaid,
-            request.Currency,
-            request.TransactionId,
+            request.UserId,
+            request.GameId,
             token);
-        */
+        
         // Map command to entity with additional fields
         var purchase = _mapper.Map<Domain.Purchase>(request, opt =>
         {
-            //opt.Items["PaymentStatus"] = paymentResult.Status;
+            opt.Items["PaymentStatus"] = paymentResult.Status;
             opt.Items["PurchaseDate"] = DateTime.UtcNow;
+            opt.Items["StripePaymentIntentId"] = paymentResult.StripePaymentIntentId;
         });
 
         await _unitOfWork.Purchases.CreateAsync(purchase);
         await _unitOfWork.SaveChangesAsync(token);
 
-        return _mapper.Map<PurchaseResponse>(purchase);
+        return _mapper.Map<PurchaseResult>(purchase);
     }
 }

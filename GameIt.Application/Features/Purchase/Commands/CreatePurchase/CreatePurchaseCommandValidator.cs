@@ -24,9 +24,6 @@ public class CreatePurchaseCommandValidator : AbstractValidator<CreatePurchaseCo
             .NotEmpty().WithMessage("Currency is required.")
             .Length(3).WithMessage("Currency must be a 3-letter code (e.g., USD).");
 
-        RuleFor(x => x.PaymentMethod)
-            .IsInEnum().WithMessage("Payment method is invalid.");
-
         RuleFor(x => x.TransactionId)
             .NotEmpty().WithMessage("Transaction ID is required.")
             .Length(1, 100).WithMessage("Transaction ID must be between 1 and 100 characters.");

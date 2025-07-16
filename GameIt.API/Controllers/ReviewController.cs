@@ -1,9 +1,9 @@
 ﻿using GameIt.Application.Features.Review.Commands.CreateReview;
 using GameIt.Application.Features.Review.Commands.DeleteReview;
 using GameIt.Application.Features.Review.Commands.UpdateReview;
+using GameIt.Application.Features.Review.Queries.GetReviewsByGame;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using ReviewIt.Application.Features.Review.Queries.GetReviewDetails;
 
 namespace GameIt.API.Controllers;
 

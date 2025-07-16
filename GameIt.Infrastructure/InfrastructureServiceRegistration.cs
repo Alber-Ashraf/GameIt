@@ -1,10 +1,13 @@
 ﻿using GameIt.Application.Interfaces.Email;
 using GameIt.Application.Interfaces.IDiscount;
 using GameIt.Application.Interfaces.Logging;
+using GameIt.Application.Interfaces.Stripe;
 using GameIt.Application.Models.Email;
+using GameIt.Application.Models.Stripe;
 using GameIt.Infrastructure.DiscountService;
 using GameIt.Infrastructure.EmailService;
 using GameIt.Infrastructure.Logging;
+using GameIt.Infrastructure.Stripe;
 using Hangfire;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,6 +30,9 @@ public static class InfrastructureServiceRegistration
         services.AddHangfireServer();
 
         services.AddScoped<IDiscountService, DiscountUpdate>();
+
+        services.AddScoped<IStripeService, StripeService>();
+        services.Configure<StripeSettings>(configuration.GetSection("Stripe"));
 
         return services;
     }

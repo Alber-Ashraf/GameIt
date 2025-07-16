@@ -2,7 +2,9 @@
 using GameIt.Application.Features.Purchase.Commands.CreatePurchase;
 using GameIt.Application.Features.Purchase.Commands.RefundPurchase;
 using GameIt.Application.Features.Purchase.Queries.GetUserPurchase;
+using GameIt.Application.Models.Stripe;
 using GameIt.Domain;
+using Stripe;
 
 namespace GameIt.Application.MappingProfiles;
 
@@ -22,15 +24,12 @@ public class PurchaseProfile : Profile
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.Game, opt => opt.Ignore())
             .ForMember(dest => dest.User, opt => opt.Ignore())
-            .ForMember(dest => dest.PaymentStatus,
-                opt => opt.MapFrom((src, dest, member, context) =>
-                    context.Items["PaymentStatus"]))
             .ForMember(dest => dest.PurchaseDate,
                 opt => opt.MapFrom((src, dest, member, context) =>
                     context.Items["PurchaseDate"]));
 
         // Entity -> Response
-        CreateMap<Purchase, PurchaseResponse>();
+        CreateMap<Purchase, PurchaseResult>();
 
         // Refund Command -> Entity
         CreateMap<RefundPurchaseCommand, Purchase>()
@@ -39,19 +38,13 @@ public class PurchaseProfile : Profile
             .ForMember(dest => dest.Game,
                 opt => opt.Ignore())
             .ForMember(dest => dest.User,
-                opt => opt.Ignore())
-            .ForMember(dest => dest.RefundDate, 
-                opt => opt.MapFrom(_ => DateTime.UtcNow));
+                opt => opt.Ignore());
 
         // Entity -> Refund Response
-        CreateMap<Purchase, RefundResponse>()
-            .ForMember(dest => dest.AmountRefunded,
-                opt => opt.MapFrom(src => src.AmountPaid * -1))
-            .ForMember(dest => dest.Currency,
-                opt => opt.MapFrom(src => src.Currency))
-            .ForMember(dest => dest.RefundDate,
-                opt => opt.MapFrom(_ => DateTime.UtcNow))
-            .ForMember(dest => dest.RefundId,
-                opt => opt.MapFrom(src => Guid.NewGuid()));
+        CreateMap<Refund, RefundResult>()
+            .ForMember(dest => dest.Success, opt => opt.MapFrom(_ => true))
+            .ForMember(dest => dest.RefundId, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+            .ForMember(dest => dest.RefundDate, opt => opt.MapFrom(src => src.Created));
     }
 }

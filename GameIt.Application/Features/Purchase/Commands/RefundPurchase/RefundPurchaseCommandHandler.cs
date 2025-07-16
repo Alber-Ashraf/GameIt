@@ -1,29 +1,30 @@
 ﻿using AutoMapper;
 using GameIt.Application.Exeptions;
-using GameIt.Application.Features.Purchase.Commands.CreatePurchase;
 using GameIt.Application.Interfaces.Persistence;
+using GameIt.Application.Interfaces.Stripe;
+using GameIt.Application.Models.Stripe;
 using GameIt.Domain;
 using MediatR;
 
 namespace GameIt.Application.Features.Purchase.Commands.RefundPurchase;
 
-public class RefundPurchaseCommandHandler : IRequestHandler<RefundPurchaseCommand, RefundResponse>
+public class RefundPurchaseCommandHandler : IRequestHandler<RefundPurchaseCommand, RefundResult>
 {
     private readonly IUnitOfWork _unitOfWork;
-    //private readonly IStripeService _stripeService;
     private readonly IMapper _mapper;
+    private readonly IStripeService _stripeService;
 
     public RefundPurchaseCommandHandler(
+        IMapper mapper,
         IUnitOfWork unitOfWork,
-        //IStripeService stripeService,
-        IMapper mapper)
+        IStripeService stripeService)
     {
         _unitOfWork = unitOfWork;
-        //_stripeService = stripeService;
         _mapper = mapper;
+        _stripeService = stripeService;
     }
 
-    public async Task<RefundResponse> Handle(
+    public async Task<RefundResult> Handle(
         RefundPurchaseCommand request,
         CancellationToken token)
     {
@@ -39,37 +40,23 @@ public class RefundPurchaseCommandHandler : IRequestHandler<RefundPurchaseComman
         if (purchase == null)
             throw new NotFoundException(nameof(Purchase), request.PurchaseId);
 
-        // Validate refund eligibility
-        if (purchase.PaymentStatus != PaymentStatus.Completed)
-            throw new BadRequestException("Purchase not eligible for refund");
-        if (purchase.IsRefunded)
-            throw new BadRequestException("Purchase already refunded");
-        /*
+
         // Process Stripe refund
-        var refundResult = await _stripeService.ProcessRefundAsync(
-            purchase.TransactionId,
-            purchase.AmountPaid,
-            purchase.Currency,
-            request.Reason,
-            token);
-        
-        if (!RefundResponse.Success)
+        var refundResult = await _stripeService.RefundPurchaseAsync(
+        purchase.StripePaymentIntentId,
+        token);
+
+        if (!refundResult.Success)
             throw new BadRequestException("Refund processing failed");
-        */
 
-        // Map request to purchase entity with additional fields
-        purchase = _mapper.Map<Domain.Purchase>(request, opt =>
-        {
-            opt.Items["RefundDate"] = DateTime.UtcNow;
-        });
+        // Update purchase entity
+        purchase.IsRefunded = true;
+        purchase.RefundDate = DateTime.UtcNow;
+        purchase.RefundId = refundResult.RefundId;
+        purchase.Status = PaymentStatus.Refunded;
 
-        // Update purchase record
-        _unitOfWork.Purchases.Update(purchase);
-
-        // Save changes
         await _unitOfWork.SaveChangesAsync(token);
 
-        // Return result
-        return _mapper.Map<RefundResponse>(purchase);
+        return _mapper.Map<RefundResult>(refundResult);
     }
 }
