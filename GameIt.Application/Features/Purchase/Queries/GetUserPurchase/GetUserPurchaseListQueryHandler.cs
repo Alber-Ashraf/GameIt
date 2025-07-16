@@ -8,32 +8,22 @@ public class GetUserPurchaseListQueryHandler : IRequestHandler<GetUserPurchaseLi
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-    //private readonly ICurrentUserService _currentUserService;
 
     public GetUserPurchaseListQueryHandler(
         IMapper mapper,
-        IUnitOfWork unitOfWork/*,
-        ICurrentUserService currentUserService*/)
+        IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
-        //_currentUserService = currentUserService;
     }
 
     public async Task<List<PurchaseListDto>> Handle(
         GetUserPurchaseListQuery request,
         CancellationToken cancellationToken)
     {
-
-        // Get current user ID
-        //var userId = _currentUserService.UserId;
-
-        // For demonstration purposes, using a hardcoded user ID
-        var userId = "id";
-
         // Fetch purchases with related data
         var purchases = await _unitOfWork.Purchases
-            .GetUserPurchasesAsync(userId, cancellationToken);
+            .GetUserPurchasesAsync(request.UserId, cancellationToken);
         
         if (!purchases.Any())
             return new List<PurchaseListDto>();
