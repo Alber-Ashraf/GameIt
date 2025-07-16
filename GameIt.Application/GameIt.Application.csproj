@@ -19,9 +19,4 @@
     <ProjectReference Include="..\GameIt.Domain\GameIt.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\Wishlist\Commands\AddToWishlist\" />
-    <Folder Include="Features\Wishlist\Commands\RemoveFromWishlist\" />
-  </ItemGroup>
-
 </Project>
