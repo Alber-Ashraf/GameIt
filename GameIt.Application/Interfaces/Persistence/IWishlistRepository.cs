@@ -22,4 +22,8 @@ public interface IWishlistRepository : IGenericRepository<Wishlist>
     Task CleanWishlistAsync(
         string userId,
         CancellationToken token = default);
+
+    Task<bool> AnyWishlistItemsAsync(
+        string userId,
+        CancellationToken token = default);
 }

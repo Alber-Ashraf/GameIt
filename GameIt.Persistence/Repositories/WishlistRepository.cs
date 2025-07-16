@@ -61,4 +61,12 @@ public class WishlistRepository : GenericRepository<Wishlist>, IWishlistReposito
 
         _context.Wishlists.RemoveRange(items);
     }
+
+    public async Task<bool> AnyWishlistItemsAsync(
+        string userId,
+        CancellationToken token = default)
+    {
+        return await _context.Wishlists
+            .AnyAsync(w => w.UserId == userId, token);
+    }
 }
