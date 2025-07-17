@@ -16,5 +16,10 @@ public static class RecurringJobsInitializer
             () => discountService.UpdateDiscountStatusesAsync(),
             Cron.Hourly
         );
+        recurringJobManager.AddOrUpdate(
+            "remove-expired-discounts",
+            () => discountService.RemoveExpiredDiscountsAsync(),
+            Cron.Hourly
+        );
     }
 }

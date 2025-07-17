@@ -25,6 +25,12 @@ public class CreateDiscountCommandHandler : IRequestHandler<CreateDiscountComman
         if (!validationResult.IsValid)
             throw new BadRequestException("Invalid Discount", validationResult);
 
+        // check if the game on sale
+        var game = await _unitOfWork.Games.GetByIdAsync(request.GameId);
+
+        if (game.IsFree )
+            throw new BadRequestException("Game is free, cannot apply discount.");
+
         // Map the request to a Discount entity
         var DiscountToCreate = _mapper.Map<Domain.Discount>(request);
 

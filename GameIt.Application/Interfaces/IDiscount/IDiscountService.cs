@@ -3,4 +3,5 @@
 public interface IDiscountService
 {
     Task UpdateDiscountStatusesAsync();
+    Task RemoveExpiredDiscountsAsync();
 }

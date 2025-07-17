@@ -27,4 +27,17 @@ public class DiscountUpdate : IDiscountService
 
         await _context.SaveChangesAsync();
     }
+
+    public async Task RemoveExpiredDiscountsAsync()
+    {
+        var expiredDiscounts = await _context.Discounts
+            .Where(d => d.EndDate < DateTime.UtcNow)
+            .ToListAsync();
+
+        if (expiredDiscounts.Any())
+        {
+            _context.Discounts.RemoveRange(expiredDiscounts);
+            await _context.SaveChangesAsync();
+        }
+    }
 }
