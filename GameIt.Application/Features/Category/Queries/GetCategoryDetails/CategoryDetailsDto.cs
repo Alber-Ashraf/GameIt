@@ -1,4 +1,5 @@
 ﻿using GameIt.Application.Features.Game.Queries.GetAllGameLists;
+using GameIt.Application.Features.Game.Queries.GetGameDetails;
 
 namespace GameIt.Application.Features.Category.Queries.GetCategoryDetails;
 

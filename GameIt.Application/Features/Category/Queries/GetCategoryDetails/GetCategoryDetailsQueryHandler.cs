@@ -14,10 +14,10 @@ public class GetCategoryDetailsQueryHandler : IRequestHandler<GetCategoryDetails
         _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
-    public async Task<CategoryDetailsDto> Handle(GetCategoryDetailsQuery request, CancellationToken cancellationToken)
+    public async Task<CategoryDetailsDto> Handle(GetCategoryDetailsQuery request, CancellationToken token)
     {
         // Query the database for all Categorys Details
-        var existingCategory = await _unitOfWork.Categories.GetByIdAsync(request.Id);
+        var existingCategory = await _unitOfWork.Categories.GetByIdWithGamesAsync(request.Id, token);
 
         // Validate if the Category exists
         if (existingCategory == null)

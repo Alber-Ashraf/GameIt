@@ -1,3 +1,4 @@
+using GameIt.API.Middlewares;
 using GameIt.Application;
 using GameIt.Application.Interfaces.IDiscount;
 using GameIt.Infrastructure;
@@ -45,6 +46,8 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+
+        app.UseMiddleware<ExceptionMiddleware>();
 
         app.UseHttpsRedirection();
 
