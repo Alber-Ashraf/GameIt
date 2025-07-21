@@ -29,13 +29,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Game\" />
     <Folder Include="Features\Category\" />
     <Folder Include="Features\Discount\" />
+    <Folder Include="Features\Game\Commands\" />
     <Folder Include="Features\Review\" />
     <Folder Include="Features\Purchase\" />
     <Folder Include="Features\Wishlist\" />
-    <Folder Include="Mocks\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GameIt.Application\GameIt.Application.csproj" />
   </ItemGroup>
 
 </Project>
