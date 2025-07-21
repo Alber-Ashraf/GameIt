@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameIt.Infrastructure", "Ga
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameIt.Persistence", "GameIt.Persistence\GameIt.Persistence.csproj", "{7A785805-38D1-49F2-87D0-8345BF87B797}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameIt.Application.UnitTests", "GameIt.Application.UnitTests\GameIt.Application.UnitTests.csproj", "{8115098D-C8D8-4A8E-8F17-55190F042BDF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{7A785805-38D1-49F2-87D0-8345BF87B797}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A785805-38D1-49F2-87D0-8345BF87B797}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7A785805-38D1-49F2-87D0-8345BF87B797}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8115098D-C8D8-4A8E-8F17-55190F042BDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8115098D-C8D8-4A8E-8F17-55190F042BDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8115098D-C8D8-4A8E-8F17-55190F042BDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8115098D-C8D8-4A8E-8F17-55190F042BDF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
