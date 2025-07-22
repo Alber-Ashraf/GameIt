@@ -18,21 +18,26 @@ public class WishlistController : ControllerBase
     }
 
     // Get: api/wishlist/{userId}
-    [HttpGet("{userId}")]
-    public async Task<IActionResult> GetWishlistByUser(
+    [HttpGet("users/{userId}")]
+    [ProducesResponseType(typeof(List<WishlistListDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<List<WishlistListDto>>> GetWishlistByUser(
         [FromRoute] string userId,
-        CancellationToken token)
+        CancellationToken token = default)
     {
         var query = new GetUserWishlistListQuery(userId);
         var wishlist = await _mediator.Send(query, token);
         return Ok(wishlist);
     }
 
-    // Pot: api/wishlist
-    [HttpPost]
+    // Post: api/wishlist
+    [HttpPost("items")]
+    [ProducesResponseType(typeof(AddToWishlistCommand), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> AddToWishlist(
         [FromBody] AddToWishlistCommand command,
-        CancellationToken token)
+        CancellationToken token = default)
     {
         var result = await _mediator.Send(command, token);
         return CreatedAtAction(
@@ -41,11 +46,13 @@ public class WishlistController : ControllerBase
     }
 
     // Delete: api/wishlist/{gameId}/{userId}
-    [HttpDelete("{gameId}/{userId}")]
+    [HttpDelete("items/{gameId:guid}/users/{userId}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> RemoveFromWishlist(
         [FromRoute] Guid gameId,
         [FromRoute] string userId,
-        CancellationToken token)
+        CancellationToken token = default)
     {
         var command = new RemoveFromWishlistCommand { GameId = gameId, UserId = userId };
         await _mediator.Send(command, token);
@@ -53,10 +60,12 @@ public class WishlistController : ControllerBase
     }
 
     // Delete: api/wishlist/{userId}
-    [HttpDelete("{userId}")]
+    [HttpDelete("users/{userId}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ClearWishlist(
         [FromRoute] string userId,
-        CancellationToken token)
+        CancellationToken token = default)
     {
         var command = new ClearWishlistCommand { UserId = userId };
         await _mediator.Send(command, token);

@@ -17,10 +17,12 @@ public class ReviewController : ControllerBase
         _mediator = mediator;
     }
     // Get: api/review/{gameId}
-    [HttpGet("{gameId}")]
-    public async Task<IActionResult> GetReviewsByGame(
+    [HttpGet("reviews/{gameId:guid}")]
+    [ProducesResponseType(typeof(List<ReviewListDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<List<ReviewListDto>>> GetReviewsByGame(
         [FromRoute] Guid gameId,
-        CancellationToken token)
+        CancellationToken token = default)
     {
         var query = new GetReviewsByGameQuery(gameId);
         var reviews = await _mediator.Send(query, token);
@@ -29,30 +31,43 @@ public class ReviewController : ControllerBase
 
     // Post: api/review
     [HttpPost]
+    [ProducesResponseType(typeof(CreateReviewCommand), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> CreateReview(
         [FromBody] CreateReviewCommand command,
-        CancellationToken token)
+        CancellationToken token = default)
     {
         var result = await _mediator.Send(command, token);
-        return CreatedAtAction(nameof(CreateReview), new { id = result }, result);
+        return CreatedAtAction(
+                    nameof(GetReviewsByGame),
+                    new { gameId = command.GameId });
     }
 
     //Update: api/review/{id}
     [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateReview(
         [FromRoute] Guid id,
         [FromBody] UpdateReviewCommand command,
-        CancellationToken token)
+        CancellationToken token = default)
     {
+        if (id != command.Id)
+            return BadRequest("Review ID mismatch.");
+
         var result = await _mediator.Send(command, token);
         return NoContent();
     }
 
     // Delete: api/review/{id}
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteReview(
         [FromRoute] Guid id,
-        CancellationToken token)
+        CancellationToken token = default)
     {
         var command = new DeleteReviewCommand() { Id = id};
         await _mediator.Send(command, token);

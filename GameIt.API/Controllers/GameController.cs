@@ -24,77 +24,99 @@ public class GameController : ControllerBase
 
     // Get: api/game
     [HttpGet]
-    public async Task<IActionResult> GetGames()
+    [ProducesResponseType(typeof(List<GamesListDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<GamesListDto>>> GetGames(CancellationToken token = default)
     {
         var query = new GetAllGamesListQuery();
-        var result = await _mediator.Send(query);
+        var result = await _mediator.Send(query, token);
         return Ok(result);
     }
 
     // Get: api/game/{id}
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetGameById([FromRoute] Guid id)
+    [ProducesResponseType(typeof(GameDetailsDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<GameDetailsDto>> GetGameById([FromRoute] Guid id,
+        CancellationToken token = default)
     {
         var query = new GetGameDetailsQuery(id);
-        var result = await _mediator.Send(query);
+        var result = await _mediator.Send(query, token);
         return Ok(result);
     }
 
     // Get: api/game/category/{categoryId}
-    [HttpGet("category/{categoryId}")]
-    public async Task<IActionResult> GetGamesByCategory(
+    [HttpGet("category/{categoryId:guid}")]
+    [ProducesResponseType(typeof(List<GamesListDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<GamesListDto>>> GetGamesByCategory(
         [FromRoute] Guid categoryId,
-        [FromQuery] int limit = 10)
+        [FromQuery] int limit = 10,
+        CancellationToken token = default)
     {
         var query = new GetGamesByCategoryQuery(categoryId, limit);
-        var result = await _mediator.Send(query);
+        var result = await _mediator.Send(query, token);
         return Ok(result);
     }
 
     // Get: api/game/featured
     [HttpGet("featured")]
-    public async Task<IActionResult> GetFeaturedGames(
-    [FromQuery, Range(1, 20)] int limit = 5)
+    [ProducesResponseType(typeof(List<GamesListDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<GamesListDto>>> GetFeaturedGames(
+        [FromQuery, Range(1, 20)] int limit = 5,
+        CancellationToken token = default)
     {
-        var result = await _mediator.Send(new GetFeaturedGamesQuery(limit));
+        var result = await _mediator.Send(new GetFeaturedGamesQuery(limit), token);
         return Ok(result);
     }
 
     // Get: api/game/similar/{gameId}
-    [HttpGet("similar/{gameId}")]
-    public async Task<IActionResult> GetSimilarGames(
-    [FromRoute] Guid gameId,
-    [FromQuery, Range(1, 20)] int limit = 5)
+    [HttpGet("similar/{gameId:guid}")]
+    [ProducesResponseType(typeof(List<GamesListDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<List<GamesListDto>>> GetSimilarGames(
+        [FromRoute] Guid gameId,
+        [FromQuery, Range(1, 20)] int limit = 5,
+        CancellationToken token = default)
     {
         var query = new GetSimilarGamesQuery(gameId, limit);
-        var result = await _mediator.Send(query);
+        var result = await _mediator.Send(query, token);
         return Ok(result);
     }
 
     // Post: api/game
     [HttpPost]
-    public async Task<IActionResult> CreateGame([FromBody] CreateGameCommand command)
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateGame(
+        [FromBody] CreateGameCommand command,
+        CancellationToken token = default)
     {
-        var gameId = await _mediator.Send(command);
+        var gameId = await _mediator.Send(command, token);
         return CreatedAtAction(nameof(GetGameById), new { id = gameId }, gameId);
     }
 
     // Put: api/game/{id}
     [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateGame(
         [FromRoute] Guid id,
-        [FromBody] UpdateGameCommand command)
+        [FromBody] UpdateGameCommand command,
+        CancellationToken token)
     {
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(command, token);
         return NoContent();
     }
 
     // Delete: api/game/{id}
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteGame([FromRoute] Guid id)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteGame([FromRoute] Guid id,
+        CancellationToken token)
     {
         var command = new DeleteGameCommand() { Id = id};
-        await _mediator.Send(command);
+        await _mediator.Send(command, token);
         return NoContent();
     }
 }

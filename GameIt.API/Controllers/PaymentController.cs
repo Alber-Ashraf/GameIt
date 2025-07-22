@@ -16,34 +16,43 @@ public class PaymentController : ControllerBase
         _mediator = mediator;
     }
 
-    // Post: api/payment/CreatePurchase
-    [HttpPost("CreatePurchase")]
-    public async Task<IActionResult> CreatePurchase(
-        [FromBody] CreatePurchaseCommand command,
-        CancellationToken token)
+    // Get: api/payment/GetPurchaseHistory/{userId}
+    [HttpGet("users/{userId}/purchases")]
+    [ProducesResponseType(typeof(List<PurchaseListDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<List<PurchaseListDto>>> GetPurchaseHistory(
+        [FromRoute] string userId,
+        CancellationToken token = default)
     {
-        var result = await _mediator.Send(command, token);
-        return CreatedAtAction(nameof(CreatePurchase), new { id = result.Id }, result);
+        var query = new GetUserPurchaseListQuery(userId);
+        var purchases = await _mediator.Send(query, token);
+        return Ok(purchases);
     }
 
-    // Post: api/payment/RefundPurchase
-    [HttpPost("RefundPurchase")]
-    public async Task<IActionResult> RefundPurchase(
-        [FromBody] RefundPurchaseCommand command,
-        CancellationToken token)
+    // Post: api/payment/CreatePurchase
+    [HttpPost("purchases")]
+    [ProducesResponseType(typeof(CreatePurchaseCommand), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> CreatePurchase(
+        [FromBody] CreatePurchaseCommand command,
+        CancellationToken token = default)
     {
         var result = await _mediator.Send(command, token);
         return Ok(result);
     }
 
-    // Get: api/payment/GetPurchaseHistory/{userId}
-    [HttpGet("GetPurchaseHistory/{userId}")]
-    public async Task<IActionResult> GetPurchaseHistory(
-        [FromRoute] string userId,
-        CancellationToken token)
+    // Post: api/payment/RefundPurchase
+    [HttpPost("purchases/refunds")]
+    [ProducesResponseType(typeof(RefundPurchaseCommand), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> RefundPurchase(
+        [FromBody] RefundPurchaseCommand command,
+        CancellationToken token = default)
     {
-        var query = new GetUserPurchaseListQuery(userId);
-        var purchases = await _mediator.Send(query, token);
-        return Ok(purchases);
+        var result = await _mediator.Send(command, token);
+        return Ok(result);
     }
 }
