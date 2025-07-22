@@ -11,6 +11,6 @@ public interface IGameService
     Task<List<GameVM>> GetGamesByCategoryAsync(Guid categoryId, int limit = 10, CancellationToken token = default);
     Task<List<GameVM>> GetSimilarGamesAsync(Guid gameId, int limit = 5, CancellationToken token = default);
     Task<Response<Guid>> CreateAsync(GameVM game);
-    Task<Response<Guid>> Update(int id, GameVM game);
-    Task<Response<Guid>> Delete(int id);
+    Task<Response<Guid>> Update(Guid id, GameVM game);
+    Task<Response<Guid>> Delete(Guid id);
 }

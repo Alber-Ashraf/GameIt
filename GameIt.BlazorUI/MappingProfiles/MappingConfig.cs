@@ -8,6 +8,7 @@ public class MappingConfig : Profile
 {
     public MappingConfig()
     {
-        //CreateMap<GameDetailsDto, GameVM>.ReverseMap();
+        CreateMap<GameDetailsDto, GameVM>().ReverseMap();
+        CreateMap<CreateGameCommand, GameVM>().ReverseMap();
     }
 }
