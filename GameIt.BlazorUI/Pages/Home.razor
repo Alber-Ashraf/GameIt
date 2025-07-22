@@ -1,7 +1,63 @@
 ﻿@page "/"
-
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="home-page">
+    <!-- Categories Bubbles -->
+    <section class="categories-section">
+        <h2>Browse Categories</h2>
+        <div class="bubbles-container">
+            @foreach (var category in Categories.Select((c, i) => new { Category = c, Index = i }))
+            {
+                <div class="category-bubble" style="--i:@category.Index">
+                    <div class="bubble-content">
+                        <span>@category.Category</span>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
 
-Welcome to your new app.
+    <!-- Featured Games Carousel -->
+    <section class="featured-section">
+        <h2>Featured Games</h2>
+        <div class="game-carousel">
+            @foreach (var game in FeaturedGames.Select((g, i) => new { Game = g, Index = i }))
+            {
+                <div class="game-card" style="--i:@game.Index">
+                    <div class="card-content">
+                        <div class="card-front">
+                            <img src="@game.Game.ImageUrl" alt="@game.Game.Name"
+                                 onerror="this.src='/images/placeholder-game.png'">
+                            <div class="card-title">@game.Game.Name</div>
+                        </div>
+                        <div class="card-back">
+                            <h3>@game.Game.Name</h3>
+                            <p>@game.Game.CategoryName</p>
+                            @if (game.Game.IsFree)
+                            {
+                                <p class="text-success">FREE</p>
+                            }
+                            else
+                            {
+                                @if (game.Game.Discount > 0)
+                                {
+                                    var discountedPrice = game.Game.Price * (1 - (decimal)game.Game.Discount);
+                                    <p>
+                                        <span class="text-muted">@game.Game.Price.ToString("C")</span>
+                                        <br />
+                                        <span class="text-danger">@discountedPrice.ToString("C")</span>
+                                    </p>
+                                }
+                                else
+                                {
+                                    <p>@game.Game.Price.ToString("C")</p>
+                                }
+                            }
+                            <a href="/games/details/@game.Game.Id" class="btn">View Game</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+</div>

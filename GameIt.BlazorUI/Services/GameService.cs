@@ -62,22 +62,22 @@ public class GameService : BaseHttpService, IGameService
         return _mapper.Map<GameDetailsVM>(game);
     }
 
-    public async Task<List<GameDetailsVM>> GetFeaturedGamesAsync(int count = 5, CancellationToken token = default)
+    public async Task<List<GamesListVM>> GetFeaturedGamesAsync(int count = 5, CancellationToken token = default)
     {
         var games = await _client.FeaturedAsync(count, token);
-        return _mapper.Map<List<GameDetailsVM>>(games);
+        return _mapper.Map<List<GamesListVM>>(games);
     }
 
-    public async Task<List<GameDetailsVM>> GetGamesByCategoryAsync(Guid categoryId, int limit = 10, CancellationToken token = default)
+    public async Task<List<GamesListVM>> GetGamesByCategoryAsync(Guid categoryId, int limit = 10, CancellationToken token = default)
     {
         var games = await _client.CategoryAsync(categoryId, limit, token);
-        return _mapper.Map<List<GameDetailsVM>>(games);
+        return _mapper.Map<List<GamesListVM>>(games);
     }
 
-    public async Task<List<GameDetailsVM>> GetSimilarGamesAsync(Guid gameId, int limit = 5, CancellationToken token = default)
+    public async Task<List<GamesListVM>> GetSimilarGamesAsync(Guid gameId, int limit = 5, CancellationToken token = default)
     {
         var games = await _client.SimilarAsync(gameId, limit, token);
-        return _mapper.Map<List<GameDetailsVM>>(games);
+        return _mapper.Map<List<GamesListVM>>(games);
     }
 
     public async Task<Response<Guid>> Update(Guid id, GameDetailsVM game)

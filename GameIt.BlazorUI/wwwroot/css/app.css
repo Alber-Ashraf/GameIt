@@ -101,39 +101,3 @@ a, .btn-link {
 code {
     color: #c02d76;
 }
-
-
-/*
-    For Game List and Game Details pages
-*/
-
-.game-card:hover {
-    transform: scale(1.02);
-    transition: transform 0.2s ease-in-out;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-}
-
-.discount-badge {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    font-size: 0.9rem;
-}
-
-.free-badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 0.9rem;
-}
-
-.card-img-container {
-    position: relative;
-    height: 220px;
-    overflow: hidden;
-}
-
-.card-img-top {
-    height: 100%;
-    object-fit: cover;
-}
