@@ -13,7 +13,7 @@ public class GameService : BaseHttpService, IGameService
         _mapper = mapper;
     }
 
-    public async Task<Response<Guid>> CreateAsync(GameVM game)
+    public async Task<Response<Guid>> CreateAsync(GameDetailsVM game)
     {
         try
         {
@@ -50,37 +50,37 @@ public class GameService : BaseHttpService, IGameService
         }
     }
 
-    public async Task<List<GameVM>> GetAllWithCategoryAsync(CancellationToken token = default)
+    public async Task<List<GamesListVM>> GetAllWithCategoryAsync(CancellationToken token = default)
     {
         var games = await _client.GameAllAsync();
-        return _mapper.Map<List<GameVM>>(games);
+        return _mapper.Map<List<GamesListVM>>(games);
     }
 
-    public async Task<GameVM> GetByIdWithDetailsAsync(Guid id, CancellationToken token = default)
+    public async Task<GameDetailsVM> GetByIdWithDetailsAsync(Guid id, CancellationToken token = default)
     {
         var game = await _client.GameGETAsync(id, token);
-        return _mapper.Map<GameVM>(game);
+        return _mapper.Map<GameDetailsVM>(game);
     }
 
-    public async Task<List<GameVM>> GetFeaturedGamesAsync(int count = 5, CancellationToken token = default)
+    public async Task<List<GameDetailsVM>> GetFeaturedGamesAsync(int count = 5, CancellationToken token = default)
     {
         var games = await _client.FeaturedAsync(count, token);
-        return _mapper.Map<List<GameVM>>(games);
+        return _mapper.Map<List<GameDetailsVM>>(games);
     }
 
-    public async Task<List<GameVM>> GetGamesByCategoryAsync(Guid categoryId, int limit = 10, CancellationToken token = default)
+    public async Task<List<GameDetailsVM>> GetGamesByCategoryAsync(Guid categoryId, int limit = 10, CancellationToken token = default)
     {
         var games = await _client.CategoryAsync(categoryId, limit, token);
-        return _mapper.Map<List<GameVM>>(games);
+        return _mapper.Map<List<GameDetailsVM>>(games);
     }
 
-    public async Task<List<GameVM>> GetSimilarGamesAsync(Guid gameId, int limit = 5, CancellationToken token = default)
+    public async Task<List<GameDetailsVM>> GetSimilarGamesAsync(Guid gameId, int limit = 5, CancellationToken token = default)
     {
         var games = await _client.SimilarAsync(gameId, limit, token);
-        return _mapper.Map<List<GameVM>>(games);
+        return _mapper.Map<List<GameDetailsVM>>(games);
     }
 
-    public async Task<Response<Guid>> Update(Guid id, GameVM game)
+    public async Task<Response<Guid>> Update(Guid id, GameDetailsVM game)
     {
         try
         {

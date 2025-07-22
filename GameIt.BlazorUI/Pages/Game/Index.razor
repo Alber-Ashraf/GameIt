@@ -1,0 +1,98 @@
+﻿@page "/games/"
+@using System.Globalization
+
+<h3 class="text-center mb-4">Game Catalog</h3>
+
+<div class="m-4 d-flex justify-content-between align-items-center">
+    <button @onclick="CreateGame" class="btn btn-success">
+        <i class="fas fa-plus"></i> Add New Game
+    </button>
+</div>
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @ErrorMessage
+        <button type="button" class="btn-close" @onclick="() => ErrorMessage = string.Empty"></button>
+    </div>
+}
+
+@if (Games == null)
+{
+    <div class="text-center my-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Loading games...</p>
+    </div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+        @foreach (var game in Games)
+        {
+            <div class="col">
+                <div class="card h-100 game-card shadow-sm">
+                    <div class="card-img-container">
+                        <img src="@game.ImageUrl" class="card-img-top" alt="@game.Name cover" 
+                             onerror="this.src='/images/placeholder-game.png'">
+                        @if (game.Discount > 0)
+                        {
+                            <span class="badge bg-danger discount-badge">
+                                -@game.Discount.ToString()
+                            </span>
+                        }
+                        else if (game.IsFree)
+                        {
+                            <span class="badge bg-success free-badge">FREE</span>
+                        }
+                    </div>
+                    
+                    <div class="card-body">
+                        <h5 class="card-title">@game.Name</h5>
+                        <p class="card-text text-muted">@game.CategoryName</p>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            @if (game.IsFree)
+                            {
+                                <span class="text-success fw-bold">Free</span>
+                            }
+                            else if (game.Discount > 0)
+                            {
+                                <div class="d-flex flex-column">
+                                    <span class="text-muted text-decoration-line-through">@game.Price.ToString("C")</span>
+                                    <span class="text-danger fw-bold">
+                                        @(((decimal)(game.Price * (1 - game.Discount))).ToString("C"))
+                                    </span>
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="fw-bold">@game.Price.ToString("C")</span>
+                            }
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer bg-transparent">
+                        <div class="d-flex justify-content-between">
+                            <button @onclick="@(() => ViewGame(game.Id))" 
+                                    class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-info-circle"></i> Details
+                            </button>
+                            <div>
+                                <button @onclick="@(() => EditGame(game.Id))"
+                                        class="btn btn-sm btn-outline-warning me-2">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button @onclick="@(() => DeleteGame(game.Id))"
+                                        class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

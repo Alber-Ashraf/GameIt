@@ -1,6 +1,6 @@
 ﻿namespace GameIt.BlazorUI.Models.Game;
 
-public class GameVM
+public class GameDetailsVM
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
