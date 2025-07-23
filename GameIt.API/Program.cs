@@ -55,6 +55,7 @@ public class Program
 
         app.UseCors("AllowAllOrigins");
 
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllers();

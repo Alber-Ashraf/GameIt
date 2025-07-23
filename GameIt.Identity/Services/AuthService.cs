@@ -41,7 +41,9 @@ public class AuthService : IAuthService
         }
 
         JwtSecurityToken jwtSecurityToken = await GenerateToken(user);
+
         user.LastLoginDate = DateTime.UtcNow;
+        await _userManager.UpdateAsync(user);
 
         var response = new AuthResponse
         {
@@ -62,6 +64,7 @@ public class AuthService : IAuthService
             Email = registrationRequest.Email,
             FirstName = registrationRequest.FirstName,
             LastName = registrationRequest.LastName,
+            ProfilePictureUrl = registrationRequest.ProfilePictureUrl,
             EmailConfirmed = true
         };
 

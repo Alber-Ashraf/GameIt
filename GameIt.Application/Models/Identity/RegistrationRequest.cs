@@ -21,4 +21,5 @@ public class RegistrationRequest
     [Required]
     [MinLength(6)]
     public string Password { get; set; }
+    public string? ProfilePictureUrl { get; set; }
 }
