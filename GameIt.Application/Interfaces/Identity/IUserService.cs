@@ -4,6 +4,6 @@ namespace GameIt.Application.Interfaces.Identity;
 
 public interface IUserService
 {
-    Task<List<Employee>> GetEmployees();
-    Task<Employee> GetEmployee(string userId);
+    Task<List<User>> GetUsers();
+    Task<User> GetUser(string userId);
 }

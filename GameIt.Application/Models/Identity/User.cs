@@ -1,6 +1,6 @@
 ﻿namespace GameIt.Application.Models.Identity;
 
-public class Employee
+public class User
 {
     public string Id { get; set; }
     public string Email { get; set; }
