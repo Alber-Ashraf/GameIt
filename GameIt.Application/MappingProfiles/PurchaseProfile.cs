@@ -15,7 +15,6 @@ public class PurchaseProfile : Profile
         // Entity -> List DTO
         CreateMap<Purchase, PurchaseListDto>()
             .ForMember(dest => dest.GameName, opt => opt.MapFrom(src => src.Game.Name))
-            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName))
             .ForMember(dest => dest.OriginalPrice, opt => opt.MapFrom(src => src.Game.Price));
 
 
@@ -23,7 +22,6 @@ public class PurchaseProfile : Profile
         CreateMap<CreatePurchaseCommand, Purchase>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.Game, opt => opt.Ignore())
-            .ForMember(dest => dest.User, opt => opt.Ignore())
             .ForMember(dest => dest.PurchaseDate,
                 opt => opt.MapFrom((src, dest, member, context) =>
                     context.Items["PurchaseDate"]));
@@ -36,8 +34,6 @@ public class PurchaseProfile : Profile
             .ForMember(dest => dest.Id,
                 opt => opt.Ignore())
             .ForMember(dest => dest.Game,
-                opt => opt.Ignore())
-            .ForMember(dest => dest.User,
                 opt => opt.Ignore());
 
         // Entity -> Refund Response

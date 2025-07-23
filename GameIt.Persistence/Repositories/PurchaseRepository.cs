@@ -15,7 +15,6 @@ public class PurchaseRepository : GenericRepository<Purchase>, IPurchaseReposito
     {
         return await _context.Purchases
             .Include(p => p.Game)
-            .Include(p => p.User)
             .Where(p => p.UserId == userId)
             .OrderByDescending(p => p.PurchaseDate)
             .AsNoTracking()

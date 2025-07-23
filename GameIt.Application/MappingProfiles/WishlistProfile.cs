@@ -20,7 +20,6 @@ public class WishlistProfile : Profile
         CreateMap<AddToWishlistCommand, Wishlist>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.Game, opt => opt.Ignore())
-            .ForMember(dest => dest.User, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom((src, dest, member, context) =>
                 context.Items["CreatedAt"]));
     }

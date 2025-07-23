@@ -15,7 +15,6 @@ public class ReviewRepository : GenericRepository<Review>, IReviewRepository
     {
         return await _context.Reviews
             .Where(r => r.GameId == gameId)
-            .Include(r => r.User) 
             .OrderByDescending(r => r.CreatedAt) 
             .AsNoTracking()
             .ToListAsync(token);

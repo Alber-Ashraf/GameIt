@@ -41,10 +41,6 @@ public class PurchaseConfiguration : IEntityTypeConfiguration<Purchase>
             .IsRequired(false);
 
         // Relationships
-        builder.HasOne(p => p.User)
-            .WithMany(u => u.Purchases)
-            .HasForeignKey(p => p.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(p => p.Game)
             .WithMany(g => g.Purchases)

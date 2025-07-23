@@ -20,10 +20,6 @@ public class WishlistConfiguration : IEntityTypeConfiguration<Wishlist>
             .IsRequired(false);
 
         // Relationships
-        builder.HasOne(w => w.User)
-            .WithMany(u => u.Wishlists)
-            .HasForeignKey(w => w.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(w => w.Game)
             .WithMany(g => g.Wishlists)

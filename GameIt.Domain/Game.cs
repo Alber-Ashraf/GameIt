@@ -20,8 +20,7 @@ public class Game : BaseEntity
     public Guid CategoryId { get; set; }
     public Category Category { get; set; }
 
-    public Guid? PublisherId { get; set; }
-    public ApplicationUser? Publisher { get; set; }
+    public string? PublisherId { get; set; }
 
     public Discount? Discount { get; set; }
     public double AverageRating { get; private set; }

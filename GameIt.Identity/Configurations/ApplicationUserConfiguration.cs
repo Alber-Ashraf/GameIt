@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using GameIt.Identity.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace GameIt.Domain.EntityMapping;
@@ -10,10 +11,15 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
         builder.ToTable("Users");
 
         // Properties Configuration
-        builder.Property(u => u.DisplayName)
+        builder.Property(u => u.FirstName)
             .IsRequired()
             .HasMaxLength(100)
-            .HasColumnName("DisplayName");
+            .HasColumnName("FirstName");
+
+        builder.Property(u => u.LastName)
+            .IsRequired()
+            .HasMaxLength(100)
+            .HasColumnName("LastName");
 
         builder.Property(u => u.ProfilePictureUrl)
             .HasMaxLength(300)
@@ -26,22 +32,6 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
 
         builder.Property(u => u.LastLoginDate)
             .HasColumnName("LastLoginDate");
-
-        // Relationships Configuration
-        builder.HasMany(u => u.Purchases)
-            .WithOne(p => p.User)
-            .HasForeignKey(p => p.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasMany(u => u.Reviews)
-            .WithOne(r => r.User)
-            .HasForeignKey(r => r.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasMany(u => u.Wishlists)
-            .WithOne(w => w.User)
-            .HasForeignKey(w => w.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
 
         // Indexes Configuration
         builder.HasIndex(u => u.Email).IsUnique();

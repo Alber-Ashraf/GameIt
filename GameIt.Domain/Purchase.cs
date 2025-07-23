@@ -21,7 +21,6 @@ public class Purchase : BaseEntity
 
     // Relationships
     public string UserId { get; set; }
-    public ApplicationUser User { get; set; }
 
     public Guid GameId { get; set; }
     public Game Game { get; set; }

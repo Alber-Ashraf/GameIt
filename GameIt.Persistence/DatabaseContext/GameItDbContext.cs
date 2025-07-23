@@ -1,6 +1,7 @@
 ﻿using GameIt.Domain;
 using GameIt.Domain.Common;
 using GameIt.Domain.EntityMapping;
+using GameIt.Identity.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameIt.Persistence.DatabaseContext;

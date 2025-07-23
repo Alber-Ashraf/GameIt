@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GameIt.Application\GameIt.Application.csproj" />
+    <ProjectReference Include="..\GameIt.Identity\GameIt.Identity.csproj" />
   </ItemGroup>
 
 </Project>

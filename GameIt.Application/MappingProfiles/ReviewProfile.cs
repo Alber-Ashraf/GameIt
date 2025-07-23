@@ -11,17 +11,12 @@ public class ReviewProfile : Profile
     public ReviewProfile() 
     {
         // Map Review to ReviewListDto
-        CreateMap<Review, ReviewListDto>()
-            .ForMember(dest => dest.UserDisplayName,
-                opt => opt.MapFrom(src => src.User.DisplayName)) 
-            .ForMember(dest => dest.UserProfilePictureUrl,
-                opt => opt.MapFrom(src => src.User.ProfilePictureUrl));
+        CreateMap<Review, ReviewListDto>();
 
         // Map Command to Review
         CreateMap<CreateReviewCommand, Review>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
-            .ForMember(dest => dest.User, opt => opt.Ignore())
             .ForMember(dest => dest.Game, opt => opt.Ignore())
             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
             .ForMember(dest => dest.GameId, opt => opt.MapFrom(src => src.GameId));
@@ -29,7 +24,6 @@ public class ReviewProfile : Profile
         // Map UpdateReviewCommand to Review
         CreateMap<UpdateReviewCommand, Review>()
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.User, opt => opt.Ignore())
             .ForMember(dest => dest.Game, opt => opt.Ignore())
             .ForMember(dest => dest.Id, opt => opt.Ignore());
     }

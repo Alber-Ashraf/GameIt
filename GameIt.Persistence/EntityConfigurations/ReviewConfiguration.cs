@@ -30,10 +30,6 @@ public class ReviewConfiguration : IEntityTypeConfiguration<Review>
         builder.HasCheckConstraint("CK_Reviews_Rating", "[Rating] BETWEEN 1 AND 5");
 
         // Relationships
-        builder.HasOne(r => r.User)
-            .WithMany(u => u.Reviews)
-            .HasForeignKey(r => r.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(r => r.Game)
             .WithMany(g => g.Reviews)
