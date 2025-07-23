@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GameIt.Application\GameIt.Application.csproj" />
+    <ProjectReference Include="..\GameIt.Identity\GameIt.Identity.csproj" />
     <ProjectReference Include="..\GameIt.Infrastructure\GameIt.Infrastructure.csproj" />
     <ProjectReference Include="..\GameIt.Persistence\GameIt.Persistence.csproj" />
   </ItemGroup>

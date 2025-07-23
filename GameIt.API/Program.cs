@@ -1,6 +1,7 @@
 using GameIt.API.Middlewares;
 using GameIt.Application;
 using GameIt.Application.Interfaces.IDiscount;
+using GameIt.Identity;
 using GameIt.Infrastructure;
 using GameIt.Persistence;
 using Hangfire;
@@ -17,6 +18,7 @@ public class Program
         builder.Services.AddApplicationServices();
         builder.Services.AddPersistenceServices(builder.Configuration);
         builder.Services.AddInfrastructureServices(builder.Configuration);
+        builder.Services.AddIdentityServices(builder.Configuration);
 
         builder.Services.AddControllers();
 

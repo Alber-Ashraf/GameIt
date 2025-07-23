@@ -41,6 +41,7 @@ public class AuthService : IAuthService
         }
 
         JwtSecurityToken jwtSecurityToken = await GenerateToken(user);
+        user.LastLoginDate = DateTime.UtcNow;
 
         var response = new AuthResponse
         {
