@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Blazored.LocalStorage;
 using GameIt.BlazorUI.Contracts;
 using GameIt.BlazorUI.Models.Game;
 using GameIt.BlazorUI.Services.Base;
@@ -8,7 +9,7 @@ namespace GameIt.BlazorUI.Services;
 public class GameService : BaseHttpService, IGameService
 {
     private readonly IMapper _mapper;
-    public GameService(IClient client, IMapper mapper) : base(client) 
+    public GameService(IClient client, IMapper mapper, ILocalStorageService localStorage) : base(client, localStorage) 
     {
         _mapper = mapper;
     }

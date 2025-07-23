@@ -9,11 +9,13 @@ using GameIt.Application.Features.Game.Queries.GetGamesByCategory;
 using GameIt.Application.Features.Game.Queries.GetSimilarGames;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GameIt.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class GameController : ControllerBase
 {
     private readonly IMediator _mediator;
