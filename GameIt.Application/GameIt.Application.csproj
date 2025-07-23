@@ -19,4 +19,9 @@
     <ProjectReference Include="..\GameIt.Domain\GameIt.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Interfaces\Identity\" />
+    <Folder Include="Models\Identity\" />
+  </ItemGroup>
+
 </Project>

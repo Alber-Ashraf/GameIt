@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameIt.Persistence.Integrat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameIt.BlazorUI", "GameIt.BlazorUI\GameIt.BlazorUI.csproj", "{D7890FA5-44DF-4A4B-8A9C-CABF7F6DEB02}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameIt.Identity", "GameIt.Identity\GameIt.Identity.csproj", "{8A4A5287-1623-41F0-BA46-9A321976D9CA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{D7890FA5-44DF-4A4B-8A9C-CABF7F6DEB02}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7890FA5-44DF-4A4B-8A9C-CABF7F6DEB02}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7890FA5-44DF-4A4B-8A9C-CABF7F6DEB02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A4A5287-1623-41F0-BA46-9A321976D9CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A4A5287-1623-41F0-BA46-9A321976D9CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A4A5287-1623-41F0-BA46-9A321976D9CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A4A5287-1623-41F0-BA46-9A321976D9CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
