@@ -1,7 +1,6 @@
 ﻿using GameIt.Domain;
 using GameIt.Domain.Common;
 using GameIt.Domain.EntityMapping;
-using GameIt.Identity.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameIt.Persistence.DatabaseContext;
@@ -19,7 +18,6 @@ public class GameItDbContext : DbContext
     public DbSet<Review> Reviews { get; set; }
     public DbSet<Purchase> Purchases { get; set; }
     public DbSet<Wishlist> Wishlists { get; set; }
-    public DbSet<ApplicationUser> ApplicationUsers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -30,7 +28,6 @@ public class GameItDbContext : DbContext
         modelBuilder.ApplyConfiguration(new PurchaseConfiguration());
         modelBuilder.ApplyConfiguration(new ReviewConfiguration());
         modelBuilder.ApplyConfiguration(new WishlistConfiguration());
-        modelBuilder.ApplyConfiguration(new ApplicationUserConfiguration());
 
         base.OnModelCreating(modelBuilder);
     }
