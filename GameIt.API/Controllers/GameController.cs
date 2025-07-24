@@ -15,7 +15,6 @@ namespace GameIt.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize]
 public class GameController : ControllerBase
 {
     private readonly IMediator _mediator;
