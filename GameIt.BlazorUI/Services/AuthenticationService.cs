@@ -1,5 +1,7 @@
-﻿using Blazored.LocalStorage;
+﻿using AutoMapper;
+using Blazored.LocalStorage;
 using GameIt.BlazorUI.Contracts;
+using GameIt.BlazorUI.Models.Auth;
 using GameIt.BlazorUI.Providers;
 using GameIt.BlazorUI.Services.Base;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -9,23 +11,22 @@ namespace GameIt.BlazorUI.Services;
 public class AuthenticationService : BaseHttpService, IAuthenticationService
 {
     private readonly AuthenticationStateProvider _authenticationStateProvider;
+    private readonly IMapper _mapper;
     public AuthenticationService(IClient client,
         ILocalStorageService localStorage,
-        AuthenticationStateProvider authenticationStateProvider) :
+        AuthenticationStateProvider authenticationStateProvider,
+        IMapper mapper) :
         base(client, localStorage)
     {
         _authenticationStateProvider = authenticationStateProvider;
+        _mapper = mapper;
     }
 
-    public async Task<bool> AuthenticationAsync(string email, string password)
+    public async Task<bool> AuthenticationAsync(LoginVM loginVM)
     {
         try
         {
-            AuthRequest authRequest = new AuthRequest
-            {
-                Email = email,
-                Password = password
-            };
+            AuthRequest authRequest = _mapper.Map<AuthRequest>(loginVM);
 
             var authResponse = await _client.LoginAsync(authRequest);
             if (authResponse.Token != string.Empty)
@@ -51,19 +52,11 @@ public class AuthenticationService : BaseHttpService, IAuthenticationService
         await ((ApiAuthenticationStateProvider)_authenticationStateProvider).LoggedOut();
     }
 
-    public async Task<bool> RegisterAsync(string FirstName, string LastName, string ProfilePictureUrl, string userName, string email, string password)
+    public async Task<bool> RegisterAsync(RegisterVM registerVM)
     {
         try
         {
-            RegistrationRequest registerRequest = new RegistrationRequest
-            {
-                FirstName = FirstName,
-                LastName = LastName,
-                ProfilePictureUrl = ProfilePictureUrl,
-                UserName = userName,
-                Email = email,
-                Password = password
-            };
+            RegistrationRequest registerRequest = _mapper.Map<RegistrationRequest>(registerVM);
             var response = await _client.RegisterAsync(registerRequest);
 
             if (!string.IsNullOrEmpty(response.UserId))
