@@ -10,7 +10,7 @@ public class GameDetailsDto
     public string ImageUrl { get; set; } = string.Empty;
     public decimal Price { get; set; }
     public bool IsFree { get; set; }
-    public string Size { get; set; } = "0 MB";
+    public long FileSizeInBytes { get; set; }
     public string DownloadLink { get; set; } = string.Empty;
     public string SystemRequirements { get; set; } = string.Empty;
     public DateTime ReleaseDate { get; set; }

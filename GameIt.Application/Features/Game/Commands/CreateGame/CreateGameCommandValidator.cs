@@ -23,7 +23,7 @@ public class CreateGameCommandValidator : AbstractValidator<CreateGameCommand>
         RuleFor(x => x.Price)
             .GreaterThanOrEqualTo(0).WithMessage("Price must be a non-negative value.");
 
-        RuleFor(x => x.Size)
+        RuleFor(x => x.FileSizeInBytes)
             .NotEmpty().WithMessage("Game size is required.");
 
         RuleFor(x => x.DownloadLink)

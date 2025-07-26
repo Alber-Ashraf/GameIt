@@ -41,8 +41,7 @@ public class GameProfile : Profile
 
         // Commands Mapping
         CreateMap<CreateGameCommand, Game>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.ReleaseDate, opt => opt.MapFrom(_ => DateTime.UtcNow));
+            .ForMember(dest => dest.Id, opt => opt.Ignore());
 
         CreateMap<UpdateGameCommand, Game>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
