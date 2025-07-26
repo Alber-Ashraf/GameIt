@@ -2,6 +2,8 @@
 using GameIt.Application.Exeptions;
 using GameIt.Application.Interfaces.Persistence;
 using MediatR;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace GameIt.Application.Features.Game.Commands.CreateGame;
 
@@ -9,10 +11,12 @@ public class CreateGameCommandHandler : IRequestHandler<CreateGameCommand, Guid>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-    public CreateGameCommandHandler(IMapper mapper, IUnitOfWork unitOfWork)
+    private readonly IHttpContextAccessor _contextAccessor;
+    public CreateGameCommandHandler(IMapper mapper, IUnitOfWork unitOfWork, IHttpContextAccessor contextAccessor)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _contextAccessor = contextAccessor;
     }
     public async Task<Guid> Handle(CreateGameCommand request, CancellationToken cancellationToken)
     {
@@ -33,6 +37,15 @@ public class CreateGameCommandHandler : IRequestHandler<CreateGameCommand, Guid>
         // Map the CreateGameCommand to a Game entity
         var gameToCreate = _mapper.Map<Domain.Game>(request);
         gameToCreate.CategoryId = category.Id;
+
+        // Get the publisher ID from the HTTP context
+        string? publisherId = _contextAccessor.HttpContext?.User?.FindFirstValue("uid");
+
+        if (string.IsNullOrEmpty(publisherId))
+            throw new UnauthorizedAccessException("User must be authenticated");
+
+        // Set the publisher ID
+        gameToCreate.PublisherId = publisherId;
 
         // Validate if the category exists
         if (category == null)

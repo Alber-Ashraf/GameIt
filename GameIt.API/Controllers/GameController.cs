@@ -85,6 +85,7 @@ public class GameController : ControllerBase
 
     // Post: api/game
     [HttpPost]
+    [Authorize(Roles = "Administrator")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateGame(
@@ -97,6 +98,7 @@ public class GameController : ControllerBase
 
     // Put: api/game/{id}
     [HttpPut("{id}")]
+    [Authorize(Roles = "Administrator")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -111,6 +113,7 @@ public class GameController : ControllerBase
 
     // Delete: api/game/{id}
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Administrator")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteGame([FromRoute] Guid id,

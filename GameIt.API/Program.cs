@@ -20,6 +20,7 @@ public class Program
         builder.Services.AddInfrastructureServices(builder.Configuration);
         builder.Services.AddIdentityServices(builder.Configuration);
 
+        builder.Services.AddHttpContextAccessor();
         builder.Services.AddControllers();
 
         builder.Services.AddCors(options =>
