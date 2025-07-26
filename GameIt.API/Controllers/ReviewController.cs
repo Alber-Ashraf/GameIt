@@ -3,12 +3,14 @@ using GameIt.Application.Features.Review.Commands.DeleteReview;
 using GameIt.Application.Features.Review.Commands.UpdateReview;
 using GameIt.Application.Features.Review.Queries.GetReviewsByGame;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GameIt.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class ReviewController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -30,32 +32,37 @@ public class ReviewController : ControllerBase
     }
 
     // Post: api/review
-    [HttpPost]
+    [HttpPost("{gameid}")]
     [ProducesResponseType(typeof(CreateReviewCommand), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> CreateReview(
+        [FromRoute] Guid gameId,
         [FromBody] CreateReviewCommand command,
         CancellationToken token = default)
     {
+        command.GameId = gameId;
         var result = await _mediator.Send(command, token);
         return CreatedAtAction(
                     nameof(GetReviewsByGame),
-                    new { gameId = command.GameId });
+                    new { gameId = gameId },
+                    new { ReviewId = result });
     }
 
     //Update: api/review/{id}
-    [HttpPut("{id}")]
+    [HttpPut("{id}/{gameid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateReview(
         [FromRoute] Guid id,
+        [FromRoute] Guid gameId,
         [FromBody] UpdateReviewCommand command,
         CancellationToken token = default)
     {
         if (id != command.Id)
             return BadRequest("Review ID mismatch.");
+        command.GameId = gameId;
 
         var result = await _mediator.Send(command, token);
         return NoContent();

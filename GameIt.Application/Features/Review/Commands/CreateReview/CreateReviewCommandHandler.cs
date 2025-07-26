@@ -2,6 +2,8 @@
 using GameIt.Application.Exeptions;
 using GameIt.Application.Interfaces.Persistence;
 using MediatR;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace GameIt.Application.Features.Review.Commands.CreateReview;
 
@@ -9,10 +11,13 @@ public class CreateReviewCommandHandler : IRequestHandler<CreateReviewCommand, G
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-    public CreateReviewCommandHandler(IMapper mapper, IUnitOfWork unitOfWork)
+    private readonly IHttpContextAccessor _contextAccessor;
+
+    public CreateReviewCommandHandler(IMapper mapper, IUnitOfWork unitOfWork, IHttpContextAccessor contextAccessor)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _contextAccessor = contextAccessor;
     }
     public async Task<Guid> Handle(
         CreateReviewCommand request,
@@ -28,9 +33,18 @@ public class CreateReviewCommandHandler : IRequestHandler<CreateReviewCommand, G
         // Map the request to a Review entity
         var ReviewToCreate = _mapper.Map<Domain.Review>(request);
 
+        // Get the User ID from the HTTP context
+        string? userId = _contextAccessor.HttpContext?.User?.FindFirstValue("uid");
+
+        if (string.IsNullOrEmpty(userId))
+            throw new UnauthorizedAccessException("User must be authenticated");
+
+        // Set the User Id
+        ReviewToCreate.UserId = userId;
+
         // Create the Review in the repository
         await _unitOfWork.Reviews.CreateAsync(ReviewToCreate);
-
+            
         // Save changes
         await _unitOfWork.SaveChangesAsync(token);
 

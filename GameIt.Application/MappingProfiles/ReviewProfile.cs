@@ -16,15 +16,13 @@ public class ReviewProfile : Profile
         // Map Command to Review
         CreateMap<CreateReviewCommand, Review>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
-            .ForMember(dest => dest.Game, opt => opt.Ignore())
-            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
-            .ForMember(dest => dest.GameId, opt => opt.MapFrom(src => src.GameId));
+            .ForMember(dest => dest.Game, opt => opt.Ignore());
 
         // Map UpdateReviewCommand to Review
         CreateMap<UpdateReviewCommand, Review>()
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.Game, opt => opt.Ignore())
-            .ForMember(dest => dest.Id, opt => opt.Ignore());
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.Game, opt => opt.Ignore());
+
     }
 }

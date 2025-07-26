@@ -23,8 +23,5 @@ public class UpdateReviewCommandValidator : AbstractValidator<UpdateReviewComman
             .MaximumLength(1000)
             .When(x => !string.IsNullOrEmpty(x.Comment))
             .WithMessage("Comment cannot exceed 1000 characters.");
-
-        RuleFor(x => x.UserId)
-            .NotEmpty().WithMessage("User ID is required.");
     }
 }

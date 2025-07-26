@@ -2,6 +2,8 @@
 using GameIt.Application.Exeptions;
 using GameIt.Application.Interfaces.Persistence;
 using MediatR;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace GameIt.Application.Features.Review.Commands.UpdateReview;
 
@@ -9,10 +11,12 @@ public class UpdateReviewCommandhandler : IRequestHandler<UpdateReviewCommand, U
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-    public UpdateReviewCommandhandler(IMapper mapper, IUnitOfWork unitOfWork)
+    private readonly IHttpContextAccessor _contextAccessor;
+    public UpdateReviewCommandhandler(IMapper mapper, IUnitOfWork unitOfWork, IHttpContextAccessor contextAccessor)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _contextAccessor = contextAccessor;
     }
     public async Task<Unit> Handle(UpdateReviewCommand request, CancellationToken token)
     {
@@ -23,12 +27,16 @@ public class UpdateReviewCommandhandler : IRequestHandler<UpdateReviewCommand, U
             throw new BadRequestException("Invalid Review", validationResult);
         // Fetch and verify
         var existingReview = await _unitOfWork.Reviews.GetByIdAsync(request.Id);
-        // Validate if the review exists and belongs to the user
 
-        /*
-        if (existingReview == null || existingReview.UserId != request.UserId)
+        // Get the User ID from the HTTP context
+        string? userId = _contextAccessor.HttpContext?.User?.FindFirstValue("uid");
+
+        if (string.IsNullOrEmpty(userId))
+            throw new UnauthorizedAccessException("User must be authenticated");
+
+        // Validate if the review exists and belongs to the user
+        if (existingReview == null || existingReview.UserId != userId)
             throw new NotFoundException("Review not found or access denied.");
-        */
 
         // AutoMapper update (preserves unchanged values)
         _mapper.Map(request, existingReview);

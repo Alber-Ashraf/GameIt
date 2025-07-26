@@ -16,16 +16,5 @@ public class CreateReviewCommandValidator : AbstractValidator<CreateReviewComman
         RuleFor(x => x.Comment)
             .NotEmpty().WithMessage("Comment is required.")
             .MaximumLength(1000).WithMessage("Comment cannot exceed 1000 characters.");
-
-        RuleFor(x => x.GameId)
-            .NotEmpty().WithMessage("Game ID is required.")
-            .MustAsync(GameExists).WithMessage("Game does not exist.");
-
-        RuleFor(x => x.UserId)
-            .NotEmpty().WithMessage("User ID is required.");
-    }
-    private async Task<bool> GameExists(Guid gameId, CancellationToken token)
-    {
-        return await _unitOfWork.Games.ExistsAsync(gameId, token);
     }
 }
