@@ -36,7 +36,9 @@ public class GameProfile : Profile
                 {
                     Id = r.Id,
                     Rating = r.Rating,
-                    Comment = r.Comment
+                    Comment = r.Comment,
+                    userId = r.UserId,
+                    CreatedAt = r.CreatedAt
                 }).ToList()));
 
         // Commands Mapping
