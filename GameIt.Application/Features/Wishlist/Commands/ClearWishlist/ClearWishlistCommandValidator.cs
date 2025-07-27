@@ -11,7 +11,5 @@ public class ClearWishlistCommandValidator : AbstractValidator<ClearWishlistComm
     public ClearWishlistCommandValidator(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
-        RuleFor(x => x.UserId)
-            .NotEmpty().WithMessage("UserId is required.");
     }
 }

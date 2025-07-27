@@ -12,9 +12,6 @@ public class AddToWishlistCommandValidator : AbstractValidator<AddToWishlistComm
         RuleFor(x => x.GameId)
             .NotEmpty().WithMessage("GameId is required.")
             .MustAsync(GameExists).WithMessage("Game does not exist.");
-
-        RuleFor(x => x.UserId)
-            .NotEmpty().WithMessage("UserId is required.");
     }
     private async Task<bool> GameExists(Guid gameId, CancellationToken cancellationToken)
     {
