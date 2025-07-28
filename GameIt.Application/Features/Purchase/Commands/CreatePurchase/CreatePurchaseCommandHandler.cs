@@ -3,7 +3,10 @@ using GameIt.Application.Exeptions;
 using GameIt.Application.Interfaces.Persistence;
 using GameIt.Application.Interfaces.Stripe;
 using GameIt.Application.Models.Stripe;
+using GameIt.Domain;
 using MediatR;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace GameIt.Application.Features.Purchase.Commands.CreatePurchase;
 
@@ -12,20 +15,21 @@ public class CreatePurchaseCommandHandler : IRequestHandler<CreatePurchaseComman
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IStripeService _stripeService;
+    private readonly IHttpContextAccessor _contextAccessor;
 
     public CreatePurchaseCommandHandler(
         IMapper mapper,
         IUnitOfWork unitOfWork,
-        IStripeService stripeService)
+        IStripeService stripeService,
+        IHttpContextAccessor contextAccessor)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _stripeService  = stripeService;
+        _contextAccessor = contextAccessor;
     }
 
-    public async Task<PurchaseResult> Handle(
-        CreatePurchaseCommand request,
-        CancellationToken token)
+    public async Task<PurchaseResult> Handle(CreatePurchaseCommand request, CancellationToken token)
     {
         // Validate
         var validator = new CreatePurchaseCommandValidator(_unitOfWork);
@@ -33,28 +37,63 @@ public class CreatePurchaseCommandHandler : IRequestHandler<CreatePurchaseComman
         if (!validationResult.IsValid)
             throw new BadRequestException("Invalid Purchase", validationResult);
 
-        // Verify game exists
-        if (!await _unitOfWork.Games.ExistsAsync(request.GameId, token))
+        // Get the User ID from the HTTP context
+        string? userId = _contextAccessor.HttpContext?.User?.FindFirstValue("uid");
+        if (string.IsNullOrEmpty(userId))
+            throw new UnauthorizedAccessException("User must be authenticated");
+
+        // Get game info
+        var game = await _unitOfWork.Games.GetByIdWithDetailsAsync(request.GameId, token);
+        if (game == null)
             throw new NotFoundException(nameof(Game), request.GameId);
-        
-        // Process payment
-        var paymentResult = await _stripeService.CreatePurchaseAsync(
-            request.AmountPaid,
-            request.UserId,
-            request.GameId,
-            token);
-        
-        // Map command to entity with additional fields
-        var purchase = _mapper.Map<Domain.Purchase>(request, opt =>
+
+        // Create purchase (initial)
+        var purchase = new Domain.Purchase
         {
-            opt.Items["PaymentStatus"] = paymentResult.Status;
-            opt.Items["PurchaseDate"] = DateTime.UtcNow;
-            opt.Items["StripePaymentIntentId"] = paymentResult.StripePaymentIntentId;
-        });
+            GameId = game.Id,
+            UserId = userId,
+            OriginalPrice = game.Price,
+            AmountPaid = request.AmountPaid,
+            PurchaseDate = DateTime.UtcNow,
+            Status = PaymentStatus.Pending
+        };
+
+        PurchaseResult result;
+
+        if (request.AmountPaid > 0)
+        {
+            // Call Stripe checkout
+            var checkoutSession = await _stripeService.CreateCheckoutSessionAsync(
+                request.AmountPaid,
+                userId,
+                request.GameId,
+                token);
+
+            purchase.StripePaymentIntentId = checkoutSession.StripePaymentIntentId;
+            // purchase.StripeSessionId = checkoutSession.SessionId; ← لو محتاج
+
+            result = new PurchaseResult
+            {
+                Status = PaymentStatus.Pending,
+                StripeCheckoutUrl = checkoutSession.CheckoutUrl // Important!
+            };
+        }
+        else
+        {
+            purchase.Status = PaymentStatus.Succeeded;
+
+            result = new PurchaseResult
+            {
+                Status = PaymentStatus.Succeeded,
+                StripeCheckoutUrl = null
+            };
+        }
 
         await _unitOfWork.Purchases.CreateAsync(purchase);
-        await _unitOfWork.SaveChangesAsync(token);
+        await _unitOfWork.SaveChangesAsync();
 
-        return _mapper.Map<PurchaseResult>(purchase);
+        return result;
     }
+
 }
+

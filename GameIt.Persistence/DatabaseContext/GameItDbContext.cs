@@ -47,6 +47,4 @@ public class GameItDbContext : DbContext
         }
         return base.SaveChangesAsync(cancellationToken);
     }
-
-
 }

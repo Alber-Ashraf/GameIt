@@ -3,6 +3,7 @@ using GameIt.Application.Models.Stripe;
 using GameIt.Domain;
 using Microsoft.Extensions.Options;
 using Stripe;
+using Stripe.Checkout;
 using Stripe.V2;
 
 namespace GameIt.Infrastructure.Stripe;
@@ -16,12 +17,31 @@ public class StripeService : IStripeService
         _stripeSettings = stripeSettings.Value;
         StripeConfiguration.ApiKey = _stripeSettings.SecretKey;
     }
-    public async Task<Purchase> CreatePurchaseAsync(decimal amount, string userId, Guid gameId, CancellationToken token = default)
+
+    public async Task<StripeCheckoutResult> CreateCheckoutSessionAsync(decimal amount, string userId, Guid gameId, CancellationToken token = default)
     {
-        var options = new PaymentIntentCreateOptions
+        var options = new SessionCreateOptions
         {
-            Amount = (long)(amount * 100),
-            Currency = "usd",
+            PaymentMethodTypes = new List<string> { "card" },
+            LineItems = new List<SessionLineItemOptions>
+        {
+            new SessionLineItemOptions
+            {
+                PriceData = new SessionLineItemPriceDataOptions
+                {
+                    UnitAmount = (long)(amount * 100), // convert to cents
+                    Currency = "usd",
+                    ProductData = new SessionLineItemPriceDataProductDataOptions
+                    {
+                        Name = "Game Purchase"
+                    },
+                },
+                Quantity = 1,
+            },
+        },
+            Mode = "payment",
+            SuccessUrl = $"https://yourdomain.com/purchase-success?session_id={{CHECKOUT_SESSION_ID}}",
+            CancelUrl = $"https://yourdomain.com/purchase-cancelled",
             Metadata = new Dictionary<string, string>
         {
             { "user_id", userId },
@@ -29,35 +49,14 @@ public class StripeService : IStripeService
         }
         };
 
-        var service = new PaymentIntentService();
-        var paymentIntent = await service.CreateAsync(options, cancellationToken: token);
+        var service = new SessionService();
+        var session = await service.CreateAsync(options);
 
-        return new Purchase
+        return new StripeCheckoutResult
         {
-            UserId = userId,
-            GameId = gameId,
-            AmountPaid = amount,
-            Currency = "usd",
-            StripePaymentIntentId = paymentIntent.Id,
-            Status = PaymentStatus.Pending
+            CheckoutUrl = session.Url,
+            SessionId = session.Id,
+            StripePaymentIntentId = session.PaymentIntentId
         };
-    }
-
-    public async Task<RefundResult> RefundPurchaseAsync(string paymentIntentId, CancellationToken token)
-    {
-        try
-        {
-            var options = new RefundCreateOptions
-            {
-                PaymentIntent = paymentIntentId
-            };
-
-            var refund = await new RefundService().CreateAsync(options, cancellationToken: token);
-            return new RefundResult { Success = true, RefundId = refund.Id };
-        }
-        catch (StripeException ex)
-        {
-            return new RefundResult { Success = false, Error = ex.Message };
-        }
     }
 }

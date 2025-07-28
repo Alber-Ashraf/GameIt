@@ -1,13 +1,14 @@
 ﻿using GameIt.Application.Features.Purchase.Commands.CreatePurchase;
-using GameIt.Application.Features.Purchase.Commands.RefundPurchase;
 using GameIt.Application.Features.Purchase.Queries.GetUserPurchase;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GameIt.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class PaymentController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -36,20 +37,6 @@ public class PaymentController : ControllerBase
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> CreatePurchase(
         [FromBody] CreatePurchaseCommand command,
-        CancellationToken token = default)
-    {
-        var result = await _mediator.Send(command, token);
-        return Ok(result);
-    }
-
-    // Post: api/payment/RefundPurchase
-    [HttpPost("purchases/refunds")]
-    [ProducesResponseType(typeof(RefundPurchaseCommand), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> RefundPurchase(
-        [FromBody] RefundPurchaseCommand command,
         CancellationToken token = default)
     {
         var result = await _mediator.Send(command, token);

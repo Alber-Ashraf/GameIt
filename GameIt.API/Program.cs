@@ -5,6 +5,7 @@ using GameIt.Identity;
 using GameIt.Infrastructure;
 using GameIt.Persistence;
 using Hangfire;
+using Stripe;
 
 namespace GameIt.Api;
 
@@ -55,6 +56,8 @@ public class Program
         app.UseHttpsRedirection();
 
         app.UseCors("AllowAllOrigins");
+
+        StripeConfiguration.ApiKey = app.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 
         app.UseAuthentication();
         app.UseAuthorization();

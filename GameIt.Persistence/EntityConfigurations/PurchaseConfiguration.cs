@@ -23,12 +23,6 @@ public class PurchaseConfiguration : IEntityTypeConfiguration<Purchase>
         builder.Property(p => p.OriginalPrice)
             .HasColumnType("decimal(18,2)");
 
-        builder.Property(p => p.Currency)
-            .HasMaxLength(3)
-            .HasColumnType("char(3)")
-            .HasDefaultValue("USD")
-            .IsFixedLength();
-
         builder.Property(p => p.Status)
             .HasConversion<string>()
             .HasMaxLength(20);
@@ -46,8 +40,5 @@ public class PurchaseConfiguration : IEntityTypeConfiguration<Purchase>
             .WithMany(g => g.Purchases)
             .HasForeignKey(p => p.GameId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        // Query Filter
-        builder.HasQueryFilter(p => !p.IsRefunded);
     }
 }
