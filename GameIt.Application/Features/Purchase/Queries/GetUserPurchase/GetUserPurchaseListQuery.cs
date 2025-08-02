@@ -2,4 +2,4 @@
 
 namespace GameIt.Application.Features.Purchase.Queries.GetUserPurchase;
 
-public record GetUserPurchaseListQuery(string UserId) : IRequest<List<PurchaseListDto>> {}
+public record GetUserPurchaseListQuery() : IRequest<List<PurchaseListDto>> {}

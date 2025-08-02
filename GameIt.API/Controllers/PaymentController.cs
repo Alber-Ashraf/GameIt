@@ -25,7 +25,7 @@ public class PaymentController : ControllerBase
         [FromRoute] string userId,
         CancellationToken token = default)
     {
-        var query = new GetUserPurchaseListQuery(userId);
+        var query = new GetUserPurchaseListQuery();
         var purchases = await _mediator.Send(query, token);
         return Ok(purchases);
     }
