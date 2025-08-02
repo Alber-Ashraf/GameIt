@@ -1,62 +1,101 @@
-﻿using GameIt.Application.Interfaces.Stripe;
-using GameIt.Application.Models.Stripe;
-using GameIt.Domain;
-using Microsoft.Extensions.Options;
-using Stripe;
+﻿using Stripe;
 using Stripe.Checkout;
-using Stripe.V2;
+using GameIt.Application.Interfaces.Stripe;
+using GameIt.Application.Models.Stripe;
+using Microsoft.Extensions.Configuration;
 
-namespace GameIt.Infrastructure.Stripe;
-
-public class StripeService : IStripeService
+namespace GameIt.Infrastructure.Stripe
 {
-    private readonly StripeSettings _stripeSettings;
-
-    public StripeService(IOptions<StripeSettings> stripeSettings)
+    public class StripeService : IStripeService
     {
-        _stripeSettings = stripeSettings.Value;
-        StripeConfiguration.ApiKey = _stripeSettings.SecretKey;
-    }
+        private readonly StripeClient _stripeClient;
+        private readonly string _webhookSecret;
+        private readonly string _successUrl;
+        private readonly string _cancelUrl;
 
-    public async Task<StripeCheckoutResult> CreateCheckoutSessionAsync(decimal amount, string userId, Guid gameId, CancellationToken token = default)
-    {
-        var options = new SessionCreateOptions
+        public StripeService(IConfiguration config)
         {
-            PaymentMethodTypes = new List<string> { "card" },
-            LineItems = new List<SessionLineItemOptions>
+            var stripeConfig = config.GetSection("Stripe");
+            if (stripeConfig == null)
+                throw new ArgumentNullException("Stripe configuration not found");
+
+            var secretKey = stripeConfig["SecretKey"];
+            if (string.IsNullOrWhiteSpace(secretKey))
+                throw new ArgumentException("Stripe SecretKey is missing from configuration");
+
+            _stripeClient = new StripeClient(secretKey);
+            _webhookSecret = stripeConfig["WebhookSecret"];
+            _successUrl = stripeConfig["SuccessUrl"] ?? "https://yourdomain.com/success";
+            _cancelUrl = stripeConfig["CancelUrl"] ?? "https://yourdomain.com/cancel";
+
+            StripeConfiguration.ApiKey = secretKey; // Needed for static API access
+        }
+
+        public async Task<CheckoutSessionResponse> CreateCheckoutSessionAsync(
+    decimal amount,
+    string userId,
+    Guid gameId,
+    Guid purchaseId,
+    CancellationToken token)
         {
-            new SessionLineItemOptions
+            var options = new SessionCreateOptions
+            {
+                PaymentMethodTypes = new List<string> { "card" },
+                LineItems = new List<SessionLineItemOptions>
+        {
+            new()
             {
                 PriceData = new SessionLineItemPriceDataOptions
                 {
-                    UnitAmount = (long)(amount * 100), // convert to cents
+                    UnitAmount = (long)(amount * 100),
                     Currency = "usd",
                     ProductData = new SessionLineItemPriceDataProductDataOptions
                     {
-                        Name = "Game Purchase"
-                    },
+                        Name = $"Game Purchase: {gameId}"
+                    }
                 },
-                Quantity = 1,
-            },
+                Quantity = 1
+            }
         },
-            Mode = "payment",
-            SuccessUrl = $"https://yourdomain.com/purchase-success?session_id={{CHECKOUT_SESSION_ID}}",
-            CancelUrl = $"https://yourdomain.com/purchase-cancelled",
-            Metadata = new Dictionary<string, string>
+                Mode = "payment",
+                SuccessUrl = $"{_successUrl}?session_id={{CHECKOUT_SESSION_ID}}",
+                CancelUrl = _cancelUrl,
+                Metadata = new Dictionary<string, string>
         {
-            { "user_id", userId },
-            { "game_id", gameId.ToString() }
+            { "userId", userId },
+            { "gameId", gameId.ToString() },
+            { "purchase_id", purchaseId.ToString() }
         }
-        };
+            };
 
-        var service = new SessionService();
-        var session = await service.CreateAsync(options);
+            var service = new SessionService(_stripeClient);
+            var session = await service.CreateAsync(options, cancellationToken: token);
 
-        return new StripeCheckoutResult
+            return new CheckoutSessionResponse
+            {
+                CheckoutUrl = session.Url,
+                StripePaymentIntentId = session.PaymentIntentId
+            };
+        }
+
+
+        public Task<Event> ConstructWebhookEventAsync(string jsonPayload, string signatureHeader)
         {
-            CheckoutUrl = session.Url,
-            SessionId = session.Id,
-            StripePaymentIntentId = session.PaymentIntentId
-        };
+            try
+            {
+                var stripeEvent = EventUtility.ConstructEvent(
+                    jsonPayload,
+                    signatureHeader,
+                    _webhookSecret,
+                    tolerance: 300 // 5 minutes
+                );
+
+                return Task.FromResult(stripeEvent);
+            }
+            catch (StripeException ex)
+            {
+                throw new ApplicationException("Stripe webhook validation failed", ex);
+            }
+        }
     }
 }

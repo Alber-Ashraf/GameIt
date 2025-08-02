@@ -1,5 +1,6 @@
 ﻿using GameIt.Application.Interfaces.Persistence;
 using GameIt.Persistence.DatabaseContext;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace GameIt.Persistence.Repositories;
 
@@ -19,6 +20,7 @@ public class UnitOfWork : IUnitOfWork
     public IReviewRepository Reviews => new ReviewRepository(_context);
     public ICategoryRepository Categories => new CategoryRepository(_context);
     public IPurchaseRepository Purchases => new PurchaseRepository(_context);
+    public ILibraryRepository Libraries => new LibraryRepository(_context);
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -38,5 +40,10 @@ public class UnitOfWork : IUnitOfWork
     {
         Dispose(true);
         GC.SuppressFinalize(this);
+    }
+
+    public async Task<IDbContextTransaction> BeginTransactionAsync()
+    {
+        return await _context.Database.BeginTransactionAsync();
     }
 }

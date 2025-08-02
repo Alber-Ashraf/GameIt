@@ -1,4 +1,6 @@
-﻿namespace GameIt.Application.Interfaces.Persistence;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+
+namespace GameIt.Application.Interfaces.Persistence;
 
 public interface IUnitOfWork
 {
@@ -8,6 +10,7 @@ public interface IUnitOfWork
     IReviewRepository Reviews { get; }
     ICategoryRepository Categories { get; }
     IPurchaseRepository Purchases { get; }
-
+    ILibraryRepository Libraries { get; }
+    Task<IDbContextTransaction> BeginTransactionAsync();
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

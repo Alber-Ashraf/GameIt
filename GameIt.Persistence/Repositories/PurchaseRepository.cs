@@ -20,4 +20,11 @@ public class PurchaseRepository : GenericRepository<Purchase>, IPurchaseReposito
             .AsNoTracking()
             .ToListAsync(token);
     }
+
+    public async Task<Purchase?> GetByPaymentIntentIdAsync(string paymentIntentId)
+    {
+        return await _context.Purchases
+            .FirstOrDefaultAsync(p => p.StripePaymentIntentId == paymentIntentId);
+    }
+
 }

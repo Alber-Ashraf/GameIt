@@ -62,20 +62,21 @@ public class CreatePurchaseCommandHandler : IRequestHandler<CreatePurchaseComman
 
         if (request.AmountPaid > 0)
         {
-            // Call Stripe checkout
             var checkoutSession = await _stripeService.CreateCheckoutSessionAsync(
                 request.AmountPaid,
                 userId,
                 request.GameId,
+                purchase.Id,        
                 token);
 
             purchase.StripePaymentIntentId = checkoutSession.StripePaymentIntentId;
-            // purchase.StripeSessionId = checkoutSession.SessionId; ← لو محتاج
 
             result = new PurchaseResult
             {
+                Id = purchase.Id,
                 Status = PaymentStatus.Pending,
-                StripeCheckoutUrl = checkoutSession.CheckoutUrl // Important!
+                StripeCheckoutUrl = checkoutSession.CheckoutUrl,
+                PurchaseDate = purchase.PurchaseDate
             };
         }
         else
@@ -84,8 +85,10 @@ public class CreatePurchaseCommandHandler : IRequestHandler<CreatePurchaseComman
 
             result = new PurchaseResult
             {
+                Id = purchase.Id,
                 Status = PaymentStatus.Succeeded,
-                StripeCheckoutUrl = null
+                StripeCheckoutUrl = null,
+                PurchaseDate = purchase.PurchaseDate
             };
         }
 

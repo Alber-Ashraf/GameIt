@@ -1,6 +1,5 @@
 using GameIt.API.Middlewares;
 using GameIt.Application;
-using GameIt.Application.Interfaces.IDiscount;
 using GameIt.Identity;
 using GameIt.Infrastructure;
 using GameIt.Persistence;
@@ -57,7 +56,7 @@ public class Program
 
         app.UseCors("AllowAllOrigins");
 
-        StripeConfiguration.ApiKey = app.Configuration.GetSection("Stripe:SecretKey").Get<string>();
+        StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
         app.UseAuthentication();
         app.UseAuthorization();

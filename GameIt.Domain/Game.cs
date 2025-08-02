@@ -29,4 +29,5 @@ public class Game : BaseEntity
     public ICollection<Review> Reviews { get; set; } = new List<Review>();
     public ICollection<Purchase> Purchases { get; set; } = new List<Purchase>();
     public ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();
+    public ICollection<Library> Libraries { get; set; } = new List<Library>();
 }
