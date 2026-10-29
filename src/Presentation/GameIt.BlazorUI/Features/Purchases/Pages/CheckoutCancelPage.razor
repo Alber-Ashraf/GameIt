@@ -1,0 +1,26 @@
+@page "/checkout/cancel"
+@attribute [Authorize]
+
+<PageTitle>Checkout Cancelled — GameIt</PageTitle>
+
+<div style="max-width:540px;margin:var(--space-8) auto;">
+    <div class="gi-card" style="padding:var(--space-8);text-align:center;">
+        <div style="width:64px;height:64px;margin:0 auto var(--space-4);border-radius:var(--radius-full);background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);display:flex;align-items:center;justify-content:center;color:var(--rose-400);font-size:2rem;">
+            <i class="bi bi-x-circle"></i>
+        </div>
+
+        <h1 style="font-size:1.6rem;margin-bottom:var(--space-2);">Order Cancelled</h1>
+        <p style="color:var(--text-secondary);font-size:0.92rem;line-height:1.6;margin-bottom:var(--space-6);">
+            No charges were applied to your payment method. The game remains in your cart/wishlist whenever you're ready to complete the transaction.
+        </p>
+
+        <div style="display:flex;flex-direction:column;gap:var(--space-3);">
+            <a href="/" class="gi-btn gi-btn-primary" style="width:100%;">
+                <i class="bi bi-bag"></i> Return to Storefront
+            </a>
+            <a href="/wishlist" class="gi-btn gi-btn-secondary" style="width:100%;">
+                <i class="bi bi-heart"></i> Go to Wishlist
+            </a>
+        </div>
+    </div>
+</div>

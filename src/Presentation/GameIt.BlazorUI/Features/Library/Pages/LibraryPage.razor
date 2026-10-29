@@ -1,0 +1,123 @@
+@page "/library"
+@attribute [Authorize]
+@using GameIt.BlazorUI.Features.Library.Services
+@inject ILibraryApiClient LibraryApi
+@inject ToastService Toast
+
+<PageTitle>My Library — GameIt</PageTitle>
+
+<PageHeader Eyebrow="Digital Vault"
+            Title="My Game Library"
+            Subtitle="Instant access to all PC titles you own or have claimed." />
+
+<ErrorBanner Message="@_errorMessage" OnRetry="LoadLibraryAsync" />
+
+@if (_isLoading)
+{
+    <SkeletonCardGrid Count="4" />
+}
+else if (_libraryItems.Count == 0)
+{
+    <EmptyState Icon="bi-collection-play"
+                Title="Your library is empty"
+                Description="Games you purchase or claim for free appear here with direct installer links.">
+        <Action>
+            <a href="/" class="gi-btn gi-btn-primary">Browse Storefront</a>
+        </Action>
+    </EmptyState>
+}
+else
+{
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--space-5);">
+        @foreach (var item in _libraryItems.OrderByDescending(x => x.PurchasedAt))
+        {
+            <article class="gi-card" style="padding:var(--space-5);display:flex;flex-direction:column;gap:var(--space-3);">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <span class="gi-badge gi-badge-free"><i class="bi bi-check2-circle"></i> Owned</span>
+                    <span class="tabular-nums" style="font-size:0.78rem;color:var(--text-muted);">
+                        Acquired @item.PurchasedAt.ToString("MMM dd, yyyy")
+                    </span>
+                </div>
+
+                <div>
+                    <h3 style="font-size:1.15rem;margin-bottom:0.25rem;">
+                        <a href="@($"/games/{item.GameId}")" style="color:var(--text-primary);">@item.GameName</a>
+                    </h3>
+                    <div class="tabular-nums" style="font-size:0.8rem;color:var(--text-secondary);">
+                        Install Size: @FormatBytes(item.FileSizeInBytes)
+                    </div>
+                </div>
+
+                <div style="margin-top:auto;padding-top:var(--space-3);border-top:1px solid var(--border-subtle);display:flex;gap:var(--space-2);">
+                    @if (!string.IsNullOrWhiteSpace(item.DownloadLink))
+                    {
+                        <a href="@item.DownloadLink" target="_blank" rel="noopener noreferrer" class="gi-btn gi-btn-primary gi-btn-sm" style="flex:1;">
+                            <i class="bi bi-cloud-arrow-down-fill"></i> Download Installer
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="button" class="gi-btn gi-btn-primary gi-btn-sm" style="flex:1;" @onclick="() => TriggerDownload(item.GameName)">
+                            <i class="bi bi-cloud-arrow-down-fill"></i> Launch Installer
+                        </button>
+                    }
+                    <a href="@($"/games/{item.GameId}")" class="gi-btn gi-btn-secondary gi-btn-sm" aria-label="View game page">
+                        <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                </div>
+            </article>
+        }
+    </div>
+}
+
+@code {
+    private List<LibraryItemDto> _libraryItems = new();
+    private bool _isLoading = true;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadLibraryAsync();
+    }
+
+    private async Task LoadLibraryAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            var res = await LibraryApi.GetUserLibraryAsync();
+            if (res.IsSuccess && res.Data is not null)
+            {
+                _libraryItems = res.Data;
+            }
+            else
+            {
+                _errorMessage = res.ErrorMessage ?? "Failed to load your game library.";
+            }
+        }
+        catch
+        {
+            _errorMessage = "Unable to load your library from the server.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void TriggerDownload(string gameName)
+    {
+        Toast.ShowSuccess($"Preparing digital installer package for {gameName}...", "Download Started");
+    }
+
+    private static string FormatBytes(long? bytes)
+    {
+        if (bytes is null or <= 0) return "Ready for digital delivery";
+        double gb = bytes.Value / (1024.0 * 1024.0 * 1024.0);
+        if (gb >= 1.0) return $"{gb:0.1} GB";
+        double mb = bytes.Value / (1024.0 * 1024.0);
+        return $"{mb:0} MB";
+    }
+}

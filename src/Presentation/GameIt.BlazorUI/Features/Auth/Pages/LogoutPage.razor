@@ -1,0 +1,24 @@
+@page "/logout"
+@using GameIt.BlazorUI.Features.Auth.Services
+@inject IAuthApiClient AuthApi
+@inject ToastService Toast
+@inject NavigationManager Navigation
+
+<PageTitle>Signing Out — GameIt</PageTitle>
+
+<div class="gi-state-box">
+    <div class="gi-state-icon">
+        <i class="bi bi-box-arrow-right"></i>
+    </div>
+    <h3>Signing you out...</h3>
+    <p style="color:var(--text-secondary);font-size:0.88rem;">Clearing your session credentials safely.</p>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthApi.LogoutAsync();
+        Toast.ShowInfo("You have been signed out.", "Session Ended");
+        Navigation.NavigateTo("/");
+    }
+}

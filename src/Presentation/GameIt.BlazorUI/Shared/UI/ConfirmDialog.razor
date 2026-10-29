@@ -1,0 +1,49 @@
+@if (IsOpen)
+{
+    <div class="gi-modal-backdrop" @onclick="HandleBackdropClick">
+        <div class="gi-modal" @onclick:stopPropagation>
+            <div class="gi-modal-header">
+                <h3 style="font-size:1.1rem;">@Title</h3>
+                <button type="button" class="gi-btn-ghost" style="border:none;background:transparent;cursor:pointer;color:var(--text-secondary);font-size:1.1rem;" @onclick="Cancel">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="gi-modal-body">
+                <p style="color:var(--text-secondary);font-size:0.92rem;">@Message</p>
+            </div>
+            <div class="gi-modal-footer">
+                <button type="button" class="gi-btn gi-btn-secondary" @onclick="Cancel">@CancelText</button>
+                <button type="button" class="gi-btn @(IsDestructive ? "gi-btn-danger" : "gi-btn-primary")" @onclick="Confirm">@ConfirmText</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public string Title { get; set; } = "Confirm Action";
+    [Parameter] public string Message { get; set; } = "Are you sure you want to proceed?";
+    [Parameter] public string ConfirmText { get; set; } = "Confirm";
+    [Parameter] public string CancelText { get; set; } = "Cancel";
+    [Parameter] public bool IsDestructive { get; set; } = false;
+    [Parameter] public EventCallback<bool> OnResult { get; set; }
+
+    private async Task Confirm()
+    {
+        IsOpen = false;
+        if (OnResult.HasDelegate)
+            await OnResult.InvokeAsync(true);
+    }
+
+    private async Task Cancel()
+    {
+        IsOpen = false;
+        if (OnResult.HasDelegate)
+            await OnResult.InvokeAsync(false);
+    }
+
+    private async Task HandleBackdropClick()
+    {
+        await Cancel();
+    }
+}

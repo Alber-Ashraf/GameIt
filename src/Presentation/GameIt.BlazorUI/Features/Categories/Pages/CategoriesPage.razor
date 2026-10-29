@@ -1,0 +1,133 @@
+@page "/categories"
+@page "/categories/{CategoryId:guid}"
+@using GameIt.BlazorUI.Features.Categories.Services
+@using GameIt.BlazorUI.Features.Catalog.Services
+@inject ICategoriesApiClient CategoriesApi
+@inject IGamesApiClient GamesApi
+
+<PageTitle>Browse Genres — GameIt</PageTitle>
+
+<PageHeader Eyebrow="Genre Directory"
+            Title="@(_activeCategory?.CategoryName ?? "Browse by Genre")"
+            Subtitle="Explore our PC catalog organized by gameplay style and genre." />
+
+<ErrorBanner Message="@_errorMessage" OnRetry="LoadCategoriesAsync" />
+
+@if (_isLoading)
+{
+    <SkeletonCardGrid Count="6" />
+}
+else if (_categories.Count == 0)
+{
+    <EmptyState Icon="bi-grid-3x3-gap"
+                Title="No genres configured"
+                Description="Categories will appear here once added by an administrator." />
+}
+else
+{
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:var(--space-4);margin-bottom:var(--space-8);">
+        @foreach (var cat in _categories)
+        {
+            var isSelected = (_activeCategory is not null && _activeCategory.Id == cat.Id);
+            var count = _allGames.Count(g => string.Equals(g.CategoryName, cat.CategoryName, StringComparison.OrdinalIgnoreCase));
+            <a href="@($"/categories/{cat.Id}")"
+               class="gi-card gi-card-interactive"
+               style="padding:var(--space-4);border-color:@(isSelected ? "var(--indigo-500)" : "var(--border-subtle)");">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <span style="font-weight:700;font-size:1rem;color:var(--text-primary);">@cat.CategoryName</span>
+                    <span class="gi-badge @(isSelected ? "gi-badge-indigo" : "gi-badge-category") tabular-nums">@count</span>
+                </div>
+                <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:var(--space-2);">
+                    Explore @count @(count == 1 ? "title" : "titles")
+                </div>
+            </a>
+        }
+    </div>
+
+    @if (_activeCategory is not null)
+    {
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-4);">
+            <h2 style="font-size:1.35rem;">@_activeCategory.CategoryName Titles (@_categoryGames.Count)</h2>
+            <a href="/categories" class="gi-btn gi-btn-sm gi-btn-ghost">Show All Genres</a>
+        </div>
+
+        @if (_categoryGames.Count == 0)
+        {
+            <EmptyState Icon="bi-controller"
+                        Title="@($"No games in {_activeCategory.CategoryName} yet")"
+                        Description="Check back soon or select another genre above." />
+        }
+        else
+        {
+            <div class="gi-game-grid">
+                @foreach (var game in _categoryGames)
+                {
+                    <GameCard Game="game" />
+                }
+            </div>
+        }
+    }
+}
+
+@code {
+    [Parameter] public Guid? CategoryId { get; set; }
+
+    private List<CategorySummaryDto> _categories = new();
+    private List<GameSummaryDto> _allGames = new();
+    private CategoryDetailDto? _activeCategory;
+    private List<GameSummaryDto> _categoryGames = new();
+
+    private bool _isLoading = true;
+    private string? _errorMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadCategoriesAsync();
+    }
+
+    private async Task LoadCategoriesAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            var catsTask = CategoriesApi.GetAllCategoriesAsync();
+            var gamesTask = GamesApi.GetAllGamesAsync();
+            await Task.WhenAll(catsTask, gamesTask);
+
+            var catsRes = await catsTask;
+            var gamesRes = await gamesTask;
+
+            if (!catsRes.IsSuccess)
+            {
+                _errorMessage = catsRes.ErrorMessage ?? "Failed to load categories.";
+                return;
+            }
+
+            _categories = catsRes.Data ?? new();
+            _allGames = gamesRes.Data ?? new();
+
+            var targetId = CategoryId ?? _categories.FirstOrDefault()?.Id;
+            if (targetId.HasValue)
+            {
+                var detailRes = await CategoriesApi.GetCategoryByIdAsync(targetId.Value);
+                if (detailRes.IsSuccess && detailRes.Data is not null)
+                {
+                    _activeCategory = detailRes.Data;
+                    _categoryGames = _activeCategory.Games is { Count: > 0 }
+                        ? _activeCategory.Games
+                        : _allGames.Where(g => string.Equals(g.CategoryName, _activeCategory.CategoryName, StringComparison.OrdinalIgnoreCase)).ToList();
+                }
+            }
+        }
+        catch
+        {
+            _errorMessage = "Unable to load genres from the server.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+}

@@ -1,0 +1,23 @@
+<div class="gi-stat-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:0.78rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.05em;">@Label</span>
+        @if (!string.IsNullOrWhiteSpace(Icon))
+        {
+            <i class="bi @Icon" style="color:var(--accent-text);font-size:1.05rem;"></i>
+        }
+    </div>
+    <div class="tabular-nums" style="font-size:1.65rem;font-weight:800;color:var(--text-primary);margin-top:0.2rem;">
+        @Value
+    </div>
+    @if (!string.IsNullOrWhiteSpace(Hint))
+    {
+        <div style="font-size:0.78rem;color:var(--text-muted);">@Hint</div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Label { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Value { get; set; } = string.Empty;
+    [Parameter] public string? Icon { get; set; }
+    [Parameter] public string? Hint { get; set; }
+}

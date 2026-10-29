@@ -1,0 +1,105 @@
+@using Microsoft.AspNetCore.Components.Authorization
+
+<aside class="gi-sidebar @(IsOpen ? "open" : "")" aria-label="Main Navigation">
+    <div class="gi-sidebar-brand">
+        <div class="gi-brand-mark">
+            <i class="bi bi-controller"></i>
+        </div>
+        <span>GameIt</span>
+    </div>
+
+    <nav class="gi-sidebar-nav">
+        <div class="gi-nav-section-label">Discover</div>
+        <NavLink class="gi-nav-link" href="" Match="NavLinkMatch.All">
+            <i class="bi bi-grid-fill"></i>
+            <span>Storefront</span>
+        </NavLink>
+        <NavLink class="gi-nav-link" href="categories">
+            <i class="bi bi-tags-fill"></i>
+            <span>Categories</span>
+        </NavLink>
+        <NavLink class="gi-nav-link" href="deals">
+            <i class="bi bi-percent"></i>
+            <span>Special Deals</span>
+        </NavLink>
+
+        <div class="gi-nav-section-label">Account & Collection</div>
+        <AuthorizeView>
+            <Authorized>
+                <NavLink class="gi-nav-link" href="library">
+                    <i class="bi bi-collection-play-fill"></i>
+                    <span>My Library</span>
+                </NavLink>
+                <NavLink class="gi-nav-link" href="wishlist">
+                    <i class="bi bi-heart-fill"></i>
+                    <span>Wishlist</span>
+                </NavLink>
+                <NavLink class="gi-nav-link" href="purchases">
+                    <i class="bi bi-receipt"></i>
+                    <span>Purchase History</span>
+                </NavLink>
+            </Authorized>
+            <NotAuthorized>
+                <NavLink class="gi-nav-link" href="login">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span>Sign In</span>
+                </NavLink>
+                <NavLink class="gi-nav-link" href="register">
+                    <i class="bi bi-person-plus-fill"></i>
+                    <span>Create Account</span>
+                </NavLink>
+            </NotAuthorized>
+        </AuthorizeView>
+
+        <AuthorizeView Roles="Administrator">
+            <Authorized>
+                <div class="gi-nav-section-label">Administration</div>
+                <NavLink class="gi-nav-link" href="admin">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Admin Dashboard</span>
+                </NavLink>
+                <NavLink class="gi-nav-link" href="admin/games">
+                    <i class="bi bi-joystick"></i>
+                    <span>Manage Games</span>
+                </NavLink>
+                <NavLink class="gi-nav-link" href="admin/categories">
+                    <i class="bi bi-folder-fill"></i>
+                    <span>Manage Categories</span>
+                </NavLink>
+                <NavLink class="gi-nav-link" href="admin/discounts">
+                    <i class="bi bi-tag-fill"></i>
+                    <span>Manage Discounts</span>
+                </NavLink>
+            </Authorized>
+        </AuthorizeView>
+    </nav>
+
+    <div class="gi-sidebar-footer">
+        <AuthorizeView>
+            <Authorized>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-2);">
+                    <div style="display:flex;align-items:center;gap:var(--space-2);min-width:0;">
+                        <div style="width:28px;height:28px;border-radius:var(--radius-pill);background:var(--bg-surface-3);display:flex;align-items:center;justify-content:center;color:var(--accent-text);font-weight:700;font-size:0.75rem;">
+                            @context.User.Identity?.Name?[0].ToString().ToUpperInvariant()
+                        </div>
+                        <span style="font-size:0.8rem;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                            @context.User.Identity?.Name
+                        </span>
+                    </div>
+                    <a href="logout" class="gi-btn-ghost" title="Sign out" style="padding:4px 6px;">
+                        <i class="bi bi-box-arrow-right" style="color:var(--text-muted);"></i>
+                    </a>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div style="font-size:0.78rem;color:var(--text-muted);text-align:center;">
+                    Guest Mode
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
+</aside>
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+}

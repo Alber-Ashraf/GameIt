@@ -1,0 +1,118 @@
+@page "/purchases"
+@attribute [Authorize]
+@using GameIt.BlazorUI.Features.Purchases.Services
+@inject IPurchasesApiClient PurchasesApi
+
+<PageTitle>Purchase History — GameIt</PageTitle>
+
+<PageHeader Eyebrow="Billing & Receipts"
+            Title="Purchase History"
+            Subtitle="Review your digital orders, payment statuses, and transaction receipts." />
+
+<ErrorBanner Message="@_errorMessage" OnRetry="LoadHistoryAsync" />
+
+@if (_isLoading)
+{
+    <div class="gi-card" style="padding:var(--space-5);">
+        <div class="gi-skeleton" style="height:2.2rem;width:100%;margin-bottom:var(--space-3);"></div>
+        <div class="gi-skeleton" style="height:2.2rem;width:100%;margin-bottom:var(--space-3);"></div>
+        <div class="gi-skeleton" style="height:2.2rem;width:100%;"></div>
+    </div>
+}
+else if (_purchases.Count == 0)
+{
+    <EmptyState Icon="bi-receipt"
+                Title="No transactions recorded yet"
+                Description="When you purchase or claim games from the storefront, your receipts will appear here.">
+        <Action>
+            <a href="/" class="gi-btn gi-btn-primary">Browse Storefront</a>
+        </Action>
+    </EmptyState>
+}
+else
+{
+    <div class="gi-table-wrap">
+        <table class="gi-table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Title</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th style="text-align:right;">Amount Paid</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in _purchases.OrderByDescending(p => p.PurchaseDate))
+                {
+                    <tr>
+                        <td class="tabular-nums" style="color:var(--text-muted);font-size:0.8rem;">
+                            #@item.Id.ToString("N")[..8].ToUpperInvariant()
+                        </td>
+                        <td>
+                            <a href="@($"/games/{item.GameId}")" style="font-weight:600;color:var(--text-primary);">
+                                @(string.IsNullOrWhiteSpace(item.GameName) ? "Digital Game Edition" : item.GameName)
+                            </a>
+                        </td>
+                        <td class="tabular-nums" style="color:var(--text-secondary);">
+                            @item.PurchaseDate.ToString("MMM dd, yyyy HH:mm")
+                        </td>
+                        <td>
+                            <span class="gi-badge @(GetStatusBadgeClass(item.Status))">
+                                @item.Status
+                            </span>
+                        </td>
+                        <td class="tabular-nums" style="text-align:right;font-weight:700;">
+                            @(item.AmountPaid == 0m ? "FREE ($0.00)" : $"${item.AmountPaid:0.00}")
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<PurchaseItemDto> _purchases = new();
+    private bool _isLoading = true;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadHistoryAsync();
+    }
+
+    private async Task LoadHistoryAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            var res = await PurchasesApi.GetUserPurchasesAsync();
+            if (res.IsSuccess && res.Data is not null)
+            {
+                _purchases = res.Data;
+            }
+            else
+            {
+                _errorMessage = res.ErrorMessage ?? "Failed to load purchase history.";
+            }
+        }
+        catch
+        {
+            _errorMessage = "Unable to connect to the billing service.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private static string GetStatusBadgeClass(PaymentStatusContract status) => status switch
+    {
+        PaymentStatusContract.Succeeded => "gi-badge-free",
+        PaymentStatusContract.Pending => "gi-badge-indigo",
+        _ => "gi-badge-category"
+    };
+}

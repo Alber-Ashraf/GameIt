@@ -1,0 +1,29 @@
+<div style="display:inline-flex;align-items:center;gap:var(--space-2);">
+    @if (IsFree || Price <= 0m)
+    {
+        <span class="gi-badge gi-badge-success tabular-nums">FREE</span>
+    }
+    else if (DiscountPercentage is > 0m and <= 100m)
+    {
+        var discounted = Math.Round(Price * (1m - (DiscountPercentage.Value / 100m)), 2);
+        <span class="gi-badge gi-badge-discount tabular-nums">-@Math.Round(DiscountPercentage.Value)%</span>
+        <span class="tabular-nums" style="text-decoration:line-through;color:var(--text-muted);font-size:0.78rem;">
+            $@Price.ToString("0.00")
+        </span>
+        <span class="tabular-nums" style="font-weight:700;color:var(--text-primary);font-size:0.95rem;">
+            $@discounted.ToString("0.00")
+        </span>
+    }
+    else
+    {
+        <span class="tabular-nums" style="font-weight:700;color:var(--text-primary);font-size:0.95rem;">
+            $@Price.ToString("0.00")
+        </span>
+    }
+</div>
+
+@code {
+    [Parameter] public decimal Price { get; set; }
+    [Parameter] public bool IsFree { get; set; }
+    [Parameter] public decimal? DiscountPercentage { get; set; }
+}

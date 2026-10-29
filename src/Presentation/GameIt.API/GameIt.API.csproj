@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.18">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\GameIt.Application\GameIt.Application.csproj" />
+    <ProjectReference Include="..\..\Core\GameIt.Contracts\GameIt.Contracts.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\GameIt.Identity\GameIt.Identity.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\GameIt.Infrastructure\GameIt.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\GameIt.Persistence\GameIt.Persistence.csproj" />
+  </ItemGroup>
+
+</Project>

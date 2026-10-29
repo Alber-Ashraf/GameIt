@@ -1,0 +1,213 @@
+@page "/admin/categories"
+@attribute [Authorize(Roles = "Administrator")]
+@using GameIt.BlazorUI.Features.Categories.Services
+@inject ICategoriesApiClient CategoriesApi
+@inject ToastService Toast
+
+<PageTitle>Manage Genres — Admin Console</PageTitle>
+
+<PageHeader Eyebrow="Admin Taxonomy"
+            Title="Manage Categories & Genres"
+            Subtitle="Organize storefront discovery by adding or updating game genres.">
+    <Actions>
+        <button type="button" class="gi-btn gi-btn-primary" @onclick="OpenCreate">
+            <i class="bi bi-plus-lg"></i> New Genre
+        </button>
+    </Actions>
+</PageHeader>
+
+<ErrorBanner Message="@_errorMessage" OnRetry="LoadCategoriesAsync" />
+
+<ConfirmDialog IsOpen="_deleteTarget is not null"
+               Title="Delete Category?"
+               Message="@($"Are you sure you want to delete '{_deleteTarget?.CategoryName}'?")"
+               ConfirmText="Delete"
+               IsDanger="true"
+               OnConfirm="ConfirmDeleteAsync"
+               OnCancel="() => _deleteTarget = null" />
+
+@if (_showForm)
+{
+    <div class="gi-card" style="padding:var(--space-5);margin-bottom:var(--space-6);max-width:600px;border-color:var(--indigo-500);">
+        <h2 style="font-size:1.15rem;margin-bottom:var(--space-4);">
+            @(_editingId.HasValue ? "Edit Genre" : "Create Genre")
+        </h2>
+
+        <EditForm Model="_form" OnValidSubmit="SaveCategoryAsync">
+            <DataAnnotationsValidator />
+
+            <div class="gi-form-group">
+                <label class="gi-label">Genre Name</label>
+                <InputText class="gi-input" placeholder="Action RPG" @bind-Value="_form.CategoryName" />
+                <ValidationMessage For="@(() => _form.CategoryName)" />
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:var(--space-2);">
+                <button type="button" class="gi-btn gi-btn-secondary" @onclick="() => _showForm = false">Cancel</button>
+                <button type="submit" class="gi-btn gi-btn-primary" disabled="@_isSaving">
+                    @(_isSaving ? "Saving..." : "Save Genre")
+                </button>
+            </div>
+        </EditForm>
+    </div>
+}
+
+@if (_isLoading)
+{
+    <SkeletonCardGrid Count="3" />
+}
+else if (_categories.Count == 0)
+{
+    <EmptyState Icon="bi-tags"
+                Title="No categories configured"
+                Description="Add a genre to start organizing your catalog." />
+}
+else
+{
+    <div class="gi-table-wrap">
+        <table class="gi-table">
+            <thead>
+                <tr>
+                    <th>Genre Name</th>
+                    <th style="text-align:right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var cat in _categories)
+                {
+                    <tr>
+                        <td style="font-weight:600;">
+                            <a href="@($"/categories/{cat.Id}")" style="color:var(--text-primary);">@cat.CategoryName</a>
+                        </td>
+                        <td style="text-align:right;">
+                            <div style="display:inline-flex;gap:var(--space-2);">
+                                <button type="button" class="gi-btn gi-btn-sm gi-btn-secondary" @onclick="() => OpenEdit(cat)">
+                                    <i class="bi bi-pencil"></i> Edit
+                                </button>
+                                <button type="button" class="gi-btn gi-btn-sm gi-btn-danger" @onclick="() => _deleteTarget = cat">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<CategorySummaryDto> _categories = new();
+    private bool _isLoading = true;
+    private string? _errorMessage;
+
+    private bool _showForm;
+    private Guid? _editingId;
+    private UpsertCategoryRequestDto _form = new();
+    private bool _isSaving;
+    private CategorySummaryDto? _deleteTarget;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCategoriesAsync();
+    }
+
+    private async Task LoadCategoriesAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            var res = await CategoriesApi.GetAllCategoriesAsync();
+            if (res.IsSuccess && res.Data is not null)
+            {
+                _categories = res.Data;
+            }
+            else
+            {
+                _errorMessage = res.ErrorMessage ?? "Failed to load categories.";
+            }
+        }
+        catch
+        {
+            _errorMessage = "Unable to connect to the category service.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void OpenCreate()
+    {
+        _editingId = null;
+        _form = new UpsertCategoryRequestDto();
+        _showForm = true;
+    }
+
+    private void OpenEdit(CategorySummaryDto cat)
+    {
+        _editingId = cat.Id;
+        _form = new UpsertCategoryRequestDto
+        {
+            Id = cat.Id,
+            CategoryName = cat.CategoryName
+        };
+        _showForm = true;
+    }
+
+    private async Task SaveCategoryAsync()
+    {
+        _isSaving = true;
+        try
+        {
+            ApiResult res;
+            if (_editingId.HasValue)
+            {
+                _form.Id = _editingId.Value;
+                res = await CategoriesApi.UpdateCategoryAsync(_editingId.Value, _form);
+            }
+            else
+            {
+                var createRes = await CategoriesApi.CreateCategoryAsync(_form);
+                res = createRes.IsSuccess
+                    ? ApiResult.Success(createRes.StatusCode)
+                    : ApiResult.Failure(createRes.ErrorMessage ?? "Failed to create category.", createRes.StatusCode, createRes.ValidationErrors);
+            }
+
+            if (res.IsSuccess)
+            {
+                Toast.ShowSuccess($"Saved genre '{_form.CategoryName}'.");
+                _showForm = false;
+                await LoadCategoriesAsync();
+            }
+            else
+            {
+                Toast.ShowError(res.ErrorMessage ?? "Failed to save category.");
+            }
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private async Task ConfirmDeleteAsync()
+    {
+        if (_deleteTarget is null) return;
+        var target = _deleteTarget;
+        _deleteTarget = null;
+
+        var res = await CategoriesApi.DeleteCategoryAsync(target.Id);
+        if (res.IsSuccess)
+        {
+            Toast.ShowInfo($"Deleted genre '{target.CategoryName}'.");
+            await LoadCategoriesAsync();
+        }
+        else
+        {
+            Toast.ShowError(res.ErrorMessage ?? "Could not delete category.");
+        }
+    }
+}

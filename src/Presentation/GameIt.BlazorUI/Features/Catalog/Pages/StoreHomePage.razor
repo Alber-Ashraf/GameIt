@@ -1,0 +1,253 @@
+@page "/"
+@page "/games"
+@using GameIt.BlazorUI.Features.Catalog.Services
+@using GameIt.BlazorUI.Features.Categories.Services
+@inject IGamesApiClient GamesApi
+@inject ICategoriesApiClient CategoriesApi
+@inject NavigationManager Navigation
+
+<PageTitle>Storefront — GameIt</PageTitle>
+
+@if (_featuredGames.Count > 0 && string.IsNullOrWhiteSpace(_searchTerm) && _selectedCategoryName is null)
+{
+    var spotlight = _featuredGames[_spotlightIndex % _featuredGames.Count];
+    <section class="gi-hero" aria-label="Featured Spotlight">
+        @if (!string.IsNullOrWhiteSpace(spotlight.ImageUrl))
+        {
+            <img class="gi-hero-bg" src="@spotlight.ImageUrl" alt="@spotlight.Name" onerror="this.style.display='none'" />
+        }
+        <div class="gi-hero-overlay"></div>
+        <div class="gi-hero-content">
+            <div style="display:flex;align-items:center;gap:var(--space-2);">
+                <span class="gi-badge gi-badge-indigo">Featured Spotlight</span>
+                @if (!string.IsNullOrWhiteSpace(spotlight.CategoryName))
+                {
+                    <span class="gi-badge gi-badge-category">@spotlight.CategoryName</span>
+                }
+            </div>
+            <h1 style="font-size:2.35rem;line-height:1.1;">@spotlight.Name</h1>
+            <div style="display:flex;align-items:center;gap:var(--space-4);margin-top:var(--space-1);">
+                <StarRating Rating="spotlight.AverageRating" />
+                <PriceBadge Price="spotlight.Price" IsFree="spotlight.IsFree" DiscountPercentage="@(spotlight.Discount.HasValue ? (decimal?)spotlight.Discount.Value : null)" />
+            </div>
+            <div style="display:flex;align-items:center;gap:var(--space-3);margin-top:var(--space-3);">
+                <a href="@($"/games/{spotlight.Id}")" class="gi-btn gi-btn-primary gi-btn-lg">
+                    <i class="bi bi-Bag-check"></i> Explore Title
+                </a>
+                @if (_featuredGames.Count > 1)
+                {
+                    <button type="button" class="gi-btn gi-btn-secondary" @onclick="NextSpotlight">
+                        Next Featured <i class="bi bi-chevron-right"></i>
+                    </button>
+                }
+            </div>
+        </div>
+    </section>
+}
+else
+{
+    <PageHeader Eyebrow="Digital Catalog"
+                Title="PC Game Storefront"
+                Subtitle="Discover curated PC releases, verified discounts, and instant digital delivery." />
+}
+
+<ErrorBanner Message="@_errorMessage" OnRetry="LoadStorefrontAsync" />
+
+<section class="gi-filter-bar" aria-label="Catalog Filters">
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2);">
+        <button type="button"
+                class="gi-btn gi-btn-sm @(_selectedCategoryName is null ? "gi-btn-primary" : "gi-btn-secondary")"
+                @onclick="() => SelectCategory(null)">
+            All Genres (@_allGames.Count)
+        </button>
+        @foreach (var cat in _categories)
+        {
+            var isSelected = string.Equals(_selectedCategoryName, cat.CategoryName, StringComparison.OrdinalIgnoreCase);
+            <button type="button"
+                    class="gi-btn gi-btn-sm @(isSelected ? "gi-btn-primary" : "gi-btn-secondary")"
+                    @onclick="() => SelectCategory(cat.CategoryName)">
+                @cat.CategoryName
+            </button>
+        }
+    </div>
+
+    <div style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;">
+        <div style="position:relative;min-width:220px;">
+            <i class="bi bi-funnel" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.8rem;"></i>
+            <input type="search"
+                   class="gi-input"
+                   style="padding-left:2.1rem;height:36px;font-size:0.84rem;"
+                   placeholder="Filter by title..."
+                   @bind="_searchTerm"
+                   @bind:event="oninput" />
+        </div>
+
+        <select class="gi-select" style="width:auto;height:36px;padding:0 0.75rem;font-size:0.84rem;" @bind="_sortOption">
+            <option value="featured">Sort: Featured</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="rating">Highest Rated</option>
+            <option value="name">Name (A–Z)</option>
+        </select>
+
+        <label style="display:inline-flex;align-items:center;gap:0.4rem;font-size:0.82rem;color:var(--text-secondary);cursor:pointer;">
+            <input type="checkbox" @bind="_onlyDealsOrFree" />
+            <span>Deals / Free Only</span>
+        </label>
+    </div>
+</section>
+
+@if (_isLoading)
+{
+    <SkeletonCardGrid Count="8" />
+}
+else
+{
+    var filtered = FilteredGames.ToList();
+    if (filtered.Count == 0)
+    {
+        <EmptyState Icon="bi-controller"
+                    Title="No matching games found"
+                    Description="Try clearing your search query or selecting a different genre filter.">
+            <Action>
+                <button type="button" class="gi-btn gi-btn-secondary" @onclick="ResetFilters">
+                    Reset All Filters
+                </button>
+            </Action>
+        </EmptyState>
+    }
+    else
+    {
+        <div class="gi-game-grid">
+            @foreach (var game in filtered)
+            {
+                <GameCard Game="game" />
+            }
+        </div>
+    }
+}
+
+@code {
+    [SupplyParameterFromQuery(Name = "q")]
+    public string? QueryParam { get; set; }
+
+    private List<GameSummaryDto> _allGames = new();
+    private List<GameSummaryDto> _featuredGames = new();
+    private List<CategorySummaryDto> _categories = new();
+
+    private bool _isLoading = true;
+    private string? _errorMessage;
+    private string _searchTerm = string.Empty;
+    private string? _selectedCategoryName;
+    private string _sortOption = "featured";
+    private bool _onlyDealsOrFree;
+    private int _spotlightIndex;
+
+    private IEnumerable<GameSummaryDto> FilteredGames
+    {
+        get
+        {
+            IEnumerable<GameSummaryDto> query = _allGames;
+
+            if (!string.IsNullOrWhiteSpace(_selectedCategoryName))
+            {
+                query = query.Where(g => string.Equals(g.CategoryName, _selectedCategoryName, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(_searchTerm))
+            {
+                var term = _searchTerm.Trim();
+                query = query.Where(g =>
+                    g.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    g.CategoryName.Contains(term, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (_onlyDealsOrFree)
+            {
+                query = query.Where(g => g.IsFree || g.Discount is > 0);
+            }
+
+            return _sortOption switch
+            {
+                "price-asc" => query.OrderBy(g => g.FinalPrice),
+                "price-desc" => query.OrderByDescending(g => g.FinalPrice),
+                "rating" => query.OrderByDescending(g => g.AverageRating),
+                "name" => query.OrderBy(g => g.Name),
+                _ => query
+            };
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(QueryParam))
+        {
+            _searchTerm = QueryParam;
+        }
+        await LoadStorefrontAsync();
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (!string.IsNullOrWhiteSpace(QueryParam))
+        {
+            _searchTerm = QueryParam;
+        }
+    }
+
+    private async Task LoadStorefrontAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            var gamesTask = GamesApi.GetAllGamesAsync();
+            var featuredTask = GamesApi.GetFeaturedGamesAsync(5);
+            var categoriesTask = CategoriesApi.GetAllCategoriesAsync();
+
+            await Task.WhenAll(gamesTask, featuredTask, categoriesTask);
+
+            var gamesRes = await gamesTask;
+            var featuredRes = await featuredTask;
+            var categoriesRes = await categoriesTask;
+
+            if (!gamesRes.IsSuccess)
+            {
+                _errorMessage = gamesRes.ErrorMessage ?? "Failed to load game catalog.";
+            }
+            else
+            {
+                _allGames = gamesRes.Data ?? new();
+            }
+
+            _featuredGames = featuredRes.IsSuccess && featuredRes.Data is { Count: > 0 }
+                ? featuredRes.Data
+                : _allGames.Take(4).ToList();
+
+            _categories = categoriesRes.IsSuccess && categoriesRes.Data is not null
+                ? categoriesRes.Data
+                : new();
+        }
+        catch
+        {
+            _errorMessage = "Unable to connect to the GameIt API. Please ensure the backend server is running.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void SelectCategory(string? categoryName) => _selectedCategoryName = categoryName;
+
+    private void NextSpotlight() => _spotlightIndex++;
+
+    private void ResetFilters()
+    {
+        _searchTerm = string.Empty;
+        _selectedCategoryName = null;
+        _onlyDealsOrFree = false;
+        _sortOption = "featured";
+    }
+}

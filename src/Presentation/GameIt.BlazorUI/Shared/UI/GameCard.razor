@@ -1,0 +1,45 @@
+@using GameIt.Contracts.Games
+
+<div class="gi-card gi-card-interactive gi-game-card">
+    <a href="@($"/games/{Game.Id}")" style="display:flex;flex-direction:column;height:100%;text-decoration:none;">
+        <div class="gi-game-card-media">
+            <img src="@(!string.IsNullOrWhiteSpace(Game.ImageUrl) ? Game.ImageUrl : "/images/placeholder-game.png")"
+                 alt="@Game.Name"
+                 loading="lazy"
+                 onerror="this.src='/images/placeholder-game.png';" />
+
+            <div class="gi-game-card-badges">
+                @if (!string.IsNullOrWhiteSpace(Game.CategoryName))
+                {
+                    <span class="gi-badge gi-badge-category">@Game.CategoryName</span>
+                }
+                else
+                {
+                    <span></span>
+                }
+
+                @if (Game.Discount is > 0 and <= 100 && !Game.IsFree)
+                {
+                    <span class="gi-badge gi-badge-discount">-@Game.Discount.Value%</span>
+                }
+            </div>
+        </div>
+
+        <div class="gi-game-card-body">
+            <h3 class="gi-game-card-title" title="@Game.Name">@Game.Name</h3>
+
+            <div class="gi-game-card-meta">
+                <StarRating Rating="Game.AverageRating" />
+            </div>
+
+            <div class="gi-game-card-footer">
+                <PriceBadge Price="Game.Price" IsFree="Game.IsFree" DiscountPercentage="@(Game.Discount.HasValue ? (decimal?)Game.Discount.Value : null)" />
+                <span class="gi-btn gi-btn-sm gi-btn-secondary" style="pointer-events:none;">View</span>
+            </div>
+        </div>
+    </a>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public GameSummaryDto Game { get; set; } = default!;
+}

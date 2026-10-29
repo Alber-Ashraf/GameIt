@@ -1,0 +1,283 @@
+@page "/admin/discounts"
+@attribute [Authorize(Roles = "Administrator")]
+@using GameIt.BlazorUI.Features.Discounts.Services
+@using GameIt.BlazorUI.Features.Catalog.Services
+@inject IDiscountsApiClient DiscountsApi
+@inject IGamesApiClient GamesApi
+@inject ToastService Toast
+
+<PageTitle>Manage Discounts — Admin Console</PageTitle>
+
+<PageHeader Eyebrow="Promotional Campaigns"
+            Title="Manage Discounts"
+            Subtitle="Configure seasonal promotions and percentage markdowns for specific games.">
+    <Actions>
+        <button type="button" class="gi-btn gi-btn-primary" @onclick="OpenCreate">
+            <i class="bi bi-plus-lg"></i> Create Promotion
+        </button>
+    </Actions>
+</PageHeader>
+
+<ErrorBanner Message="@_errorMessage" OnRetry="LoadDiscountsAsync" />
+
+<ConfirmDialog IsOpen="_deleteTarget is not null"
+               Title="Delete Discount Campaign?"
+               Message="Are you sure you want to remove this discount campaign?"
+               ConfirmText="Delete Campaign"
+               IsDanger="true"
+               OnConfirm="ConfirmDeleteAsync"
+               OnCancel="() => _deleteTarget = null" />
+
+@if (_showForm)
+{
+    <div class="gi-card" style="padding:var(--space-6);margin-bottom:var(--space-6);max-width:720px;border-color:var(--indigo-500);">
+        <h2 style="font-size:1.15rem;margin-bottom:var(--space-4);">
+            @(_editingId.HasValue ? "Edit Discount Campaign" : "New Discount Campaign")
+        </h2>
+
+        <EditForm Model="_form" OnValidSubmit="SaveDiscountAsync">
+            <DataAnnotationsValidator />
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);">
+                <div class="gi-form-group">
+                    <label class="gi-label">Target Game</label>
+                    <InputSelect class="gi-select" @bind-Value="_form.GameId">
+                        <option value="@Guid.Empty">-- Select Game --</option>
+                        @foreach (var g in _games)
+                        {
+                            <option value="@g.Id">@g.Name ($@g.Price.ToString("0.00"))</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <div class="gi-form-group">
+                    <label class="gi-label">Discount Percentage (1–100%)</label>
+                    <InputNumber class="gi-input tabular-nums" @bind-Value="_form.Percentage" />
+                    <ValidationMessage For="@(() => _form.Percentage)" />
+                </div>
+
+                <div class="gi-form-group">
+                    <label class="gi-label">Start Date (UTC)</label>
+                    <InputDate class="gi-input" @bind-Value="_form.StartDate" />
+                </div>
+
+                <div class="gi-form-group">
+                    <label class="gi-label">End Date (UTC)</label>
+                    <InputDate class="gi-input" @bind-Value="_form.EndDate" />
+                </div>
+            </div>
+
+            <div class="gi-form-group">
+                <label class="gi-label">Campaign Description</label>
+                <InputTextArea class="gi-textarea" rows="2" placeholder="Autumn Storewide Sale — Limited Time Offer" @bind-Value="_form.Description" />
+                <ValidationMessage For="@(() => _form.Description)" />
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:var(--space-2);">
+                <button type="button" class="gi-btn gi-btn-secondary" @onclick="() => _showForm = false">Cancel</button>
+                <button type="submit" class="gi-btn gi-btn-primary" disabled="@_isSaving">
+                    @(_isSaving ? "Saving..." : "Save Campaign")
+                </button>
+            </div>
+        </EditForm>
+    </div>
+}
+
+@if (_isLoading)
+{
+    <SkeletonCardGrid Count="3" />
+}
+else if (_discounts.Count == 0)
+{
+    <EmptyState Icon="bi-percent"
+                Title="No discounts configured"
+                Description="Launch a promotional campaign to highlight discounted games on the Deals page." />
+}
+else
+{
+    <div class="gi-table-wrap">
+        <table class="gi-table">
+            <thead>
+                <tr>
+                    <th>Game</th>
+                    <th>Description</th>
+                    <th>Discount</th>
+                    <th>Valid Window</th>
+                    <th>Status</th>
+                    <th style="text-align:right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var d in _discounts.OrderByDescending(x => x.EndDate))
+                {
+                    var isActive = d.IsActive && d.EndDate >= DateTime.UtcNow;
+                    <tr>
+                        <td style="font-weight:600;">@ResolveGameName(d.GameId)</td>
+                        <td style="color:var(--text-secondary);">@d.Description</td>
+                        <td><span class="gi-badge gi-badge-discount">-@Math.Round(d.Percentage)%</span></td>
+                        <td class="tabular-nums" style="font-size:0.82rem;color:var(--text-secondary);">
+                            @d.StartDate.ToString("MMM dd") – @d.EndDate.ToString("MMM dd, yyyy")
+                        </td>
+                        <td>
+                            <span class="gi-badge @(isActive ? "gi-badge-free" : "gi-badge-category")">
+                                @(isActive ? "Active" : "Scheduled / Expired")
+                            </span>
+                        </td>
+                        <td style="text-align:right;">
+                            <div style="display:inline-flex;gap:var(--space-2);">
+                                <button type="button" class="gi-btn gi-btn-sm gi-btn-secondary" @onclick="() => OpenEdit(d)">
+                                    <i class="bi bi-pencil"></i> Edit
+                                </button>
+                                <button type="button" class="gi-btn gi-btn-sm gi-btn-danger" @onclick="() => _deleteTarget = d">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<ActiveDiscountItemDto> _discounts = new();
+    private List<GameSummaryDto> _games = new();
+    private bool _isLoading = true;
+    private string? _errorMessage;
+
+    private bool _showForm;
+    private Guid? _editingId;
+    private UpsertDiscountRequestDto _form = new();
+    private bool _isSaving;
+    private ActiveDiscountItemDto? _deleteTarget;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDiscountsAsync();
+    }
+
+    private async Task LoadDiscountsAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            var dTask = DiscountsApi.GetActiveDiscountsAsync();
+            var gTask = GamesApi.GetAllGamesAsync();
+
+            await Task.WhenAll(dTask, gTask);
+
+            var dRes = await dTask;
+            if (!dRes.IsSuccess)
+            {
+                _errorMessage = dRes.ErrorMessage ?? "Failed to load discounts.";
+            }
+
+            _discounts = dRes.Data ?? new();
+            _games = (await gTask).Data ?? new();
+        }
+        catch
+        {
+            _errorMessage = "Unable to connect to the discounts service.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void OpenCreate()
+    {
+        _editingId = null;
+        _form = new UpsertDiscountRequestDto
+        {
+            Percentage = 20m,
+            StartDate = DateTime.UtcNow.AddMinutes(5),
+            EndDate = DateTime.UtcNow.AddDays(14),
+            IsActive = true,
+            GameId = _games.FirstOrDefault()?.Id ?? Guid.Empty
+        };
+        _showForm = true;
+    }
+
+    private void OpenEdit(ActiveDiscountItemDto d)
+    {
+        _editingId = d.Id;
+        _form = new UpsertDiscountRequestDto
+        {
+            Id = d.Id,
+            Description = d.Description,
+            Percentage = d.Percentage,
+            StartDate = d.StartDate,
+            EndDate = d.EndDate,
+            IsActive = d.IsActive,
+            GameId = d.GameId
+        };
+        _showForm = true;
+    }
+
+    private async Task SaveDiscountAsync()
+    {
+        if (_form.GameId == Guid.Empty)
+        {
+            Toast.ShowWarning("Please select a target game for the discount.");
+            return;
+        }
+
+        _isSaving = true;
+        try
+        {
+            ApiResult res;
+            if (_editingId.HasValue)
+            {
+                _form.Id = _editingId.Value;
+                res = await DiscountsApi.UpdateDiscountAsync(_editingId.Value, _form);
+            }
+            else
+            {
+                var createRes = await DiscountsApi.CreateDiscountAsync(_form);
+                res = createRes.IsSuccess
+                    ? ApiResult.Success(createRes.StatusCode)
+                    : ApiResult.Failure(createRes.ErrorMessage ?? "Failed to create discount.", createRes.StatusCode, createRes.ValidationErrors);
+            }
+
+            if (res.IsSuccess)
+            {
+                Toast.ShowSuccess("Discount campaign saved.");
+                _showForm = false;
+                await LoadDiscountsAsync();
+            }
+            else
+            {
+                Toast.ShowError(res.ErrorMessage ?? "Failed to save discount.");
+            }
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private async Task ConfirmDeleteAsync()
+    {
+        if (_deleteTarget is null) return;
+        var target = _deleteTarget;
+        _deleteTarget = null;
+
+        var res = await DiscountsApi.DeleteDiscountAsync(target.Id);
+        if (res.IsSuccess)
+        {
+            Toast.ShowInfo("Discount campaign deleted.");
+            await LoadDiscountsAsync();
+        }
+        else
+        {
+            Toast.ShowError(res.ErrorMessage ?? "Could not delete discount.");
+        }
+    }
+
+    private string ResolveGameName(Guid gameId) =>
+        _games.FirstOrDefault(g => g.Id == gameId)?.Name ?? "Catalog Game";
+}

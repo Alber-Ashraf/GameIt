@@ -1,0 +1,89 @@
+name: GameIt CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  CONFIGURATION: 'Release'
+
+jobs:
+  build-and-test:
+    name: Build, Lint & Test (.NET 8)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', 'Directory.Build.props') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore Dependencies
+        run: dotnet restore GameIt.sln
+
+      - name: Build Solution (Release)
+        run: dotnet build GameIt.sln --configuration ${{ env.CONFIGURATION }} --no-restore
+
+      - name: Run Unit & Integration Tests
+        run: dotnet test GameIt.sln --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal --collect:"XPlat Code Coverage"
+
+      - name: Publish API & Blazor Artifacts
+        run: |
+          dotnet publish src/Presentation/GameIt.API/GameIt.API.csproj -c ${{ env.CONFIGURATION }} -o ./artifacts/api --no-build
+          dotnet publish src/Presentation/GameIt.BlazorUI/GameIt.BlazorUI.csproj -c ${{ env.CONFIGURATION }} -o ./artifacts/blazor --no-build
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gameit-release-artifacts
+          path: ./artifacts
+          retention-days: 7
+
+  deploy-staging:
+    name: Deploy to Staging
+    needs: build-and-test
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: gameit-release-artifacts
+          path: ./artifacts
+
+      - name: Staging Deployment Verification Gate
+        run: |
+          echo "Deploying API and Blazor WebAssembly bundles to Staging environment..."
+          echo "Verify /health endpoint after deployment."
+
+  deploy-production:
+    name: Deploy to Production
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: gameit-release-artifacts
+          path: ./artifacts
+
+      - name: Production Deployment Gate
+        run: |
+          echo "Promoting verified Release artifacts to Production..."
+          echo "Verify /health endpoint and Stripe webhook connectivity."

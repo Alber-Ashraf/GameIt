@@ -1,0 +1,51 @@
+﻿<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <NotAuthorized>
+                    @if (context.User?.Identity?.IsAuthenticated != true)
+                    {
+                        <PageTitle>Sign In Required — GameIt</PageTitle>
+                        <LayoutView Layout="@typeof(MainLayout)">
+                            <EmptyState Icon="bi-shield-lock"
+                                        Title="Authentication Required"
+                                        Description="Please sign in to your GameIt account to view this page.">
+                                <Action>
+                                    <a href="/login" class="gi-btn gi-btn-primary">
+                                        <i class="bi bi-box-arrow-in-right"></i> Sign In
+                                    </a>
+                                </Action>
+                            </EmptyState>
+                        </LayoutView>
+                    }
+                    else
+                    {
+                        <PageTitle>Access Restricted — GameIt</PageTitle>
+                        <LayoutView Layout="@typeof(MainLayout)">
+                            <EmptyState Icon="bi-slash-circle"
+                                        Title="Administrator Access Required"
+                                        Description="You do not possess the required role permissions to access this console.">
+                                <Action>
+                                    <a href="/" class="gi-btn gi-btn-secondary">Return to Storefront</a>
+                                </Action>
+                            </EmptyState>
+                        </LayoutView>
+                    }
+                </NotAuthorized>
+            </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <PageTitle>Page Not Found — GameIt</PageTitle>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <EmptyState Icon="bi-compass"
+                            Title="Page Not Found"
+                            Description="The page you requested does not exist or may have been relocated.">
+                    <Action>
+                        <a href="/" class="gi-btn gi-btn-primary">Browse Storefront</a>
+                    </Action>
+                </EmptyState>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>

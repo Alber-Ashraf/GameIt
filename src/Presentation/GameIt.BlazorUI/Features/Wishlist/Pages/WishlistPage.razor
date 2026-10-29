@@ -1,0 +1,151 @@
+@page "/wishlist"
+@attribute [Authorize]
+@using GameIt.BlazorUI.Features.Wishlist.Services
+@inject IWishlistApiClient WishlistApi
+@inject ToastService Toast
+
+<PageTitle>Wishlist — GameIt</PageTitle>
+
+<PageHeader Eyebrow="Saved Titles"
+            Title="My Wishlist"
+            Subtitle="Track games you want to play next and jump directly to checkout.">
+    <Actions>
+        @if (_items.Count > 0)
+        {
+            <button type="button" class="gi-btn gi-btn-danger gi-btn-sm" @onclick="() => _showClearConfirm = true">
+                <i class="bi bi-trash3"></i> Clear Wishlist
+            </button>
+        }
+    </Actions>
+</PageHeader>
+
+<ErrorBanner Message="@_errorMessage" OnRetry="LoadWishlistAsync" />
+
+<ConfirmDialog IsOpen="_showClearConfirm"
+               Title="Clear Entire Wishlist?"
+               Message="This will remove all saved games from your wishlist. You can add them back anytime from the storefront."
+               ConfirmText="Clear All"
+               IsDanger="true"
+               OnConfirm="ConfirmClearWishlistAsync"
+               OnCancel="() => _showClearConfirm = false" />
+
+@if (_isLoading)
+{
+    <SkeletonCardGrid Count="4" />
+}
+else if (_items.Count == 0)
+{
+    <EmptyState Icon="bi-heart"
+                Title="Your wishlist is empty"
+                Description="Save titles while browsing the storefront to keep an eye on discounts and releases.">
+        <Action>
+            <a href="/" class="gi-btn gi-btn-primary">Explore Storefront</a>
+        </Action>
+    </EmptyState>
+}
+else
+{
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:var(--space-5);">
+        @foreach (var item in _items)
+        {
+            <article class="gi-card" style="display:flex;flex-direction:column;">
+                <a href="@($"/games/{item.GameId}")" class="gi-game-card-media">
+                    <img src="@(!string.IsNullOrWhiteSpace(item.ImageUrl) ? item.ImageUrl : "/images/placeholder-game.png")"
+                         alt="@item.GameName"
+                         loading="lazy"
+                         onerror="this.src='/images/placeholder-game.png';" />
+                </a>
+                <div class="gi-game-card-body">
+                    <h3 class="gi-game-card-title">
+                        <a href="@($"/games/{item.GameId}")" style="color:inherit;">@item.GameName</a>
+                    </h3>
+
+                    <div style="margin:var(--space-2) 0;">
+                        <PriceBadge Price="item.Price" IsFree="item.IsFree" DiscountPercentage="item.DiscountPercentage" />
+                    </div>
+
+                    <div style="margin-top:auto;padding-top:var(--space-3);border-top:1px solid var(--border-subtle);display:flex;gap:var(--space-2);">
+                        <a href="@($"/checkout/{item.GameId}")" class="gi-btn gi-btn-primary gi-btn-sm" style="flex:1;">
+                            <i class="bi bi-bag-check"></i> @(item.IsFree ? "Claim Free" : "Buy Now")
+                        </a>
+                        <button type="button"
+                                class="gi-btn gi-btn-secondary gi-btn-sm"
+                                title="Remove from wishlist"
+                                aria-label="Remove from wishlist"
+                                @onclick="() => RemoveItemAsync(item.GameId)">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </article>
+        }
+    </div>
+}
+
+@code {
+    private List<WishlistItemDto> _items = new();
+    private bool _isLoading = true;
+    private string? _errorMessage;
+    private bool _showClearConfirm;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadWishlistAsync();
+    }
+
+    private async Task LoadWishlistAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            var res = await WishlistApi.GetUserWishlistAsync();
+            if (res.IsSuccess && res.Data is not null)
+            {
+                _items = res.Data;
+            }
+            else
+            {
+                _errorMessage = res.ErrorMessage ?? "Failed to load your wishlist.";
+            }
+        }
+        catch
+        {
+            _errorMessage = "Unable to load your wishlist from the server.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task RemoveItemAsync(Guid gameId)
+    {
+        var res = await WishlistApi.RemoveFromWishlistAsync(gameId);
+        if (res.IsSuccess)
+        {
+            _items.RemoveAll(x => x.GameId == gameId);
+            Toast.ShowInfo("Removed from wishlist.");
+        }
+        else
+        {
+            Toast.ShowError(res.ErrorMessage ?? "Failed to remove item.");
+        }
+    }
+
+    private async Task ConfirmClearWishlistAsync()
+    {
+        _showClearConfirm = false;
+        var res = await WishlistApi.ClearWishlistAsync();
+        if (res.IsSuccess)
+        {
+            _items.Clear();
+            Toast.ShowInfo("Your wishlist has been cleared.");
+        }
+        else
+        {
+            Toast.ShowError(res.ErrorMessage ?? "Failed to clear wishlist.");
+        }
+    }
+}

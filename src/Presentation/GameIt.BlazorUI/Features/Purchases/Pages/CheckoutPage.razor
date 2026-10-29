@@ -1,0 +1,205 @@
+@page "/checkout/{GameId:guid}"
+@attribute [Authorize]
+@using GameIt.BlazorUI.Features.Catalog.Services
+@using GameIt.BlazorUI.Features.Purchases.Services
+@inject IGamesApiClient GamesApi
+@inject IPurchasesApiClient PurchasesApi
+@inject ToastService Toast
+@inject NavigationManager Navigation
+
+<PageTitle>Checkout — GameIt</PageTitle>
+
+<div style="margin-bottom:var(--space-4);">
+    <a href="@($"/games/{GameId}")" class="gi-btn gi-btn-sm gi-btn-ghost">
+        <i class="bi bi-arrow-left"></i> Back to Game Page
+    </a>
+</div>
+
+<PageHeader Eyebrow="Order Summary"
+            Title="Complete Your Digital Order"
+            Subtitle="All prices are calculated and verified server-side prior to fulfillment." />
+
+<ErrorBanner Message="@_errorMessage" OnRetry="LoadGameAsync" />
+
+@if (_isLoading)
+{
+    <div class="gi-card" style="padding:var(--space-6);max-width:680px;">
+        <div class="gi-skeleton" style="height:2rem;width:55%;margin-bottom:var(--space-4);"></div>
+        <div class="gi-skeleton" style="height:1.2rem;width:80%;margin-bottom:var(--space-2);"></div>
+        <div class="gi-skeleton" style="height:3rem;width:100%;margin-top:var(--space-5);"></div>
+    </div>
+}
+else if (_game is null)
+{
+    <EmptyState Icon="bi-cart-x"
+                Title="Item Unavailable"
+                Description="We couldn't locate the requested game for checkout.">
+        <Action>
+            <a href="/" class="gi-btn gi-btn-primary">Return to Storefront</a>
+        </Action>
+    </EmptyState>
+}
+else
+{
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:var(--space-6);max-width:960px;">
+        <!-- Item Details -->
+        <div class="gi-card" style="padding:var(--space-5);display:flex;flex-direction:column;gap:var(--space-4);">
+            <div style="display:flex;gap:var(--space-4);align-items:center;">
+                <img src="@(!string.IsNullOrWhiteSpace(_game.ImageUrl) ? _game.ImageUrl : "/images/placeholder-game.png")"
+                     alt="@_game.Name"
+                     style="width:120px;height:68px;object-fit:cover;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);"
+                     onerror="this.src='/images/placeholder-game.png';" />
+                <div>
+                    <span class="gi-badge gi-badge-indigo">@_game.CategoryName</span>
+                    <h2 style="font-size:1.25rem;margin-top:0.25rem;">@_game.Name</h2>
+                </div>
+            </div>
+
+            <div style="padding-top:var(--space-4);border-top:1px solid var(--border-subtle);font-size:0.86rem;color:var(--text-secondary);">
+                <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.35rem;">
+                    <i class="bi bi-shield-check" style="color:var(--emerald-400);"></i>
+                    <span>Instant permanent activation in your GameIt Library</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                    <i class="bi bi-lock-fill" style="color:var(--indigo-400);"></i>
+                    <span>Encrypted payment processing powered by Stripe</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Invoice Breakdown -->
+        <div class="gi-card" style="padding:var(--space-6);display:flex;flex-direction:column;gap:var(--space-4);">
+            <h3 style="font-size:1.05rem;">Price Breakdown</h3>
+
+            <div style="display:flex;flex-direction:column;gap:var(--space-2);font-size:0.9rem;">
+                <div style="display:flex;justify-content:space-between;">
+                    <span style="color:var(--text-secondary);">Base List Price</span>
+                    <span class="tabular-nums">@(_game.IsFree ? "$0.00" : $"${_game.Price:0.00}")</span>
+                </div>
+
+                @if (_game.DiscountPercentage is > 0)
+                {
+                    var savings = _game.Price - _game.FinalPrice;
+                    <div style="display:flex;justify-content:space-between;color:var(--emerald-400);">
+                        <span>Promotional Discount (-@Math.Round(_game.DiscountPercentage.Value)%)</span>
+                        <span class="tabular-nums">-$@savings.ToString("0.00")</span>
+                    </div>
+                }
+
+                <div style="display:flex;justify-content:space-between;padding-top:var(--space-3);border-top:1px solid var(--border-subtle);font-weight:700;font-size:1.15rem;">
+                    <span>Total Due</span>
+                    <span class="tabular-nums" style="color:var(--text-primary);">
+                        @(_game.IsFree || _game.FinalPrice == 0m ? "FREE ($0.00)" : $"${_game.FinalPrice:0.00} USD")
+                    </span>
+                </div>
+            </div>
+
+            <button type="button"
+                    class="gi-btn gi-btn-primary gi-btn-lg"
+                    style="width:100%;margin-top:var(--space-2);"
+                    disabled="@_isProcessing"
+                    @onclick="ConfirmPurchaseAsync">
+                @if (_isProcessing)
+                {
+                    <span>Processing Order...</span>
+                }
+                else if (_game.IsFree || _game.FinalPrice == 0m)
+                {
+                    <i class="bi bi-gift-fill"></i>
+                    <span>Claim Free Edition Now</span>
+                }
+                else
+                {
+                    <i class="bi bi-credit-card-2-front-fill"></i>
+                    <span>Pay $@_game.FinalPrice.ToString("0.00") via Stripe Checkout</span>
+                }
+            </button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public Guid GameId { get; set; }
+
+    private GameDetailDto? _game;
+    private bool _isLoading = true;
+    private bool _isProcessing;
+    private string? _errorMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadGameAsync();
+    }
+
+    private async Task LoadGameAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            var res = await GamesApi.GetGameByIdAsync(GameId);
+            if (res.IsSuccess && res.Data is not null)
+            {
+                _game = res.Data;
+            }
+            else
+            {
+                _errorMessage = res.ErrorMessage ?? "Game could not be loaded for checkout.";
+            }
+        }
+        catch
+        {
+            _errorMessage = "Unable to connect to the checkout server.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task ConfirmPurchaseAsync()
+    {
+        if (_game is null) return;
+
+        _isProcessing = true;
+        _errorMessage = null;
+
+        try
+        {
+            var res = await PurchasesApi.CreatePurchaseAsync(new CreatePurchaseRequestDto
+            {
+                GameId = _game.Id,
+                AmountPaid = _game.FinalPrice
+            });
+
+            if (!res.IsSuccess)
+            {
+                _errorMessage = res.ErrorMessage ?? "Could not complete purchase.";
+                return;
+            }
+
+            var sessionUrl = res.Data?.StripeCheckoutUrl;
+            if (!string.IsNullOrWhiteSpace(sessionUrl) &&
+                (sessionUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+                 sessionUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase)))
+            {
+                Toast.ShowInfo("Redirecting to Stripe Checkout...", "Payment Session Created");
+                Navigation.NavigateTo(sessionUrl, forceLoad: true);
+            }
+            else
+            {
+                Toast.ShowSuccess($"{_game.Name} has been added to your library!", "Order Complete");
+                Navigation.NavigateTo("/library");
+            }
+        }
+        catch
+        {
+            _errorMessage = "An unexpected error occurred while processing your order.";
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+}

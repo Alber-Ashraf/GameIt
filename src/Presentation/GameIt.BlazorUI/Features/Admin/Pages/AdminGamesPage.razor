@@ -1,0 +1,366 @@
+@page "/admin/games"
+@attribute [Authorize(Roles = "Administrator")]
+@using GameIt.BlazorUI.Features.Catalog.Services
+@using GameIt.BlazorUI.Features.Categories.Services
+@inject IGamesApiClient GamesApi
+@inject ICategoriesApiClient CategoriesApi
+@inject ToastService Toast
+
+<PageTitle>Manage Games — Admin Console</PageTitle>
+
+<PageHeader Eyebrow="Admin Catalog"
+            Title="Manage Games"
+            Subtitle="Create, update, and remove PC digital editions across the storefront.">
+    <Actions>
+        <button type="button" class="gi-btn gi-btn-primary" @onclick="OpenCreateForm">
+            <i class="bi bi-plus-lg"></i> Add New Game
+        </button>
+    </Actions>
+</PageHeader>
+
+<ErrorBanner Message="@_errorMessage" OnRetry="LoadAllAsync" />
+
+<ConfirmDialog IsOpen="_deleteTarget is not null"
+               Title="Delete Game from Catalog?"
+               Message="@($"Are you sure you want to permanently delete '{_deleteTarget?.Name}'? This action cannot be undone.")"
+               ConfirmText="Delete Game"
+               IsDanger="true"
+               OnConfirm="ConfirmDeleteAsync"
+               OnCancel="() => _deleteTarget = null" />
+
+@if (_showForm)
+{
+    <div class="gi-card" style="padding:var(--space-6);margin-bottom:var(--space-6);border-color:var(--indigo-500);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-4);">
+            <h2 style="font-size:1.2rem;">@(_editingId.HasValue ? "Edit Game Title" : "Add New Game Title")</h2>
+            <button type="button" class="gi-btn gi-btn-sm gi-btn-ghost" @onclick="CloseForm">
+                <i class="bi bi-x-lg"></i> Close
+            </button>
+        </div>
+
+        <EditForm Model="_form" OnValidSubmit="SaveGameAsync">
+            <DataAnnotationsValidator />
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--space-4);">
+                <div class="gi-form-group">
+                    <label class="gi-label">Title Name</label>
+                    <InputText class="gi-input" placeholder="Cyberpunk 2077" @bind-Value="_form.Name" />
+                    <ValidationMessage For="@(() => _form.Name)" />
+                </div>
+
+                <div class="gi-form-group">
+                    <label class="gi-label">Genre / Category</label>
+                    <InputSelect class="gi-select" @bind-Value="_form.CategoryId">
+                        <option value="@Guid.Empty">-- Select Genre --</option>
+                        @foreach (var cat in _categories)
+                        {
+                            <option value="@cat.Id">@cat.CategoryName</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <div class="gi-form-group">
+                    <label class="gi-label">Base Price (USD)</label>
+                    <InputNumber class="gi-input tabular-nums" @bind-Value="_form.Price" disabled="@_form.IsFree" />
+                    <ValidationMessage For="@(() => _form.Price)" />
+                </div>
+
+                <div class="gi-form-group">
+                    <label class="gi-label">Release Date</label>
+                    <InputDate class="gi-input" @bind-Value="_form.ReleaseDate" />
+                </div>
+
+                <div class="gi-form-group">
+                    <label class="gi-label">Cover Image URL</label>
+                    <InputText class="gi-input" placeholder="https://..." @bind-Value="_form.ImageUrl" />
+                    <ValidationMessage For="@(() => _form.ImageUrl)" />
+                </div>
+
+                <div class="gi-form-group">
+                    <label class="gi-label">Installer Download Link</label>
+                    <InputText class="gi-input" placeholder="https://cdn.gameit.com/installers/..." @bind-Value="_form.DownloadLink" />
+                    <ValidationMessage For="@(() => _form.DownloadLink)" />
+                </div>
+
+                <div class="gi-form-group">
+                    <label class="gi-label">Install Size (Bytes)</label>
+                    <InputNumber class="gi-input tabular-nums" @bind-Value="_form.FileSizeInBytes" />
+                    <ValidationMessage For="@(() => _form.FileSizeInBytes)" />
+                </div>
+
+                <div class="gi-form-group">
+                    <label class="gi-label">Publisher ID</label>
+                    <InputText class="gi-input" @bind-Value="_form.PublisherId" />
+                    <ValidationMessage For="@(() => _form.PublisherId)" />
+                </div>
+            </div>
+
+            <div style="display:flex;gap:var(--space-5);margin:var(--space-2) 0 var(--space-4);">
+                <label style="display:inline-flex;align-items:center;gap:0.5rem;cursor:pointer;font-size:0.9rem;">
+                    <InputCheckbox @bind-Value="_form.IsFree" />
+                    <span>Free-to-Play Edition ($0.00 — instant library claim)</span>
+                </label>
+
+                <label style="display:inline-flex;align-items:center;gap:0.5rem;cursor:pointer;font-size:0.9rem;">
+                    <InputCheckbox @bind-Value="_form.IsFeatured" />
+                    <span>Featured Storefront Spotlight</span>
+                </label>
+            </div>
+
+            <div class="gi-form-group">
+                <label class="gi-label">Description</label>
+                <InputTextArea class="gi-textarea" rows="3" @bind-Value="_form.Description" />
+                <ValidationMessage For="@(() => _form.Description)" />
+            </div>
+
+            <div class="gi-form-group">
+                <label class="gi-label">System Requirements</label>
+                <InputTextArea class="gi-textarea" rows="2" placeholder="OS: Windows 11 64-bit, GPU: RTX 3060, RAM: 16 GB..." @bind-Value="_form.SystemRequirements" />
+                <ValidationMessage For="@(() => _form.SystemRequirements)" />
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:var(--space-3);margin-top:var(--space-4);">
+                <button type="button" class="gi-btn gi-btn-secondary" @onclick="CloseForm">Cancel</button>
+                <button type="submit" class="gi-btn gi-btn-primary" disabled="@_isSaving">
+                    @(_isSaving ? "Saving..." : (_editingId.HasValue ? "Update Game" : "Create Game"))
+                </button>
+            </div>
+        </EditForm>
+    </div>
+}
+
+@if (_isLoading)
+{
+    <SkeletonCardGrid Count="4" />
+}
+else if (_games.Count == 0)
+{
+    <EmptyState Icon="bi-controller"
+                Title="No games in catalog"
+                Description="Click 'Add New Game' above to publish your first PC release." />
+}
+else
+{
+    <div class="gi-table-wrap">
+        <table class="gi-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Base Price</th>
+                    <th>Discount</th>
+                    <th>Final Price</th>
+                    <th style="text-align:right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var g in _games)
+                {
+                    <tr>
+                        <td style="font-weight:600;">
+                            <a href="@($"/games/{g.Id}")" style="color:var(--text-primary);">@g.Name</a>
+                        </td>
+                        <td><span class="gi-badge gi-badge-category">@g.CategoryName</span></td>
+                        <td class="tabular-nums">@(g.IsFree ? "FREE" : $"${g.Price:0.00}")</td>
+                        <td>
+                            @if (g.Discount is > 0)
+                            {
+                                <span class="gi-badge gi-badge-discount">-@Math.Round(g.Discount.Value)%</span>
+                            }
+                            else
+                            {
+                                <span style="color:var(--text-muted);">—</span>
+                            }
+                        </td>
+                        <td class="tabular-nums" style="font-weight:700;">@(g.IsFree ? "$0.00" : $"${g.FinalPrice:0.00}")</td>
+                        <td style="text-align:right;">
+                            <div style="display:inline-flex;gap:var(--space-2);">
+                                <button type="button" class="gi-btn gi-btn-sm gi-btn-secondary" @onclick="() => OpenEditFormAsync(g.Id)">
+                                    <i class="bi bi-pencil"></i> Edit
+                                </button>
+                                <button type="button" class="gi-btn gi-btn-sm gi-btn-danger" @onclick="() => _deleteTarget = g">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    [SupplyParameterFromQuery(Name = "edit")]
+    public Guid? EditQueryId { get; set; }
+
+    private List<GameSummaryDto> _games = new();
+    private List<CategorySummaryDto> _categories = new();
+
+    private bool _isLoading = true;
+    private string? _errorMessage;
+
+    private bool _showForm;
+    private Guid? _editingId;
+    private UpsertGameRequestDto _form = new();
+    private bool _isSaving;
+    private GameSummaryDto? _deleteTarget;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAllAsync();
+        if (EditQueryId.HasValue)
+        {
+            await OpenEditFormAsync(EditQueryId.Value);
+        }
+    }
+
+    private async Task LoadAllAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            var gTask = GamesApi.GetAllGamesAsync();
+            var cTask = CategoriesApi.GetAllCategoriesAsync();
+
+            await Task.WhenAll(gTask, cTask);
+
+            var gRes = await gTask;
+            if (!gRes.IsSuccess)
+            {
+                _errorMessage = gRes.ErrorMessage ?? "Failed to load games.";
+            }
+            _games = gRes.Data ?? new();
+            _categories = (await cTask).Data ?? new();
+        }
+        catch
+        {
+            _errorMessage = "Unable to load catalog data.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void OpenCreateForm()
+    {
+        _editingId = null;
+        _form = new UpsertGameRequestDto
+        {
+            ReleaseDate = DateTime.UtcNow.Date,
+            CategoryId = _categories.FirstOrDefault()?.Id ?? Guid.Empty
+        };
+        _showForm = true;
+    }
+
+    private async Task OpenEditFormAsync(Guid gameId)
+    {
+        var res = await GamesApi.GetGameByIdAsync(gameId);
+        if (!res.IsSuccess || res.Data is null)
+        {
+            Toast.ShowError(res.ErrorMessage ?? "Could not load game details for editing.");
+            return;
+        }
+
+        var d = res.Data;
+        _editingId = d.Id;
+        _form = new UpsertGameRequestDto
+        {
+            Id = d.Id,
+            Name = d.Name,
+            Description = d.Description,
+            Price = d.Price,
+            IsFree = d.IsFree,
+            IsFeatured = d.IsFeatured,
+            ReleaseDate = d.ReleaseDate,
+            ImageUrl = d.ImageUrl,
+            SystemRequirements = d.SystemRequirements,
+            DownloadLink = d.DownloadLink,
+            FileSizeInBytes = d.FileSizeInBytes,
+            PublisherId = string.IsNullOrWhiteSpace(d.PublisherId) ? "GameIt Studios" : d.PublisherId,
+            CategoryId = d.CategoryId != Guid.Empty
+                ? d.CategoryId
+                : (_categories.FirstOrDefault(c => string.Equals(c.CategoryName, d.CategoryName, StringComparison.OrdinalIgnoreCase))?.Id ?? Guid.Empty)
+        };
+        _showForm = true;
+    }
+
+    private void CloseForm()
+    {
+        _showForm = false;
+        _editingId = null;
+    }
+
+    private async Task SaveGameAsync()
+    {
+        if (_form.CategoryId == Guid.Empty)
+        {
+            Toast.ShowWarning("Please select a genre/category for the game.");
+            return;
+        }
+
+        if (_form.IsFree)
+        {
+            _form.Price = 0m;
+        }
+
+        _isSaving = true;
+        try
+        {
+            if (_editingId.HasValue)
+            {
+                _form.Id = _editingId.Value;
+                var res = await GamesApi.UpdateGameAsync(_editingId.Value, _form);
+                if (res.IsSuccess)
+                {
+                    Toast.ShowSuccess($"Updated '{_form.Name}'.");
+                    CloseForm();
+                    await LoadAllAsync();
+                }
+                else
+                {
+                    Toast.ShowError(res.ErrorMessage ?? "Failed to update game.");
+                }
+            }
+            else
+            {
+                var res = await GamesApi.CreateGameAsync(_form);
+                if (res.IsSuccess)
+                {
+                    Toast.ShowSuccess($"Created '{_form.Name}'.");
+                    CloseForm();
+                    await LoadAllAsync();
+                }
+                else
+                {
+                    Toast.ShowError(res.ErrorMessage ?? "Failed to create game.");
+                }
+            }
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private async Task ConfirmDeleteAsync()
+    {
+        if (_deleteTarget is null) return;
+        var target = _deleteTarget;
+        _deleteTarget = null;
+
+        var res = await GamesApi.DeleteGameAsync(target.Id);
+        if (res.IsSuccess)
+        {
+            Toast.ShowInfo($"Deleted '{target.Name}'.");
+            await LoadAllAsync();
+        }
+        else
+        {
+            Toast.ShowError(res.ErrorMessage ?? "Failed to delete game.");
+        }
+    }
+}

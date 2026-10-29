@@ -1,0 +1,113 @@
+@page "/login"
+@layout AuthLayout
+@using GameIt.BlazorUI.Features.Auth.Services
+@inject IAuthApiClient AuthApi
+@inject ToastService Toast
+@inject NavigationManager Navigation
+
+<PageTitle>Sign In — GameIt</PageTitle>
+
+<div style="margin-bottom:var(--space-5);">
+    <h1 style="font-size:1.45rem;">Sign in to your account</h1>
+    <p style="font-size:0.86rem;color:var(--text-secondary);margin-top:0.25rem;">
+        Access your digital game library, wishlist, and instant downloads.
+    </p>
+</div>
+
+<ErrorBanner Message="@_errorMessage" />
+
+<EditForm Model="_model" OnValidSubmit="HandleLoginAsync">
+    <DataAnnotationsValidator />
+
+    <div class="gi-form-group">
+        <label class="gi-label" for="login-email">Email Address</label>
+        <InputText id="login-email"
+                   type="email"
+                   class="gi-input"
+                   placeholder="you@gameit.com"
+                   @bind-Value="_model.Email" />
+        <ValidationMessage For="@(() => _model.Email)" />
+    </div>
+
+    <div class="gi-form-group">
+        <label class="gi-label" for="login-password">Password</label>
+        <InputText id="login-password"
+                   type="password"
+                   class="gi-input"
+                   placeholder="••••••••"
+                   @bind-Value="_model.Password" />
+        <ValidationMessage For="@(() => _model.Password)" />
+    </div>
+
+    <button type="submit" class="gi-btn gi-btn-primary gi-btn-lg" style="width:100%;margin-top:var(--space-2);" disabled="@_isSubmitting">
+        @if (_isSubmitting)
+        {
+            <span>Authenticating...</span>
+        }
+        else
+        {
+            <i class="bi bi-box-arrow-in-right"></i>
+            <span>Sign In</span>
+        }
+    </button>
+</EditForm>
+
+<div style="margin-top:var(--space-5);padding-top:var(--space-4);border-top:1px solid var(--border-subtle);">
+    <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:var(--space-2);">
+        Quick Demo Credentials
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2);">
+        <button type="button" class="gi-btn gi-btn-sm gi-btn-secondary" @onclick="@(() => FillDemo("user@gameit.com", "P@ssword1"))">
+            <i class="bi bi-person"></i> Player Demo
+        </button>
+        <button type="button" class="gi-btn gi-btn-sm gi-btn-secondary" @onclick="@(() => FillDemo("admin@gameit.com", "P@ssword1"))">
+            <i class="bi bi-shield-lock"></i> Admin Demo
+        </button>
+    </div>
+</div>
+
+<div style="margin-top:var(--space-5);text-align:center;font-size:0.85rem;color:var(--text-secondary);">
+    New to GameIt?
+    <a href="/register" style="color:var(--accent-text);font-weight:600;margin-left:4px;">Create an account</a>
+</div>
+
+@code {
+    private readonly AuthRequestDto _model = new();
+    private bool _isSubmitting;
+    private string? _errorMessage;
+
+    private void FillDemo(string email, string password)
+    {
+        _model.Email = email;
+        _model.Password = password;
+        _errorMessage = null;
+    }
+
+    private async Task HandleLoginAsync()
+    {
+        _isSubmitting = true;
+        _errorMessage = null;
+
+        try
+        {
+            var result = await AuthApi.LoginAsync(_model);
+            if (result.IsSuccess && result.Data is not null)
+            {
+                Toast.ShowSuccess($"Welcome back, {result.Data.UserName}!", "Signed In");
+                Navigation.NavigateTo("/");
+            }
+            else
+            {
+                _errorMessage = result.ErrorMessage ?? "Invalid email or password.";
+            }
+        }
+        catch
+        {
+            _errorMessage = "Unable to reach the authentication server. Please verify the API is running.";
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+}

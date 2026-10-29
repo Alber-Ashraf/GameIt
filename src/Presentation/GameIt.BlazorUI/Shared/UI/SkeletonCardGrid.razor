@@ -1,0 +1,20 @@
+<div class="gi-game-grid" aria-busy="true" aria-label="Loading games">
+    @for (int i = 0; i < Count; i++)
+    {
+        <div class="gi-card gi-game-card">
+            <div class="gi-skeleton" style="aspect-ratio:16/9;border-bottom:1px solid var(--border-subtle);"></div>
+            <div style="padding:var(--space-4);display:flex;flex-direction:column;gap:var(--space-2);">
+                <div class="gi-skeleton" style="height:1.1rem;width:75%;"></div>
+                <div class="gi-skeleton" style="height:0.8rem;width:40%;"></div>
+                <div style="margin-top:var(--space-3);display:flex;justify-content:space-between;align-items:center;">
+                    <div class="gi-skeleton" style="height:1rem;width:30%;"></div>
+                    <div class="gi-skeleton" style="height:1.75rem;width:4.5rem;border-radius:var(--radius-md);"></div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int Count { get; set; } = 8;
+}

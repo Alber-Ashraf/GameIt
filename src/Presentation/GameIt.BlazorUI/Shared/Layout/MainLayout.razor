@@ -1,0 +1,24 @@
+@inherits LayoutComponentBase
+
+<div class="gi-shell">
+    <Sidebar IsOpen="@_isSidebarOpen" />
+
+    <div class="gi-main-wrapper">
+        <TopBar OnToggleSidebar="ToggleSidebar" />
+
+        <main class="gi-stage" role="main">
+            @Body
+        </main>
+    </div>
+</div>
+
+<ToastContainer />
+
+@code {
+    private bool _isSidebarOpen = false;
+
+    private void ToggleSidebar()
+    {
+        _isSidebarOpen = !_isSidebarOpen;
+    }
+}

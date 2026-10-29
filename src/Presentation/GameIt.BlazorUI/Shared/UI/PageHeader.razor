@@ -1,0 +1,28 @@
+<div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:var(--space-4);margin-bottom:var(--space-6);">
+    <div>
+        @if (!string.IsNullOrWhiteSpace(Eyebrow))
+        {
+            <div style="font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent-text);margin-bottom:0.25rem;">
+                @Eyebrow
+            </div>
+        }
+        <h1 style="font-size:1.75rem;line-height:1.2;">@Title</h1>
+        @if (!string.IsNullOrWhiteSpace(Subtitle))
+        {
+            <p style="color:var(--text-secondary);font-size:0.92rem;margin-top:0.25rem;">@Subtitle</p>
+        }
+    </div>
+    @if (Actions is not null)
+    {
+        <div style="display:flex;align-items:center;gap:var(--space-3);">
+            @Actions
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter] public string? Subtitle { get; set; }
+    [Parameter] public string? Eyebrow { get; set; }
+    [Parameter] public RenderFragment? Actions { get; set; }
+}

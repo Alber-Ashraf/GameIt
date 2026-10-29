@@ -1,0 +1,473 @@
+@page "/games/{Id:guid}"
+@page "/games/details/{Id:guid}"
+@using GameIt.BlazorUI.Features.Catalog.Services
+@using GameIt.BlazorUI.Features.Reviews.Services
+@using GameIt.BlazorUI.Features.Wishlist.Services
+@using GameIt.BlazorUI.Features.Library.Services
+@inject IGamesApiClient GamesApi
+@inject IReviewsApiClient ReviewsApi
+@inject IWishlistApiClient WishlistApi
+@inject ILibraryApiClient LibraryApi
+@inject CustomAuthStateProvider AuthStateProvider
+@inject ToastService Toast
+@inject NavigationManager Navigation
+
+<PageTitle>@(_game?.Name ?? "Game Details") — GameIt</PageTitle>
+
+<div style="margin-bottom:var(--space-4);">
+    <a href="/" class="gi-btn gi-btn-sm gi-btn-ghost">
+        <i class="bi bi-arrow-left"></i> Back to Storefront
+    </a>
+</div>
+
+<ErrorBanner Message="@_errorMessage" OnRetry="LoadGameDetailsAsync" />
+
+@if (_isLoading)
+{
+    <div class="gi-card" style="padding:var(--space-6);">
+        <div class="gi-skeleton" style="height:260px;width:100%;margin-bottom:var(--space-5);"></div>
+        <div class="gi-skeleton" style="height:2rem;width:45%;margin-bottom:var(--space-3);"></div>
+        <div class="gi-skeleton" style="height:1rem;width:80%;margin-bottom:var(--space-2);"></div>
+        <div class="gi-skeleton" style="height:1rem;width:65%;"></div>
+    </div>
+}
+else if (_game is null)
+{
+    <EmptyState Icon="bi-exclamation-diamond"
+                Title="Game Not Found"
+                Description="This title could not be found or may have been removed from the catalog.">
+        <Action>
+            <a href="/" class="gi-btn gi-btn-primary">Return to Storefront</a>
+        </Action>
+    </EmptyState>
+}
+else
+{
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:var(--space-6);align-items:start;">
+        <!-- Left Column: Media & Description -->
+        <div style="grid-column:span 2;display:flex;flex-direction:column;gap:var(--space-5);">
+            <div class="gi-card">
+                <div style="aspect-ratio:16/9;background:var(--zinc-925);position:relative;overflow:hidden;">
+                    <img src="@(!string.IsNullOrWhiteSpace(_game.ImageUrl) ? _game.ImageUrl : "/images/placeholder-game.png")"
+                         alt="@_game.Name"
+                         style="width:100%;height:100%;object-fit:cover;"
+                         onerror="this.src='/images/placeholder-game.png';" />
+                </div>
+                <div style="padding:var(--space-6);">
+                    <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-2);">
+                        <span class="gi-badge gi-badge-indigo">@_game.CategoryName</span>
+                        @if (_game.DiscountPercentage is > 0)
+                        {
+                            <span class="gi-badge gi-badge-discount">-@Math.Round(_game.DiscountPercentage.Value)% OFF</span>
+                        }
+                    </div>
+                    <h1 style="font-size:2rem;margin-bottom:var(--space-3);">@_game.Name</h1>
+                    <p style="color:var(--text-secondary);line-height:1.7;white-space:pre-line;">
+                        @(!string.IsNullOrWhiteSpace(_game.Description) ? _game.Description : "No description provided for this release.")
+                    </p>
+                </div>
+            </div>
+
+            <!-- System Requirements & Technical Specs -->
+            <div class="gi-card" style="padding:var(--space-5);">
+                <h2 style="font-size:1.15rem;margin-bottom:var(--space-4);">Technical Specifications & System Requirements</h2>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--space-4);">
+                    <div>
+                        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;">Release Date</div>
+                        <div class="tabular-nums" style="font-weight:600;margin-top:0.2rem;">@_game.ReleaseDate.ToString("MMM dd, yyyy")</div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;">Install Size</div>
+                        <div class="tabular-nums" style="font-weight:600;margin-top:0.2rem;">@FormatBytes(_game.FileSizeInBytes)</div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;">Community Rating</div>
+                        <div style="margin-top:0.2rem;">
+                            <StarRating Rating="_game.AverageRating" />
+                            <span class="tabular-nums" style="font-size:0.78rem;color:var(--text-muted);">(@_reviews.Count reviews)</span>
+                        </div>
+                    </div>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(_game.SystemRequirements))
+                {
+                    <div style="margin-top:var(--space-4);padding-top:var(--space-4);border-top:1px solid var(--border-subtle);">
+                        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.35rem;">Minimum / Recommended Configuration</div>
+                        <div style="font-size:0.88rem;color:var(--text-secondary);white-space:pre-line;">@_game.SystemRequirements</div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Right Column: Purchase Box -->
+        <div class="gi-card" style="padding:var(--space-6);position:sticky;top:calc(var(--topbar-height) + var(--space-4));">
+            <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:var(--space-2);">
+                Digital Edition
+            </div>
+
+            <div style="margin-bottom:var(--space-5);">
+                <PriceBadge Price="_game.Price" IsFree="_game.IsFree" DiscountPercentage="_game.DiscountPercentage" />
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:var(--space-3);">
+                @if (_isOwned)
+                {
+                    <a href="/library" class="gi-btn gi-btn-primary gi-btn-lg" style="width:100%;">
+                        <i class="bi bi-collection-play-fill"></i> In Your Library — Play Now
+                    </a>
+                }
+                else
+                {
+                    <button type="button" class="gi-btn gi-btn-primary gi-btn-lg" style="width:100%;" @onclick="ProceedToCheckout">
+                        <i class="bi bi-bag-check-fill"></i>
+                        <span>@(_game.IsFree || _game.FinalPrice == 0m ? "Claim Free Game" : $"Buy Now — ${_game.FinalPrice:0.00}")</span>
+                    </button>
+
+                    <button type="button"
+                            class="gi-btn gi-btn-secondary"
+                            style="width:100%;"
+                            disabled="@_isWishlistBusy"
+                            @onclick="ToggleWishlistAsync">
+                        <i class="bi @(_isInWishlist ? "bi-heart-fill" : "bi-heart")" style="color:@(_isInWishlist ? "var(--rose-400)" : "inherit");"></i>
+                        <span>@(_isInWishlist ? "Remove from Wishlist" : "Add to Wishlist")</span>
+                    </button>
+                }
+
+                <AuthorizeView Roles="Administrator">
+                    <Authorized>
+                        <a href="@($"/admin/games?edit={_game.Id}")" class="gi-btn gi-btn-sm gi-btn-ghost" style="width:100%;margin-top:var(--space-2);">
+                            <i class="bi bi-pencil-square"></i> Edit Title in Admin Console
+                        </a>
+                    </Authorized>
+                </AuthorizeView>
+            </div>
+        </div>
+    </div>
+
+    <!-- Community Reviews Section -->
+    <section style="margin-top:var(--space-8);" aria-label="Community Reviews">
+        <div class="gi-card" style="padding:var(--space-6);">
+            <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--space-3);margin-bottom:var(--space-5);">
+                <div>
+                    <h2 style="font-size:1.35rem;">Community Reviews (@_reviews.Count)</h2>
+                    <p style="font-size:0.86rem;color:var(--text-secondary);">Verified player ratings and impressions.</p>
+                </div>
+                <StarRating Rating="_game.AverageRating" />
+            </div>
+
+            <AuthorizeView>
+                <Authorized Context="authContext">
+                    <div style="background:var(--bg-surface-2);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:var(--space-4);margin-bottom:var(--space-5);">
+                        <h3 style="font-size:0.95rem;margin-bottom:var(--space-3);">
+                            @(_editingReviewId.HasValue ? "Update Your Review" : "Write a Review")
+                        </h3>
+                        <EditForm Model="_reviewForm" OnValidSubmit="SubmitReviewAsync">
+                            <DataAnnotationsValidator />
+                            <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-3);">
+                                <span class="gi-label">Rating:</span>
+                                <StarRating Rating="_reviewForm.Rating" Interactive="true" ShowValue="false" RatingChanged="OnRatingSelected" />
+                                <span class="tabular-nums" style="font-size:0.85rem;color:var(--amber-400);font-weight:700;">@_reviewForm.Rating / 5</span>
+                            </div>
+                            <div class="gi-form-group">
+                                <InputTextArea class="gi-textarea"
+                                               rows="3"
+                                               placeholder="Share your thoughts on gameplay, performance, and story..."
+                                               @bind-Value="_reviewForm.Comment" />
+                                <ValidationMessage For="@(() => _reviewForm.Comment)" />
+                            </div>
+                            <div style="display:flex;gap:var(--space-2);">
+                                <button type="submit" class="gi-btn gi-btn-primary gi-btn-sm" disabled="@_isReviewSubmitting">
+                                    @(_editingReviewId.HasValue ? "Save Changes" : "Post Review")
+                                </button>
+                                @if (_editingReviewId.HasValue)
+                                {
+                                    <button type="button" class="gi-btn gi-btn-secondary gi-btn-sm" @onclick="CancelEditReview">
+                                        Cancel
+                                    </button>
+                                }
+                            </div>
+                        </EditForm>
+                    </div>
+                </Authorized>
+                <NotAuthorized>
+                    <div style="padding:var(--space-4);background:var(--bg-surface-2);border-radius:var(--radius-md);margin-bottom:var(--space-5);display:flex;align-items:center;justify-content:space-between;">
+                        <span style="font-size:0.88rem;color:var(--text-secondary);">Sign in to rate and review @_game.Name.</span>
+                        <a href="/login" class="gi-btn gi-btn-sm gi-btn-secondary">Sign In</a>
+                    </div>
+                </NotAuthorized>
+            </AuthorizeView>
+
+            @if (_reviews.Count == 0)
+            {
+                <EmptyState Icon="bi-chat-square-quote"
+                            Title="No reviews yet"
+                            Description="Be the first player to share a review for this title." />
+            }
+            else
+            {
+                <div style="display:flex;flex-direction:column;gap:var(--space-3);">
+                    @foreach (var review in _reviews.OrderByDescending(r => r.CreatedAt))
+                    {
+                        var canModify = !string.IsNullOrEmpty(_currentUserId) &&
+                                        (string.Equals(review.UserId, _currentUserId, StringComparison.OrdinalIgnoreCase) || _isAdmin);
+                        <div style="padding:var(--space-4);border:1px solid var(--border-subtle);border-radius:var(--radius-md);background:var(--bg-surface-1);">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-2);">
+                                <div style="display:flex;align-items:center;gap:var(--space-3);">
+                                    <StarRating Rating="review.Rating" ShowValue="false" />
+                                    <span class="tabular-nums" style="font-size:0.78rem;color:var(--text-muted);">
+                                        @review.CreatedAt.ToString("MMM dd, yyyy")
+                                    </span>
+                                </div>
+                                @if (canModify)
+                                {
+                                    <div style="display:flex;gap:var(--space-2);">
+                                        @if (string.Equals(review.UserId, _currentUserId, StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <button type="button" class="gi-btn gi-btn-sm gi-btn-ghost" @onclick="() => StartEditReview(review)">
+                                                <i class="bi bi-pencil"></i> Edit
+                                            </button>
+                                        }
+                                        <button type="button" class="gi-btn gi-btn-sm gi-btn-danger" @onclick="() => DeleteReviewAsync(review.Id)">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                            <p style="color:var(--text-primary);font-size:0.92rem;line-height:1.55;">@review.Comment</p>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+
+    <!-- Similar Games Section -->
+    @if (_similarGames.Count > 0)
+    {
+        <section style="margin-top:var(--space-8);" aria-label="Similar Games">
+            <h2 style="font-size:1.35rem;margin-bottom:var(--space-4);">More Like @_game.Name</h2>
+            <div class="gi-game-grid">
+                @foreach (var sim in _similarGames)
+                {
+                    <GameCard Game="sim" />
+                }
+            </div>
+        </section>
+    }
+}
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private GameDetailDto? _game;
+    private List<ReviewItemDto> _reviews = new();
+    private List<GameSummaryDto> _similarGames = new();
+
+    private bool _isLoading = true;
+    private string? _errorMessage;
+    private string? _currentUserId;
+    private bool _isAdmin;
+    private bool _isOwned;
+    private bool _isInWishlist;
+    private bool _isWishlistBusy;
+
+    private UpsertReviewRequestDto _reviewForm = new() { Rating = 5 };
+    private Guid? _editingReviewId;
+    private bool _isReviewSubmitting;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _currentUserId = await AuthStateProvider.GetUserIdAsync();
+        _isAdmin = await AuthStateProvider.IsAdminAsync();
+        await LoadGameDetailsAsync();
+    }
+
+    private async Task LoadGameDetailsAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            var gameRes = await GamesApi.GetGameByIdAsync(Id);
+            if (!gameRes.IsSuccess || gameRes.Data is null)
+            {
+                _game = null;
+                _errorMessage = gameRes.ErrorMessage;
+                return;
+            }
+
+            _game = gameRes.Data;
+            _reviewForm.GameId = _game.Id;
+
+            var reviewsTask = ReviewsApi.GetReviewsByGameAsync(Id);
+            var similarTask = GamesApi.GetSimilarGamesAsync(Id, 4);
+
+            await Task.WhenAll(reviewsTask, similarTask);
+
+            var revRes = await reviewsTask;
+            _reviews = revRes.IsSuccess && revRes.Data is not null ? revRes.Data : new();
+
+            var simRes = await similarTask;
+            _similarGames = simRes.IsSuccess && simRes.Data is not null ? simRes.Data : new();
+
+            if (!string.IsNullOrEmpty(_currentUserId))
+            {
+                var libRes = await LibraryApi.GetUserLibraryAsync();
+                if (libRes.IsSuccess && libRes.Data is not null)
+                {
+                    _isOwned = libRes.Data.Any(l => l.GameId == Id);
+                }
+
+                var wishRes = await WishlistApi.GetUserWishlistAsync();
+                if (wishRes.IsSuccess && wishRes.Data is not null)
+                {
+                    _isInWishlist = wishRes.Data.Any(w => w.GameId == Id);
+                }
+            }
+        }
+        catch
+        {
+            _errorMessage = "Unable to load game details from the server.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void ProceedToCheckout()
+    {
+        if (string.IsNullOrEmpty(_currentUserId))
+        {
+            Toast.ShowInfo("Please sign in to purchase or claim this game.", "Authentication Required");
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        Navigation.NavigateTo($"/checkout/{Id}");
+    }
+
+    private async Task ToggleWishlistAsync()
+    {
+        if (string.IsNullOrEmpty(_currentUserId))
+        {
+            Toast.ShowInfo("Please sign in to save games to your wishlist.", "Sign In Required");
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        _isWishlistBusy = true;
+        try
+        {
+            if (_isInWishlist)
+            {
+                var res = await WishlistApi.RemoveFromWishlistAsync(Id);
+                if (res.IsSuccess)
+                {
+                    _isInWishlist = false;
+                    Toast.ShowInfo("Removed from your wishlist.");
+                }
+                else
+                {
+                    Toast.ShowError(res.ErrorMessage ?? "Could not remove from wishlist.");
+                }
+            }
+            else
+            {
+                var res = await WishlistApi.AddToWishlistAsync(Id);
+                if (res.IsSuccess)
+                {
+                    _isInWishlist = true;
+                    Toast.ShowSuccess("Added to your wishlist!");
+                }
+                else
+                {
+                    Toast.ShowError(res.ErrorMessage ?? "Could not add to wishlist.");
+                }
+            }
+        }
+        finally
+        {
+            _isWishlistBusy = false;
+        }
+    }
+
+    private void OnRatingSelected(int rating)
+    {
+        _reviewForm.Rating = rating;
+    }
+
+    private void StartEditReview(ReviewItemDto review)
+    {
+        _editingReviewId = review.Id;
+        _reviewForm = new UpsertReviewRequestDto
+        {
+            Id = review.Id,
+            GameId = Id,
+            Rating = review.Rating,
+            Comment = review.Comment
+        };
+    }
+
+    private void CancelEditReview()
+    {
+        _editingReviewId = null;
+        _reviewForm = new UpsertReviewRequestDto { GameId = Id, Rating = 5 };
+    }
+
+    private async Task SubmitReviewAsync()
+    {
+        _isReviewSubmitting = true;
+        try
+        {
+            _reviewForm.GameId = Id;
+            ApiResult res;
+            if (_editingReviewId.HasValue)
+            {
+                res = await ReviewsApi.UpdateReviewAsync(_editingReviewId.Value, _reviewForm);
+            }
+            else
+            {
+                res = await ReviewsApi.CreateReviewAsync(_reviewForm);
+            }
+
+            if (res.IsSuccess)
+            {
+                Toast.ShowSuccess(_editingReviewId.HasValue ? "Review updated!" : "Review posted!");
+                CancelEditReview();
+                await LoadGameDetailsAsync();
+            }
+            else
+            {
+                Toast.ShowError(res.ErrorMessage ?? "Failed to submit review.");
+            }
+        }
+        finally
+        {
+            _isReviewSubmitting = false;
+        }
+    }
+
+    private async Task DeleteReviewAsync(Guid reviewId)
+    {
+        var res = await ReviewsApi.DeleteReviewAsync(reviewId);
+        if (res.IsSuccess)
+        {
+            Toast.ShowInfo("Review deleted.");
+            await LoadGameDetailsAsync();
+        }
+        else
+        {
+            Toast.ShowError(res.ErrorMessage ?? "Could not delete review.");
+        }
+    }
+
+    private static string FormatBytes(long? bytes)
+    {
+        if (bytes is null or <= 0) return "Digital Download";
+        double gb = bytes.Value / (1024.0 * 1024.0 * 1024.0);
+        if (gb >= 1.0) return $"{gb:0.1} GB";
+        double mb = bytes.Value / (1024.0 * 1024.0);
+        return $"{mb:0} MB";
+    }
+}

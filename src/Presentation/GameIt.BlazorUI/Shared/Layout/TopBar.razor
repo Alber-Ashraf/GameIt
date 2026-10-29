@@ -1,0 +1,66 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager Navigation
+
+<header class="gi-topbar">
+    <div style="display:flex;align-items:center;gap:var(--space-3);flex:1;max-width:480px;">
+        <button type="button" class="gi-btn gi-btn-sm gi-btn-secondary" style="display:none;" @onclick="ToggleSidebar" aria-label="Toggle navigation">
+            <i class="bi bi-list"></i>
+        </button>
+
+        <div style="position:relative;width:100%;">
+            <i class="bi bi-search" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.85rem;"></i>
+            <input type="search"
+                   class="gi-input"
+                   style="padding-left:2.2rem;height:38px;font-size:0.85rem;"
+                   placeholder="Search games, publishers, genres..."
+                   @bind="SearchQuery"
+                   @bind:event="oninput"
+                   @onkeydown="HandleSearchKeyDown" />
+        </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:var(--space-3);">
+        <AuthorizeView>
+            <Authorized>
+                <a href="wishlist" class="gi-btn gi-btn-sm gi-btn-secondary" title="My Wishlist">
+                    <i class="bi bi-heart"></i>
+                    <span style="display:none;">Wishlist</span>
+                </a>
+                <a href="library" class="gi-btn gi-btn-sm gi-btn-secondary" title="My Library">
+                    <i class="bi bi-collection-play"></i>
+                    <span>Library</span>
+                </a>
+                <a href="logout" class="gi-btn gi-btn-sm gi-btn-ghost">
+                    Sign Out
+                </a>
+            </Authorized>
+            <NotAuthorized>
+                <a href="login" class="gi-btn gi-btn-sm gi-btn-ghost">
+                    Sign In
+                </a>
+                <a href="register" class="gi-btn gi-btn-sm gi-btn-primary">
+                    Create Account
+                </a>
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
+</header>
+
+@code {
+    [Parameter] public EventCallback OnToggleSidebar { get; set; }
+    private string SearchQuery { get; set; } = string.Empty;
+
+    private async Task ToggleSidebar()
+    {
+        if (OnToggleSidebar.HasDelegate)
+            await OnToggleSidebar.InvokeAsync();
+    }
+
+    private void HandleSearchKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(SearchQuery))
+        {
+            Navigation.NavigateTo($"/?q={Uri.EscapeDataString(SearchQuery.Trim())}");
+        }
+    }
+}

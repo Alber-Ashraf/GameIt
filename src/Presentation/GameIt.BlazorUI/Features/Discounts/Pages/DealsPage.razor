@@ -1,0 +1,133 @@
+@page "/deals"
+@using GameIt.BlazorUI.Features.Discounts.Services
+@using GameIt.BlazorUI.Features.Catalog.Services
+@inject IDiscountsApiClient DiscountsApi
+@inject IGamesApiClient GamesApi
+
+<PageTitle>Active Deals & Specials — GameIt</PageTitle>
+
+<PageHeader Eyebrow="Special Offers"
+            Title="Active Deals & Promotions"
+            Subtitle="Verified limited-time discounts and free-to-keep PC editions." />
+
+<ErrorBanner Message="@_errorMessage" OnRetry="LoadDealsAsync" />
+
+@if (_isLoading)
+{
+    <SkeletonCardGrid Count="6" />
+}
+else if (_activeDiscounts.Count == 0 && _discountedGames.Count == 0)
+{
+    <EmptyState Icon="bi-lightning-charge"
+                Title="No active promotions right now"
+                Description="All titles are currently at standard list price. Browse the full catalog for free-to-play titles.">
+        <Action>
+            <a href="/" class="gi-btn gi-btn-primary">Browse Catalog</a>
+        </Action>
+    </EmptyState>
+}
+else
+{
+    @if (_activeDiscounts.Count > 0)
+    {
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:var(--space-4);margin-bottom:var(--space-8);">
+            @foreach (var deal in _activeDiscounts)
+            {
+                var daysRemaining = Math.Max(0, (deal.EndDate - DateTime.UtcNow).Days);
+                var gameName = ResolveGameName(deal.GameId);
+                <div class="gi-card" style="padding:var(--space-5);display:flex;flex-direction:column;gap:var(--space-3);">
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                        <span class="gi-badge gi-badge-discount">-@Math.Round(deal.Percentage)% OFF</span>
+                        <span class="tabular-nums" style="font-size:0.78rem;color:var(--amber-400);">
+                            <i class="bi bi-hourglass-split"></i> Ends @deal.EndDate.ToString("MMM dd, yyyy") (@daysRemaining d left)
+                        </span>
+                    </div>
+                    <div>
+                        <h3 style="font-size:1.1rem;">@gameName</h3>
+                        <p style="font-size:0.84rem;color:var(--text-secondary);margin-top:0.25rem;">
+                            @(!string.IsNullOrWhiteSpace(deal.Description) ? deal.Description : "Limited-time promotional pricing.")
+                        </p>
+                    </div>
+                    <div style="margin-top:auto;padding-top:var(--space-3);border-top:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;">
+                        <span class="tabular-nums" style="font-size:0.76rem;color:var(--text-muted);">
+                            Started @deal.StartDate.ToString("MMM dd")
+                        </span>
+                        <a href="@($"/games/{deal.GameId}")" class="gi-btn gi-btn-sm gi-btn-primary">
+                            View Game <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    @if (_discountedGames.Count > 0)
+    {
+        <h2 style="font-size:1.35rem;margin-bottom:var(--space-4);">Discounted & Free Titles (@_discountedGames.Count)</h2>
+        <div class="gi-game-grid">
+            @foreach (var game in _discountedGames)
+            {
+                <GameCard Game="game" />
+            }
+        </div>
+    }
+}
+
+@code {
+    private List<ActiveDiscountItemDto> _activeDiscounts = new();
+    private List<GameSummaryDto> _allGames = new();
+    private List<GameSummaryDto> _discountedGames = new();
+    private bool _isLoading = true;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDealsAsync();
+    }
+
+    private async Task LoadDealsAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            var discountsTask = DiscountsApi.GetActiveDiscountsAsync();
+            var gamesTask = GamesApi.GetAllGamesAsync();
+
+            await Task.WhenAll(discountsTask, gamesTask);
+
+            var discountsRes = await discountsTask;
+            var gamesRes = await gamesTask;
+
+            if (discountsRes.IsSuccess && discountsRes.Data is not null)
+            {
+                _activeDiscounts = discountsRes.Data;
+            }
+
+            if (gamesRes.IsSuccess && gamesRes.Data is not null)
+            {
+                _allGames = gamesRes.Data;
+                _discountedGames = _allGames
+                    .Where(g => g.IsFree || g.Discount is > 0)
+                    .ToList();
+            }
+
+            if (!discountsRes.IsSuccess && !gamesRes.IsSuccess)
+            {
+                _errorMessage = discountsRes.ErrorMessage ?? "Failed to load active deals.";
+            }
+        }
+        catch
+        {
+            _errorMessage = "Unable to load active deals from the server.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private string ResolveGameName(Guid gameId) =>
+        _allGames.FirstOrDefault(g => g.Id == gameId)?.Name ?? "Featured Catalog Promotion";
+}

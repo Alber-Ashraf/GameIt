@@ -1,0 +1,163 @@
+@page "/admin"
+@attribute [Authorize(Roles = "Administrator")]
+@using GameIt.BlazorUI.Features.Catalog.Services
+@using GameIt.BlazorUI.Features.Categories.Services
+@using GameIt.BlazorUI.Features.Discounts.Services
+@inject IGamesApiClient GamesApi
+@inject ICategoriesApiClient CategoriesApi
+@inject IDiscountsApiClient DiscountsApi
+
+<PageTitle>Admin Console — GameIt</PageTitle>
+
+<PageHeader Eyebrow="Administration"
+            Title="Storefront Operations Console"
+            Subtitle="Manage catalog releases, genre taxonomies, and promotional discount campaigns.">
+    <Actions>
+        <a href="/admin/games" class="gi-btn gi-btn-primary gi-btn-sm">
+            <i class="bi bi-plus-lg"></i> Manage Games
+        </a>
+        <a href="/admin/categories" class="gi-btn gi-btn-secondary gi-btn-sm">
+            <i class="bi bi-tags"></i> Genres
+        </a>
+        <a href="/admin/discounts" class="gi-btn gi-btn-secondary gi-btn-sm">
+            <i class="bi bi-percent"></i> Discounts
+        </a>
+    </Actions>
+</PageHeader>
+
+<ErrorBanner Message="@_errorMessage" OnRetry="LoadDashboardAsync" />
+
+<section class="gi-stat-grid" aria-label="Catalog KPIs">
+    <StatCard Label="Catalog Titles"
+              Value="@_games.Count.ToString()"
+              Hint="Published digital editions"
+              Icon="bi-controller" />
+    <StatCard Label="Active Genres"
+              Value="@_categories.Count.ToString()"
+              Hint="Configured store categories"
+              Icon="bi-grid-3x3-gap" />
+    <StatCard Label="Live Promotions"
+              Value="@_activeDiscounts.Count.ToString()"
+              Hint="Currently active discounts"
+              Icon="bi-lightning-charge" />
+    <StatCard Label="Free-to-Play"
+              Value="@_games.Count(g => g.IsFree).ToString()"
+              Hint="Instant free-claim titles"
+              Icon="bi-gift" />
+</section>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:var(--space-6);">
+    <div class="gi-card" style="padding:var(--space-5);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-4);">
+            <h2 style="font-size:1.1rem;">Catalog Overview</h2>
+            <a href="/admin/games" class="gi-btn gi-btn-sm gi-btn-ghost">Manage All <i class="bi bi-arrow-right"></i></a>
+        </div>
+
+        @if (_games.Count == 0)
+        {
+            <p style="color:var(--text-secondary);font-size:0.88rem;">No games in catalog yet.</p>
+        }
+        else
+        {
+            <div class="gi-table-wrap">
+                <table class="gi-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Genre</th>
+                            <th style="text-align:right;">Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var g in _games.Take(6))
+                        {
+                            <tr>
+                                <td style="font-weight:600;">
+                                    <a href="@($"/games/{g.Id}")" style="color:var(--text-primary);">@g.Name</a>
+                                </td>
+                                <td><span class="gi-badge gi-badge-category">@g.CategoryName</span></td>
+                                <td class="tabular-nums" style="text-align:right;">
+                                    @(g.IsFree ? "FREE" : $"${g.FinalPrice:0.00}")
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    <div class="gi-card" style="padding:var(--space-5);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-4);">
+            <h2 style="font-size:1.1rem;">Active Discount Campaigns</h2>
+            <a href="/admin/discounts" class="gi-btn gi-btn-sm gi-btn-ghost">Configure <i class="bi bi-arrow-right"></i></a>
+        </div>
+
+        @if (_activeDiscounts.Count == 0)
+        {
+            <p style="color:var(--text-secondary);font-size:0.88rem;">No active discount campaigns.</p>
+        }
+        else
+        {
+            <div class="gi-table-wrap">
+                <table class="gi-table">
+                    <thead>
+                        <tr>
+                            <th>Game</th>
+                            <th>Discount</th>
+                            <th style="text-align:right;">Expires</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in _activeDiscounts.Take(6))
+                        {
+                            <tr>
+                                <td style="font-weight:600;">@ResolveGameName(d.GameId)</td>
+                                <td><span class="gi-badge gi-badge-discount">-@Math.Round(d.Percentage)%</span></td>
+                                <td class="tabular-nums" style="text-align:right;color:var(--text-secondary);">
+                                    @d.EndDate.ToString("MMM dd, yyyy")
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private List<GameSummaryDto> _games = new();
+    private List<CategorySummaryDto> _categories = new();
+    private List<ActiveDiscountItemDto> _activeDiscounts = new();
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDashboardAsync();
+    }
+
+    private async Task LoadDashboardAsync()
+    {
+        _errorMessage = null;
+        try
+        {
+            var gTask = GamesApi.GetAllGamesAsync();
+            var cTask = CategoriesApi.GetAllCategoriesAsync();
+            var dTask = DiscountsApi.GetActiveDiscountsAsync();
+
+            await Task.WhenAll(gTask, cTask, dTask);
+
+            _games = (await gTask).Data ?? new();
+            _categories = (await cTask).Data ?? new();
+            _activeDiscounts = (await dTask).Data ?? new();
+        }
+        catch
+        {
+            _errorMessage = "Unable to load admin metrics from the server.";
+        }
+    }
+
+    private string ResolveGameName(Guid gameId) =>
+        _games.FirstOrDefault(g => g.Id == gameId)?.Name ?? "Catalog Game";
+}
