@@ -1,10 +1,46 @@
-Last updated: 2026-10-29
+Last updated: 2026-11-03
 
 # Changelog
 
 All notable changes to the GameIt solution are documented in this file.
 
-## [Unreleased] — 2026-10-29
+## [Unreleased] — 2026-11-03
+
+### Added (Downloads & Catalog Support)
+- Added optional `AdditionalDownloadLink` support across `Game` entity, EF Core migration (`Add_AdditionalDownloadLink_To_Games`), MediatR commands, shared contracts, admin catalog editor, and user library vault (`LibraryPage.razor`) for supplementary game files, DLCs, and extra patches.
+
+### Changed (Auth & Catalog Units)
+- Removed hardcoded demo login credentials and quick-login buttons (`user@gameit.com`, `admin@gameit.com`) from `LoginPage.razor`.
+- Converted game file size from raw bytes (`FileSizeInBytes`) to megabytes (`FileSizeInMB`) across domain entities, EF Core migration (`Change_FileSize_To_Megabytes`), database seeder, shared contracts (`GameContracts.cs`, `LibraryContracts.cs`), admin game management form, game details, and library presentation.
+
+## [1.1.0] — 2026-10-30
+
+### Fixed (Stripe Payment Fulfillment & Status Reconciliation)
+- Fixed issue where Stripe checkout completion left purchases in `Pending` without adding the game to the user's library due to reliance on unforwarded local Stripe webhooks (`api/webhook`).
+- Added dual fulfillment with `/api/Payment/confirm-session` endpoint and automatic checkout redirect handler in `LibraryPage.razor` (`?session_id={CHECKOUT_SESSION_ID}`), guaranteeing immediate fulfillment upon return from Stripe Checkout.
+- Added `/api/Payment/purchases/{purchaseId}/verify` endpoint with an interactive "Check Status" button on `/purchases` to let users reconcile any stuck `Pending` orders against Stripe.
+- Updated `CreatePurchaseCommandHandler` to record the Stripe Checkout Session ID directly on `Purchase.StripePaymentIntentId` for direct session correlation.
+- Added automated unit tests (`ConfirmPaymentCommandHandlerTests`) covering payment session confirmation and pending order verification.
+
+### Added (Storefront Catalog Seeder)
+- Added `GameItDatabaseSeeder.cs` in `GameIt.Persistence.DatabaseContext` with 50 popular PC games across 10 categories (RPG, Action, Adventure, Strategy, Shooter, Open World, Indie, Sports & Racing, Horror, Simulation).
+- Configured real high-resolution Steam CDN header art, accurate pricing/free-to-play flags, system requirements, file sizes, and empty `DownloadLink` fields.
+- Seeded 10 active promotional discounts (20% to 75% off) for storefront deals.
+- Integrated seeder into `Program.cs` startup with `Database:SeedDataOnStartup` configuration switch.
+- Added integration test suite `GameItDatabaseSeederTests.cs` verifying idempotency and data integrity.
+
+### Fixed (Catalog Serialization & Admin Management Polish)
+- Fixed `Unable to load catalog data` error on `/admin/games`: mapped `AverageRating` to `0.0` (never `null`) in `GameProfile.cs` and made `AverageRating` nullable-safe (`double?`) in `GameSummaryDto` and `GameDetailDto` so `System.Text.Json` deserialization never fails when games have 0 reviews.
+- Wrapped `ProblemDetailsParser.ToApiResultAsync<T>` deserialization in a `try/catch` block returning structured failure messages rather than throwing unhandled client exceptions.
+- Added missing `IsFeatured`, `ReleaseDate`, and null-safe `Price` and `CategoryName` mappings in `GamesListDto.cs` and `GameProfile.cs`.
+- Aligned `CreateGameCommand` and `UpdateGameCommand` with `PublisherId` and increased description length validation to 1000 characters to match client input.
+- Made discount `Description` nullable in `CreateDiscountCommand` and `UpdateDiscountCommand` to prevent model validation failures on optional campaign notes.
+- Resolved category creation `"The Name field is required"` bug by syncing `Name` and `CategoryName` across `CategoryContracts.cs`, `CreateCategoryCommand`, and `UpdateCategoryCommand`.
+- Added missing `IsDanger`, `OnConfirm`, and `OnCancel` parameters to `ConfirmDialog.razor` across admin and wishlist pages.
+- Embedded custom vector logo component (`GameItLogo.razor`) and SVG brand assets (`logo.svg`, `logo-icon.svg`, `favicon.svg`, `placeholder-game.svg`).
+- Configured ASP.NET Core Hosted Blazor WebAssembly in `GameIt.API` with `UseBlazorFrameworkFiles()` and `MapFallbackToFile("index.html")` for single-service deployments.
+
+## [1.0.0] — 2026-10-29
 
 ### Added (MonsterASP.NET Deployment Hardening & Codebase Cleanup)
 - Added `src/Presentation/GameIt.API/appsettings.Production.json` pre-structured for MonsterASP.NET single-MSSQL hosting (`dbXXXXX.public.databaseasp.net`), CORS allowlisting, and Stripe redirect URLs.

@@ -50,10 +50,10 @@ else
         {
             <article class="gi-card" style="display:flex;flex-direction:column;">
                 <a href="@($"/games/{item.GameId}")" class="gi-game-card-media">
-                    <img src="@(!string.IsNullOrWhiteSpace(item.ImageUrl) ? item.ImageUrl : "/images/placeholder-game.png")"
+                    <img src="@(!string.IsNullOrWhiteSpace(item.ImageUrl) ? item.ImageUrl : "/images/placeholder-game.svg")"
                          alt="@item.GameName"
                          loading="lazy"
-                         onerror="this.src='/images/placeholder-game.png';" />
+                         onerror="this.src='/images/placeholder-game.svg';" />
                 </a>
                 <div class="gi-game-card-body">
                     <h3 class="gi-game-card-title">

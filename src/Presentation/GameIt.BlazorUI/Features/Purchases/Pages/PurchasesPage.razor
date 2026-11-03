@@ -2,6 +2,8 @@
 @attribute [Authorize]
 @using GameIt.BlazorUI.Features.Purchases.Services
 @inject IPurchasesApiClient PurchasesApi
+@inject ToastService Toast
+@inject NavigationManager Navigation
 
 <PageTitle>Purchase History — GameIt</PageTitle>
 
@@ -58,9 +60,21 @@ else
                             @item.PurchaseDate.ToString("MMM dd, yyyy HH:mm")
                         </td>
                         <td>
-                            <span class="gi-badge @(GetStatusBadgeClass(item.Status))">
-                                @item.Status
-                            </span>
+                            <div style="display:flex;align-items:center;gap:var(--space-2);">
+                                <span class="gi-badge @(GetStatusBadgeClass(item.Status))">
+                                    @item.Status
+                                </span>
+                                @if (item.Status == PaymentStatusContract.Pending)
+                                {
+                                    <button type="button"
+                                            class="gi-btn gi-btn-secondary gi-btn-sm"
+                                            style="padding:2px 8px;font-size:0.75rem;"
+                                            disabled="@_isVerifying"
+                                            @onclick="() => VerifyPurchaseAsync(item.Id)">
+                                        <i class="bi bi-arrow-clockwise"></i> Check Status
+                                    </button>
+                                }
+                            </div>
                         </td>
                         <td class="tabular-nums" style="text-align:right;font-weight:700;">
                             @(item.AmountPaid == 0m ? "FREE ($0.00)" : $"${item.AmountPaid:0.00}")
@@ -75,11 +89,38 @@ else
 @code {
     private List<PurchaseItemDto> _purchases = new();
     private bool _isLoading = true;
+    private bool _isVerifying;
     private string? _errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadHistoryAsync();
+    }
+
+    private async Task VerifyPurchaseAsync(Guid purchaseId)
+    {
+        _isVerifying = true;
+        try
+        {
+            var res = await PurchasesApi.VerifyPurchaseAsync(purchaseId);
+            if (res.IsSuccess && res.Data?.IsSuccess == true)
+            {
+                Toast.ShowSuccess($"Payment confirmed! {res.Data.GameName} has been added to your library.", "Order Updated");
+                await LoadHistoryAsync();
+            }
+            else
+            {
+                Toast.ShowInfo(res.Data?.Message ?? res.ErrorMessage ?? "Payment is still pending on Stripe.", "Status Check");
+            }
+        }
+        catch
+        {
+            Toast.ShowError("Unable to verify payment with Stripe at this moment.", "Verification Failed");
+        }
+        finally
+        {
+            _isVerifying = false;
+        }
     }
 
     private async Task LoadHistoryAsync()

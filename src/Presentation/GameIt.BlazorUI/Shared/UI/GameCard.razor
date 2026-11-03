@@ -3,10 +3,10 @@
 <div class="gi-card gi-card-interactive gi-game-card">
     <a href="@($"/games/{Game.Id}")" style="display:flex;flex-direction:column;height:100%;text-decoration:none;">
         <div class="gi-game-card-media">
-            <img src="@(!string.IsNullOrWhiteSpace(Game.ImageUrl) ? Game.ImageUrl : "/images/placeholder-game.png")"
+            <img src="@(!string.IsNullOrWhiteSpace(Game.ImageUrl) ? Game.ImageUrl : "/images/placeholder-game.svg")"
                  alt="@Game.Name"
                  loading="lazy"
-                 onerror="this.src='/images/placeholder-game.png';" />
+                 onerror="this.src='/images/placeholder-game.svg';" />
 
             <div class="gi-game-card-badges">
                 @if (!string.IsNullOrWhiteSpace(Game.CategoryName))

@@ -19,10 +19,21 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
+var hostBase = builder.HostEnvironment.BaseAddress;
 var configuredApiUrl = builder.Configuration["ApiBaseUrl"];
-var apiBaseUrl = string.IsNullOrWhiteSpace(configuredApiUrl)
-    ? builder.HostEnvironment.BaseAddress
-    : configuredApiUrl.EndsWith('/') ? configuredApiUrl : $"{configuredApiUrl}/";
+string apiBaseUrl;
+if (!string.IsNullOrWhiteSpace(configuredApiUrl))
+{
+    apiBaseUrl = configuredApiUrl.EndsWith('/') ? configuredApiUrl : $"{configuredApiUrl}/";
+}
+else if (hostBase.Contains("localhost:7294") || hostBase.Contains("localhost:5036"))
+{
+    apiBaseUrl = "https://localhost:7040/";
+}
+else
+{
+    apiBaseUrl = hostBase;
+}
 
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddAuthorizationCore();

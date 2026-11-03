@@ -1,4 +1,4 @@
-Last updated: 2026-10-29
+Last updated: 2026-11-03
 
 # 10 — Prioritized Execution Roadmap & Backlog
 
@@ -10,10 +10,11 @@ Last updated: 2026-10-29
 - **Phase 5 (Full-Stack Testing, Performance & Visual QA):** Completed (2026-10-29)
 - **Phase 6 (Deployment, Containerization & CI/CD Runbook):** Completed (2026-10-29)
 - **Phase 7 (Operations, Observability & Maintenance Runbook):** Completed (2026-10-29)
+- **Post-Launch Hardening & Polish (Catalog Seeding, Stripe Dual-Fulfillment, Megabytes Migration):** Completed (2026-11-03)
 
 ---
 
-## Execution Backlog (Milestones 1–4)
+## Execution Backlog (Milestones 1–5)
 
 ### Milestone 1: Safe Solution & Folder Restructuring + Contract Extraction (Phase 3.1) — DONE
 - [x] **Epic 1.1 — Repository Flattening & Clean Hygiene**
@@ -65,3 +66,16 @@ Last updated: 2026-10-29
   - `AdminGamesPage.razor` (`/admin/games`): Full catalog management table, create/edit modal form, and deletion dialog.
   - `AdminCategoriesPage.razor` (`/admin/categories`): Full category CRUD table and editor form.
   - `AdminDiscountsPage.razor` (`/admin/discounts`): Promotional campaign CRUD with date window validation.
+
+### Milestone 5: Storefront Seeder, Payment Dual-Fulfillment, Megabytes Migration & Extra Downloads (2026-11-03) — DONE
+- [x] **Epic 5.1 — High-Resolution PC Catalog Seeder**
+  - Added `GameItDatabaseSeeder.cs` seeding 50 PC games across 10 categories with real specs, Steam CDN capsule banners, accurate pricing, and 10 active promotional discounts.
+  - Verified idempotency and data reconciler via `GameItDatabaseSeederTests.cs`.
+- [x] **Epic 5.2 — Stripe Dual-Fulfillment & Order Reconciliation**
+  - Resolved pending payment fulfillment deadlock by implementing synchronous checkout return confirmation (`POST /api/Payment/confirm-session`) bound to `?session_id=` in `LibraryPage.razor`.
+  - Added user order verification endpoint (`POST /api/Payment/purchases/{purchaseId}/verify`) and UI reconciliation button in `PurchasesPage.razor`.
+  - Captured Stripe `session.Id` directly on purchase creation to prevent null reference issues prior to checkout completion.
+- [x] **Epic 5.3 — Megabytes File Size Migration & Additional Download Links**
+  - Migrated game file size from bytes (`FileSizeInBytes`) to megabytes (`FileSizeInMB`) across domain entities, EF Core migration (`Change_FileSize_To_Megabytes`), commands, DTOs, and Blazor views.
+  - Added `AdditionalDownloadLink` support for bonus files, DLCs, and patches across domain, database migration (`Add_AdditionalDownloadLink_To_Games`), contracts, admin form, and library presentation.
+  - Removed demo credential autofill from `LoginPage.razor`.

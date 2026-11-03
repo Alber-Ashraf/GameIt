@@ -3,6 +3,7 @@
 public class ActiveDiscountDto
 {
     public Guid Id { get; set; }
+    public Guid GameId { get; set; }
     public string GameName { get; set; } = string.Empty;
     public string GameImageUrl { get; set; } = string.Empty;
     public decimal OriginalPrice { get; set; }
@@ -10,7 +11,8 @@ public class ActiveDiscountDto
     public decimal Percentage { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
+    public bool IsActive { get; set; }
     public string Description { get; set; } = string.Empty;
-    public int DaysRemaining => (EndDate - DateTime.UtcNow).Days;  // Computed  
+    public int DaysRemaining => (EndDate - DateTime.UtcNow).Days;  // Computed
 
 }

@@ -32,12 +32,15 @@ public class GameConfiguration : IEntityTypeConfiguration<Game>
         builder.Property(g => g.IsFeatured)
             .HasDefaultValue(false);
 
-        builder.Property(g => g.FileSizeInBytes);
+        builder.Property(g => g.FileSizeInMB);
 
         builder.Property(g => g.SystemRequirements)
             .HasColumnType("nvarchar(max)");
 
         builder.Property(g => g.DownloadLink)
+            .HasMaxLength(500);
+
+        builder.Property(g => g.AdditionalDownloadLink)
             .HasMaxLength(500);
 
         builder.Property(g => g.ReleaseDate)

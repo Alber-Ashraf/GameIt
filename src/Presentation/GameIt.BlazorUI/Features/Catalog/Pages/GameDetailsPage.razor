@@ -48,10 +48,10 @@ else
         <div style="grid-column:span 2;display:flex;flex-direction:column;gap:var(--space-5);">
             <div class="gi-card">
                 <div style="aspect-ratio:16/9;background:var(--zinc-925);position:relative;overflow:hidden;">
-                    <img src="@(!string.IsNullOrWhiteSpace(_game.ImageUrl) ? _game.ImageUrl : "/images/placeholder-game.png")"
+                    <img src="@(!string.IsNullOrWhiteSpace(_game.ImageUrl) ? _game.ImageUrl : "/images/placeholder-game.svg")"
                          alt="@_game.Name"
                          style="width:100%;height:100%;object-fit:cover;"
-                         onerror="this.src='/images/placeholder-game.png';" />
+                         onerror="this.src='/images/placeholder-game.svg';" />
                 </div>
                 <div style="padding:var(--space-6);">
                     <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-2);">
@@ -78,7 +78,7 @@ else
                     </div>
                     <div>
                         <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;">Install Size</div>
-                        <div class="tabular-nums" style="font-weight:600;margin-top:0.2rem;">@FormatBytes(_game.FileSizeInBytes)</div>
+                        <div class="tabular-nums" style="font-weight:600;margin-top:0.2rem;">@FormatMegaBytes(_game.FileSizeInMB)</div>
                     </div>
                     <div>
                         <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;">Community Rating</div>
@@ -462,12 +462,10 @@ else
         }
     }
 
-    private static string FormatBytes(long? bytes)
+    private static string FormatMegaBytes(long? mb)
     {
-        if (bytes is null or <= 0) return "Digital Download";
-        double gb = bytes.Value / (1024.0 * 1024.0 * 1024.0);
-        if (gb >= 1.0) return $"{gb:0.1} GB";
-        double mb = bytes.Value / (1024.0 * 1024.0);
-        return $"{mb:0} MB";
+        if (mb is null or <= 0) return "Digital Download";
+        var val = mb.Value > 1_000_000 ? mb.Value / (1024 * 1024) : mb.Value;
+        return $"{val:N0} MB";
     }
 }

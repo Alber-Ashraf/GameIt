@@ -12,10 +12,10 @@ public class GameSummaryDto
     public string ImageUrl { get; set; } = string.Empty;
     public DateTime ReleaseDate { get; set; }
     public bool IsFeatured { get; set; }
-    public long FileSizeInBytes { get; set; }
+    public long FileSizeInMB { get; set; }
     public string SystemRequirements { get; set; } = string.Empty;
     public string CategoryName { get; set; } = string.Empty;
-    public double AverageRating { get; set; }
+    public double? AverageRating { get; set; }
     public int TotalReviews { get; set; }
     public decimal? Discount { get; set; }
 
@@ -36,13 +36,14 @@ public class GameDetailDto
     public string ImageUrl { get; set; } = string.Empty;
     public DateTime ReleaseDate { get; set; }
     public bool IsFeatured { get; set; }
-    public long FileSizeInBytes { get; set; }
+    public long FileSizeInMB { get; set; }
     public string DownloadLink { get; set; } = string.Empty;
+    public string? AdditionalDownloadLink { get; set; }
     public string SystemRequirements { get; set; } = string.Empty;
     public Guid CategoryId { get; set; }
     public string CategoryName { get; set; } = string.Empty;
     public string PublisherId { get; set; } = string.Empty;
-    public double AverageRating { get; set; }
+    public double? AverageRating { get; set; }
     public int TotalReviews { get; set; }
     public decimal? DiscountPercentage { get; set; }
 
@@ -78,12 +79,15 @@ public class UpsertGameRequestDto
 
     public bool IsFeatured { get; set; }
 
-    [Range(1, long.MaxValue, ErrorMessage = "File size in bytes must be greater than 0.")]
-    public long FileSizeInBytes { get; set; } = 1024L * 1024L * 512L;
+    [Range(1, long.MaxValue, ErrorMessage = "File size in MB must be greater than 0.")]
+    public long FileSizeInMB { get; set; } = 512;
 
     [Required(ErrorMessage = "Download link is required.")]
     [StringLength(500)]
     public string DownloadLink { get; set; } = string.Empty;
+
+    [StringLength(500)]
+    public string? AdditionalDownloadLink { get; set; }
 
     [Required(ErrorMessage = "System requirements are required.")]
     [StringLength(1000, MinimumLength = 10)]

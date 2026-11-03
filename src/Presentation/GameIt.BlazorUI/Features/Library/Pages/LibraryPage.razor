@@ -1,7 +1,10 @@
 @page "/library"
 @attribute [Authorize]
 @using GameIt.BlazorUI.Features.Library.Services
+@using GameIt.BlazorUI.Features.Purchases.Services
 @inject ILibraryApiClient LibraryApi
+@inject IPurchasesApiClient PurchasesApi
+@inject NavigationManager Navigation
 @inject ToastService Toast
 
 <PageTitle>My Library — GameIt</PageTitle>
@@ -44,7 +47,7 @@ else
                         <a href="@($"/games/{item.GameId}")" style="color:var(--text-primary);">@item.GameName</a>
                     </h3>
                     <div class="tabular-nums" style="font-size:0.8rem;color:var(--text-secondary);">
-                        Install Size: @FormatBytes(item.FileSizeInBytes)
+                        Install Size: @FormatMegaBytes(item.FileSizeInMB)
                     </div>
                 </div>
 
@@ -61,6 +64,12 @@ else
                             <i class="bi bi-cloud-arrow-down-fill"></i> Launch Installer
                         </button>
                     }
+                    @if (!string.IsNullOrWhiteSpace(item.AdditionalDownloadLink))
+                    {
+                        <a href="@item.AdditionalDownloadLink" target="_blank" rel="noopener noreferrer" class="gi-btn gi-btn-secondary gi-btn-sm" title="Download Additional Files">
+                            <i class="bi bi-paperclip"></i> Extra Files
+                        </a>
+                    }
                     <a href="@($"/games/{item.GameId}")" class="gi-btn gi-btn-secondary gi-btn-sm" aria-label="View game page">
                         <i class="bi bi-box-arrow-up-right"></i>
                     </a>
@@ -71,12 +80,31 @@ else
 }
 
 @code {
+    [SupplyParameterFromQuery(Name = "session_id")]
+    public string? SessionId { get; set; }
+
     private List<LibraryItemDto> _libraryItems = new();
     private bool _isLoading = true;
     private string? _errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
+        if (!string.IsNullOrWhiteSpace(SessionId))
+        {
+            try
+            {
+                var confirmRes = await PurchasesApi.ConfirmPaymentSessionAsync(SessionId);
+                if (confirmRes.IsSuccess)
+                {
+                    Toast.ShowSuccess($"Payment confirmed! {confirmRes.Data?.GameName} is now available in your library.", "Purchase Complete");
+                }
+            }
+            catch
+            {
+                // Non-blocking; continue to load library
+            }
+        }
+
         await LoadLibraryAsync();
     }
 
@@ -112,12 +140,10 @@ else
         Toast.ShowSuccess($"Preparing digital installer package for {gameName}...", "Download Started");
     }
 
-    private static string FormatBytes(long? bytes)
+    private static string FormatMegaBytes(long? mb)
     {
-        if (bytes is null or <= 0) return "Ready for digital delivery";
-        double gb = bytes.Value / (1024.0 * 1024.0 * 1024.0);
-        if (gb >= 1.0) return $"{gb:0.1} GB";
-        double mb = bytes.Value / (1024.0 * 1024.0);
-        return $"{mb:0} MB";
+        if (mb is null or <= 0) return "Ready for digital delivery";
+        var val = mb.Value > 1_000_000 ? mb.Value / (1024 * 1024) : mb.Value;
+        return $"{val:N0} MB";
     }
 }

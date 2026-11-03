@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.18" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.18">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -20,6 +21,7 @@
     <ProjectReference Include="..\..\Infrastructure\GameIt.Identity\GameIt.Identity.csproj" />
     <ProjectReference Include="..\..\Infrastructure\GameIt.Infrastructure\GameIt.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Infrastructure\GameIt.Persistence\GameIt.Persistence.csproj" />
+    <ProjectReference Include="..\GameIt.BlazorUI\GameIt.BlazorUI.csproj" />
   </ItemGroup>
 
 </Project>

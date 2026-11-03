@@ -74,6 +74,7 @@ namespace GameIt.Infrastructure.Stripe
             return new CheckoutSessionResponse
             {
                 CheckoutUrl = session.Url,
+                SessionId = session.Id,
                 StripePaymentIntentId = session.PaymentIntentId
             };
         }
@@ -95,6 +96,38 @@ namespace GameIt.Infrastructure.Stripe
             catch (StripeException ex)
             {
                 throw new ApplicationException("Stripe webhook validation failed", ex);
+            }
+        }
+
+        public async Task<Session?> GetCheckoutSessionAsync(string sessionId, CancellationToken token = default)
+        {
+            if (string.IsNullOrWhiteSpace(sessionId)) return null;
+
+            try
+            {
+                var service = new SessionService(_stripeClient);
+                return await service.GetAsync(sessionId, cancellationToken: token);
+            }
+            catch (StripeException)
+            {
+                return null;
+            }
+        }
+
+        public async Task<Session?> FindCheckoutSessionByPurchaseIdAsync(Guid purchaseId, CancellationToken token = default)
+        {
+            try
+            {
+                var service = new SessionService(_stripeClient);
+                var options = new SessionListOptions { Limit = 25 };
+                var sessions = await service.ListAsync(options, cancellationToken: token);
+                return sessions.FirstOrDefault(s => s.Metadata != null &&
+                                                    s.Metadata.TryGetValue("purchase_id", out var pid) &&
+                                                    pid.Equals(purchaseId.ToString(), StringComparison.OrdinalIgnoreCase));
+            }
+            catch (StripeException)
+            {
+                return null;
             }
         }
     }

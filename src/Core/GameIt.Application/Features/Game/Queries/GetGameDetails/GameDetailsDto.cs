@@ -10,15 +10,19 @@ public class GameDetailsDto
     public string ImageUrl { get; set; } = string.Empty;
     public decimal Price { get; set; }
     public bool IsFree { get; set; }
-    public long FileSizeInBytes { get; set; }
+    public long FileSizeInMB { get; set; }
     public string DownloadLink { get; set; } = string.Empty;
+    public string? AdditionalDownloadLink { get; set; }
     public string SystemRequirements { get; set; } = string.Empty;
     public DateTime ReleaseDate { get; set; }
+    public bool IsFeatured { get; set; }
 
     // Category details
+    public Guid CategoryId { get; set; }
     public string CategoryName { get; set; } = string.Empty;
 
     // Publisher details
+    public string PublisherId { get; set; } = string.Empty;
     public string PublisherName { get; set; } = string.Empty;
 
     // Discount details

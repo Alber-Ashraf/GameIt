@@ -1,5 +1,8 @@
-﻿using GameIt.Application.Features.Purchase.Commands.CreatePurchase;
+﻿using GameIt.Application.Features.Purchase.Commands.ConfirmPayment;
+using GameIt.Application.Features.Purchase.Commands.CreatePurchase;
+using GameIt.Application.Features.Purchase.Commands.VerifyPurchase;
 using GameIt.Application.Features.Purchase.Queries.GetUserPurchase;
+using GameIt.Contracts.Purchases;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -52,5 +55,45 @@ public class PaymentController : ControllerBase
     {
         var result = await _mediator.Send(command, token);
         return Ok(result);
+    }
+
+    // POST: api/payment/confirm-session
+    [HttpPost("confirm-session")]
+    [ProducesResponseType(typeof(ConfirmPaymentResultDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ConfirmPaymentResultDto>> ConfirmPaymentSession(
+        [FromQuery] string sessionId,
+        CancellationToken token = default)
+    {
+        var result = await _mediator.Send(new ConfirmPaymentCommand(sessionId), token);
+        return Ok(new ConfirmPaymentResultDto
+        {
+            IsSuccess = result.IsSuccess,
+            PurchaseId = result.PurchaseId,
+            GameId = result.GameId,
+            GameName = result.GameName,
+            Message = result.Message,
+            Status = (PaymentStatusContract)result.Status
+        });
+    }
+
+    // POST: api/payment/purchases/{purchaseId}/verify
+    [HttpPost("purchases/{purchaseId}/verify")]
+    [ProducesResponseType(typeof(ConfirmPaymentResultDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ConfirmPaymentResultDto>> VerifyPurchase(
+        [FromRoute] Guid purchaseId,
+        CancellationToken token = default)
+    {
+        var result = await _mediator.Send(new VerifyPurchaseCommand(purchaseId), token);
+        return Ok(new ConfirmPaymentResultDto
+        {
+            IsSuccess = result.IsSuccess,
+            PurchaseId = result.PurchaseId,
+            GameId = result.GameId,
+            GameName = result.GameName,
+            Message = result.Message,
+            Status = (PaymentStatusContract)result.Status
+        });
     }
 }

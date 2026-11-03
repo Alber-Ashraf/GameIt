@@ -33,3 +33,13 @@ public class PurchaseResultDto
     public string? StripeCheckoutUrl { get; set; }
     public DateTime PurchaseDate { get; set; }
 }
+
+public class ConfirmPaymentResultDto
+{
+    public bool IsSuccess { get; set; }
+    public Guid PurchaseId { get; set; }
+    public Guid GameId { get; set; }
+    public string GameName { get; set; } = string.Empty;
+    public string Message { get; set; } = string.Empty;
+    public PaymentStatusContract Status { get; set; }
+}

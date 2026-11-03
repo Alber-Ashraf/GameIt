@@ -72,8 +72,15 @@ public static class ProblemDetailsParser
                 return ApiResult<T>.Success(default!, (int)response.StatusCode);
             }
 
-            var data = await response.Content.ReadFromJsonAsync<T>(JsonOptions);
-            return ApiResult<T>.Success(data!, (int)response.StatusCode);
+            try
+            {
+                var data = await response.Content.ReadFromJsonAsync<T>(JsonOptions);
+                return ApiResult<T>.Success(data!, (int)response.StatusCode);
+            }
+            catch (Exception ex)
+            {
+                return ApiResult<T>.Failure($"Failed to parse server response: {ex.Message}", (int)response.StatusCode);
+            }
         }
 
         var (message, errors) = await ParseAsync(response);

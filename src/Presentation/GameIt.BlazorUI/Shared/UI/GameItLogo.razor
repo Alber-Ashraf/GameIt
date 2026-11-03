@@ -1,0 +1,67 @@
+<div class="gi-logo-container @Class" style="display:inline-flex;align-items:center;gap:@(ShowText ? "0.6rem" : "0");user-select:none;text-decoration:none;">
+    <div style="width:@(Size)px;height:@(Size)px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg viewBox="0 0 100 100" width="@Size" height="@Size" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="@_gradId" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#818CF8" />
+                    <stop offset="50%" stop-color="#6366F1" />
+                    <stop offset="100%" stop-color="#4F46E5" />
+                </linearGradient>
+                <linearGradient id="@_accentId" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#06B6D4" />
+                    <stop offset="100%" stop-color="#3B82F6" />
+                </linearGradient>
+            </defs>
+
+            <!-- Squircle Base -->
+            <rect x="6" y="6" width="88" height="88" rx="24" fill="#18181B" stroke="var(--border-subtle, #27272A)" stroke-width="2.5" />
+            <rect x="6" y="6" width="88" height="88" rx="24" fill="url(#@_gradId)" opacity="0.14" />
+
+            <!-- Gamepad Outer Body -->
+            <path d="M26 38 C26 31, 33 28, 42 28 L58 28 C67 28, 74 31, 74 38 C74 46, 70 60, 64 69 C61 73, 56 71, 53 66 L50 61 L47 66 C44 71, 39 73, 36 69 C30 60, 26 46, 26 38 Z"
+                  fill="url(#@_gradId)" />
+
+            <!-- Inner Cutout -->
+            <path d="M42 34 L58 34 C63 34, 68 36, 68 40 C68 46, 65 57, 60 63 C58.5 65.5, 56 64, 54 61 L50 55 L46 61 C44 64, 41.5 65.5, 40 63 C35 57, 32 46, 32 40 C32 36, 37 34, 42 34 Z"
+                  fill="#09090B" />
+
+            <!-- D-Pad Left -->
+            <path d="M37 42 H41 V45 H37 V49 H34 V45 H30 V42 H34 V38 H37 V42 Z" fill="#E4E4E7" />
+
+            <!-- Action Dots Right -->
+            <circle cx="63" cy="40" r="2.2" fill="#F43F5E" />
+            <circle cx="67" cy="43.5" r="2.2" fill="#06B6D4" />
+            <circle cx="59" cy="43.5" r="2.2" fill="#EAB308" />
+            <circle cx="63" cy="47" r="2.2" fill="#10B981" />
+
+            <!-- Play Triangle Center -->
+            <path d="M47 39.5 L54 43.5 L47 47.5 Z" fill="url(#@_accentId)" />
+        </svg>
+    </div>
+
+    @if (ShowText)
+    {
+        <div style="display:flex;align-items:baseline;line-height:1;gap:4px;">
+            <span style="font-size:@(TextSize ?? $"{Size * 0.65}px");font-weight:800;letter-spacing:-0.035em;color:var(--text-primary, #FAFAFA);">
+                Game<span style="color:var(--indigo-400, #818CF8);">It</span>
+            </span>
+            @if (ShowTag)
+            {
+                <span style="font-size:0.6rem;font-weight:700;letter-spacing:0.08em;color:var(--text-muted, #71717A);background:var(--bg-surface-3, #27272A);padding:1px 5px;border-radius:4px;border:1px solid var(--border-subtle, #3F3F46);">
+                    PC
+                </span>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int Size { get; set; } = 32;
+    [Parameter] public bool ShowText { get; set; } = true;
+    [Parameter] public bool ShowTag { get; set; } = true;
+    [Parameter] public string? TextSize { get; set; }
+    [Parameter] public string? Class { get; set; }
+
+    private readonly string _gradId = $"gi-logo-g-{Guid.NewGuid().ToString("N")[..6]}";
+    private readonly string _accentId = $"gi-logo-a-{Guid.NewGuid().ToString("N")[..6]}";
+}

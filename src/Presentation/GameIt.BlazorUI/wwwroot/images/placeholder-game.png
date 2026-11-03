@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 338" width="600" height="338" fill="none">
+    <defs>
+        <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#18181B" />
+            <stop offset="100%" stop-color="#09090B" />
+        </linearGradient>
+        <linearGradient id="mark-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#818CF8" />
+            <stop offset="100%" stop-color="#4F46E5" />
+        </linearGradient>
+        <pattern id="grid-pattern" width="30" height="30" patternUnits="userSpaceOnUse">
+            <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#27272A" stroke-width="0.75" stroke-opacity="0.4" />
+        </pattern>
+    </defs>
+
+    <rect width="600" height="338" fill="url(#bg-grad)" />
+    <rect width="600" height="338" fill="url(#grid-pattern)" />
+
+    <!-- Center Mark Silhouette -->
+    <g transform="translate(250, 100)">
+        <rect width="100" height="100" rx="26" fill="#18181B" stroke="#27272A" stroke-width="2" />
+        <rect width="100" height="100" rx="26" fill="url(#mark-grad)" opacity="0.16" />
+
+        <path d="M28 42 C28 35, 35 32, 44 32 L56 32 C65 32, 72 35, 72 42 C72 50, 68 64, 62 73 C59 77, 54 75, 51 70 L48 65 L45 70 C42 75, 37 77, 34 73 C28 64, 28 50, 28 42 Z"
+              fill="url(#mark-grad)" />
+        <path d="M44 38 L56 38 C61 38, 66 40, 66 44 C66 50, 63 61, 58 67 C56.5 69.5, 54 68, 52 65 L48 59 L44 65 C42 68, 39.5 69.5, 38 67 C33 61, 30 50, 30 44 C30 40, 35 38, 44 38 Z"
+              fill="#09090B" />
+        <!-- D-Pad Left -->
+        <path d="M37 44 H41 V47 H37 V51 H34 V47 H30 V44 H34 V40 H37 V44 Z" fill="#E4E4E7" />
+        <!-- Action Dots Right -->
+        <circle cx="63" cy="42" r="2" fill="#F43F5E" />
+        <circle cx="67" cy="45.5" r="2" fill="#06B6D4" />
+        <circle cx="59" cy="45.5" r="2" fill="#EAB308" />
+        <circle cx="63" cy="49" r="2" fill="#10B981" />
+    </g>
+
+    <text x="300" y="240" font-family="'Inter', sans-serif" font-size="14" font-weight="700" letter-spacing="0.08em" fill="#71717A" text-anchor="middle">
+        GAMEIT PC STOREFRONT
+    </text>
+    <text x="300" y="262" font-family="'Inter', sans-serif" font-size="11" font-weight="500" fill="#52525B" text-anchor="middle">
+        Cover Artwork Pending
+    </text>
+</svg>

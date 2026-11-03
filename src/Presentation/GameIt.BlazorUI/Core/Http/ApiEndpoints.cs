@@ -33,4 +33,6 @@ public static class ApiEndpoints
 
     public const string Purchases = "api/payment/purchases";
     public static string PurchasesByUser(string userId) => $"api/payment/users/{Uri.EscapeDataString(userId)}/purchases";
+    public static string ConfirmPaymentSession(string sessionId) => $"api/payment/confirm-session?sessionId={Uri.EscapeDataString(sessionId)}";
+    public static string VerifyPurchase(Guid purchaseId) => $"api/payment/purchases/{purchaseId}/verify";
 }

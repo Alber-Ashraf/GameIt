@@ -8,6 +8,8 @@ public interface IPurchasesApiClient
 {
     Task<ApiResult<List<PurchaseItemDto>>> GetUserPurchasesAsync(CancellationToken ct = default);
     Task<ApiResult<PurchaseResultDto>> CreatePurchaseAsync(CreatePurchaseRequestDto request, CancellationToken ct = default);
+    Task<ApiResult<ConfirmPaymentResultDto>> ConfirmPaymentSessionAsync(string sessionId, CancellationToken ct = default);
+    Task<ApiResult<ConfirmPaymentResultDto>> VerifyPurchaseAsync(Guid purchaseId, CancellationToken ct = default);
 }
 
 public class PurchasesApiClient : IPurchasesApiClient
@@ -29,5 +31,17 @@ public class PurchasesApiClient : IPurchasesApiClient
     {
         var response = await _http.PostAsJsonAsync(ApiEndpoints.Purchases, request, ct);
         return await ProblemDetailsParser.ToApiResultAsync<PurchaseResultDto>(response);
+    }
+
+    public async Task<ApiResult<ConfirmPaymentResultDto>> ConfirmPaymentSessionAsync(string sessionId, CancellationToken ct = default)
+    {
+        var response = await _http.PostAsync(ApiEndpoints.ConfirmPaymentSession(sessionId), null, ct);
+        return await ProblemDetailsParser.ToApiResultAsync<ConfirmPaymentResultDto>(response);
+    }
+
+    public async Task<ApiResult<ConfirmPaymentResultDto>> VerifyPurchaseAsync(Guid purchaseId, CancellationToken ct = default)
+    {
+        var response = await _http.PostAsync(ApiEndpoints.VerifyPurchase(purchaseId), null, ct);
+        return await ProblemDetailsParser.ToApiResultAsync<ConfirmPaymentResultDto>(response);
     }
 }

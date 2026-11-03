@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" width="100%" height="100%" fill="none">
+    <defs>
+        <linearGradient id="gi-full-primary" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#818CF8" />
+            <stop offset="50%" stop-color="#6366F1" />
+            <stop offset="100%" stop-color="#4F46E5" />
+        </linearGradient>
+        <linearGradient id="gi-full-accent" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#06B6D4" />
+            <stop offset="100%" stop-color="#3B82F6" />
+        </linearGradient>
+        <linearGradient id="gi-text-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#FAFAFA" />
+            <stop offset="100%" stop-color="#E4E4E7" />
+        </linearGradient>
+        <filter id="gi-full-glow" x="-20%" y="-20%" width="140%" height="140%" filterUnits="userSpaceOnUse">
+            <feGaussianBlur stdDeviation="2.5" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+    </defs>
+
+    <!-- Logo Icon Group (Left) -->
+    <g transform="translate(6, 6)">
+        <!-- Outer Squircle Frame -->
+        <rect width="48" height="48" rx="14" fill="#18181B" stroke="#27272A" stroke-width="1.5" />
+        <rect width="48" height="48" rx="14" fill="url(#gi-full-primary)" opacity="0.12" />
+
+        <!-- Ambient Controller Base -->
+        <path d="M12 18 C12 13.5, 16 11.5, 21.5 11.5 L26.5 11.5 C32 11.5, 36 13.5, 36 18 C36 23, 33.5 31, 30 36 C28.5 38.5, 26 37.5, 24.5 35 L24 34 L23.5 35 C22 37.5, 19.5 38.5, 18 36 C14.5 31, 12 23, 12 18 Z"
+              fill="url(#gi-full-primary)"
+              filter="url(#gi-full-glow)" />
+
+        <!-- Inner Body Cutout -->
+        <path d="M20 15 L28 15 C31 15, 33 16.5, 33 19 C33 22.5, 31 29, 28 32 C27 33.5, 25.5 32.5, 24.5 31 L24 30 L23.5 31 C22.5 32.5, 21 33.5, 20 32 C17 29, 15 22.5, 15 19 C15 16.5, 17 15, 20 15 Z"
+              fill="#111113" />
+
+        <!-- D-Pad Left -->
+        <path d="M18 20 H20 V21.5 H18 V23.5 H16.5 V21.5 H14.5 V20 H16.5 V18 H18 V20 Z" fill="#E4E4E7" />
+
+        <!-- Action Dots Right -->
+        <circle cx="31" cy="19" r="1.1" fill="#F43F5E" />
+        <circle cx="33" cy="21" r="1.1" fill="#06B6D4" />
+        <circle cx="29" cy="21" r="1.1" fill="#EAB308" />
+        <circle cx="31" cy="23" r="1.1" fill="#10B981" />
+
+        <!-- Play Accent Center -->
+        <path d="M22.5 19.5 L26 21.5 L22.5 23.5 Z" fill="url(#gi-full-accent)" />
+    </g>
+
+    <!-- Wordmark (Right) -->
+    <text x="68" y="38" font-family="'Inter', -apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="800" letter-spacing="-0.04em" fill="url(#gi-text-grad)">
+        Game<tspan fill="#818CF8">It</tspan>
+    </text>
+
+    <!-- Subtitle/Category pill tag -->
+    <rect x="180" y="21" width="50" height="18" rx="5" fill="#27272A" stroke="#3F3F46" stroke-width="0.75" />
+    <text x="205" y="33" font-family="'Inter', sans-serif" font-size="9" font-weight="700" letter-spacing="0.08em" fill="#A1A1AA" text-anchor="middle">
+        STORE
+    </text>
+</svg>

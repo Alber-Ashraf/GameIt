@@ -9,6 +9,7 @@ public class LibraryItemDto
     public string GameImageUrl { get; set; } = string.Empty;
     public DateTime PurchasedAt { get; set; }
     public string? DownloadLink { get; set; }
-    public long FileSizeInBytes { get; set; }
+    public string? AdditionalDownloadLink { get; set; }
+    public long FileSizeInMB { get; set; }
     public string? SystemRequirements { get; set; }
 }

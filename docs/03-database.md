@@ -1,4 +1,4 @@
-Last updated: 2026-10-29
+Last updated: 2026-11-03
 
 # 03 — Database Schema & Persistence Architecture
 
@@ -36,8 +36,9 @@ erDiagram
         decimal(10_2) Price
         bit IsFree "Default 0"
         bit IsFeatured "Default 0"
-        bigint FileSizeInBytes
+        bigint FileSizeInMB
         nvarchar(500) DownloadLink
+        nvarchar(500) AdditionalDownloadLink
         nvarchar(max) SystemRequirements
         datetime2 ReleaseDate
         uniqueidentifier CategoryId FK
@@ -120,3 +121,10 @@ erDiagram
    - Include `Discount` and `Category` consistently across `GetFeaturedGamesAsync`, `GetGamesByCategoryAsync`, and `GetSimilarGamesAsync`.
    - Guard `GetSimilarGamesAsync` when `baseGame == null` (return empty list instead of throwing `NullReferenceException`).
    - Populate `GameName` and `CategoryName` in `WishlistListDto` projection (`WishlistRepository.GetUserWishlistWithDetailsAsync`).
+
+## 4. Automated Database Seeder (`GameItDatabaseSeeder`)
+GameIt includes an idempotent, automated seeder in `GameIt.Persistence.DatabaseContext.GameItDatabaseSeeder` executed on API startup when `Database:SeedDataOnStartup` is enabled (default `true`):
+- **10 Core Categories:** Action, RPG, Adventure, Strategy, Shooter, Open World, Indie, Sports & Racing, Horror, Simulation.
+- **50 Popular Games:** Spans major PC titles (Cyberpunk 2077, Elden Ring, Baldur's Gate 3, Red Dead Redemption 2, GTA V, Black Myth: Wukong, Helldivers 2, etc.) with high-resolution Steam CDN header art, accurate pricing and free-to-play flags, system requirements, file sizes, and empty `DownloadLink` values.
+- **10 Active Discounts:** 20% to 75% active discounts on select flagship titles for storefront deals and discount badges.
+

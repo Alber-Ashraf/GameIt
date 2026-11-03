@@ -14,7 +14,7 @@ namespace GameIt.Api;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -65,13 +65,18 @@ public class Program
 
                     var identityDbContext = scope.ServiceProvider.GetRequiredService<GameItIdentityDbContext>();
                     identityDbContext.Database.Migrate();
+
+                    if (builder.Configuration.GetValue("Database:SeedDataOnStartup", true))
+                    {
+                        await GameItDatabaseSeeder.SeedAsync(dbContext);
+                    }
                 }
 
                 RecurringJobsInitializer.Initialize(scope.ServiceProvider);
             }
             catch (Exception ex)
             {
-                app.Logger.LogError(ex, "Startup database migration or Hangfire job initialization failed. Verify ConnectionStrings:GameItDbConnectionString.");
+                app.Logger.LogError(ex, "Startup database migration, seeding, or Hangfire job initialization failed. Verify ConnectionStrings:GameItDbConnectionString.");
             }
         }
 
@@ -85,6 +90,9 @@ public class Program
 
         app.UseHttpsRedirection();
 
+        app.UseBlazorFrameworkFiles();
+        app.UseStaticFiles();
+
         app.UseCors("BlazorClientPolicy");
 
         app.UseRateLimiter();
@@ -94,14 +102,6 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapGet("/", () => Results.Ok(new
-        {
-            service = "GameIt.API",
-            status = "Running",
-            documentation = "/swagger",
-            health = "/health"
-        })).AllowAnonymous();
-
         app.MapGet("/health", () => Results.Ok(new
         {
             status = "Healthy",
@@ -110,7 +110,8 @@ public class Program
         })).AllowAnonymous();
 
         app.MapControllers();
+        app.MapFallbackToFile("index.html");
 
-        app.Run();
+        await app.RunAsync();
     }
 }

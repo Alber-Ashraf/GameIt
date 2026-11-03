@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%" fill="none">
+    <defs>
+        <linearGradient id="gi-grad-primary" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#818CF8" />
+            <stop offset="50%" stop-color="#6366F1" />
+            <stop offset="100%" stop-color="#4F46E5" />
+        </linearGradient>
+        <linearGradient id="gi-grad-accent" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#06B6D4" />
+            <stop offset="100%" stop-color="#3B82F6" />
+        </linearGradient>
+        <filter id="gi-glow" x="-20%" y="-20%" width="140%" height="140%" filterUnits="userSpaceOnUse">
+            <feGaussianBlur stdDeviation="3.5" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+    </defs>
+
+    <!-- Outer Rounded Hex/Squircle Base -->
+    <rect x="6" y="6" width="88" height="88" rx="22" fill="#18181B" stroke="#27272A" stroke-width="2" />
+    <rect x="6" y="6" width="88" height="88" rx="22" fill="url(#gi-grad-primary)" opacity="0.12" />
+
+    <!-- Ambient Glow Controller Silhouette -->
+    <g filter="url(#gi-glow)">
+        <!-- Gamepad Base Body -->
+        <path d="M26 38 C26 31, 33 28, 42 28 L58 28 C67 28, 74 31, 74 38 C74 46, 70 60, 64 69 C61 73, 56 71, 53 66 L50 61 L47 66 C44 71, 39 73, 36 69 C30 60, 26 46, 26 38 Z"
+              fill="url(#gi-grad-primary)" />
+    </g>
+
+    <!-- Inner Ergonomic Grip Cutouts -->
+    <path d="M42 34 L58 34 C63 34, 68 36, 68 40 C68 46, 65 57, 60 63 C58.5 65.5, 56 64, 54 61 L50 55 L46 61 C44 64, 41.5 65.5, 40 63 C35 57, 32 46, 32 40 C32 36, 37 34, 42 34 Z"
+          fill="#111113" />
+
+    <!-- D-Pad (Left Side) -->
+    <path d="M37 42 H41 V45 H37 V49 H34 V45 H30 V42 H34 V38 H37 V42 Z" fill="#E4E4E7" />
+
+    <!-- Diamond Action Buttons (Right Side) -->
+    <circle cx="63" cy="40" r="1.8" fill="#F43F5E" />
+    <circle cx="67" cy="43.5" r="1.8" fill="#06B6D4" />
+    <circle cx="59" cy="43.5" r="1.8" fill="#EAB308" />
+    <circle cx="63" cy="47" r="1.8" fill="#10B981" />
+
+    <!-- Center Forward Play / 'G' Slash Accent -->
+    <path d="M47.5 40 L53.5 43.5 L47.5 47 Z" fill="url(#gi-grad-accent)" />
+</svg>

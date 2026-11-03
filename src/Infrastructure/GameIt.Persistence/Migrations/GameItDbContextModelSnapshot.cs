@@ -105,6 +105,10 @@ namespace GameIt.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("AdditionalDownloadLink")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<double>("AverageRating")
                         .HasColumnType("float");
 
@@ -124,7 +128,7 @@ namespace GameIt.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<long?>("FileSizeInBytes")
+                    b.Property<long?>("FileSizeInMB")
                         .HasColumnType("bigint");
 
                     b.Property<string>("ImageUrl")

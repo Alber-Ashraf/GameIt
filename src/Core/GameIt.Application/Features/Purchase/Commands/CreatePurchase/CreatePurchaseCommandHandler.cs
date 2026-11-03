@@ -79,7 +79,7 @@ public class CreatePurchaseCommandHandler : IRequestHandler<CreatePurchaseComman
                 purchase.Id,
                 token);
 
-            purchase.StripePaymentIntentId = checkoutSession.StripePaymentIntentId;
+            purchase.StripePaymentIntentId = checkoutSession.SessionId ?? checkoutSession.StripePaymentIntentId;
 
             result = new PurchaseResult
             {

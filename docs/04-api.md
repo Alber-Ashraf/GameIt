@@ -1,4 +1,4 @@
-Last updated: 2026-10-29
+Last updated: 2026-11-03
 
 # 04 — REST API Specification & Security Contract
 
@@ -86,6 +86,8 @@ All `400 Bad Request`, `401 Unauthorized`, `403 Forbidden`, `404 Not Found`, and
 | :--- | :--- | :--- | :--- | :--- |
 | `GET` | `/api/Payment/purchases` (and `/api/Payment/users/{userId}/purchases`) | Authenticated | Current User (`uid`) | `200 OK` -> `List<PurchaseListDto>` |
 | `POST` | `/api/Payment/purchases` | Authenticated | `CreatePurchaseCommand { GameId, AmountPaid }` | `200 OK` -> `PurchaseResult { Id, Status, StripeCheckoutUrl, PurchaseDate }` |
+| `POST` | `/api/Payment/confirm-session` | Authenticated | Query `sessionId` | `200 OK` -> `ConfirmPaymentResultDto` |
+| `POST` | `/api/Payment/purchases/{purchaseId}/verify` | Authenticated | `purchaseId` | `200 OK` -> `ConfirmPaymentResultDto` |
 | `POST` | `/api/webhook` | Stripe Signature | Raw JSON + `Stripe-Signature` | `200 OK` |
 
 ### 3.8 Library (`/api/Library`)

@@ -15,22 +15,25 @@ public class GameProfile : Profile
         // Mapping configurations for Game entity to DTOs and commands
         // GamesListDto Mapping
         CreateMap<Game, GamesListDto>()
-            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
+            .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price ?? 0m))
+            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
             .ForMember(dest => dest.IsOnSale, opt => opt.MapFrom(src => src.Discount != null))
             .ForMember(dest => dest.Discount, opt => opt.MapFrom(src => src.Discount != null ? (int?)src.Discount.Percentage : null))
             .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src =>
-                src.Reviews.Any() ? src.Reviews.Average(r => r.Rating) : (double?)null));
+                src.Reviews != null && src.Reviews.Any() ? src.Reviews.Average(r => r.Rating) : 0.0));
 
         // GameDetailsDto Mapping
         CreateMap<Game, GameDetailsDto>()
-            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
+            .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price ?? 0m))
+            .ForMember(dest => dest.FileSizeInMB, opt => opt.MapFrom(src => src.FileSizeInMB ?? 0L))
+            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
             .ForMember(dest => dest.DiscountPercentage, opt => opt.MapFrom(src => src.Discount != null ? (decimal?)src.Discount.Percentage : null))
             .ForMember(dest => dest.DiscountStartDate, opt => opt.MapFrom(src => src.Discount != null ? (DateTime?)src.Discount.StartDate : null))
             .ForMember(dest => dest.DiscountEndDate, opt => opt.MapFrom(src => src.Discount != null ? (DateTime?)src.Discount.EndDate : null))
             .ForMember(dest => dest.IsDiscounted, opt => opt.MapFrom(src => src.Discount != null && src.Discount.IsActive))
-            .ForMember(dest => dest.TotalReviews, opt => opt.MapFrom(src => src.Reviews.Count))
+            .ForMember(dest => dest.TotalReviews, opt => opt.MapFrom(src => src.Reviews != null ? src.Reviews.Count : 0))
             .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src =>
-                src.Reviews.Any() ? src.Reviews.Average(r => r.Rating) : (double?)null))
+                src.Reviews != null && src.Reviews.Any() ? src.Reviews.Average(r => r.Rating) : 0.0))
             .ForMember(dest => dest.Reviews, opt => opt.MapFrom(src =>
                 src.Reviews.Select(r => new ReviewListDto
                 {

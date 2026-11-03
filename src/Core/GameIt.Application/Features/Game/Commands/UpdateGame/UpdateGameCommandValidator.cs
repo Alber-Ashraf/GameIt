@@ -20,7 +20,7 @@ public class UpdateGameCommandValidator : AbstractValidator<UpdateGameCommand>
 
         RuleFor(x => x.Description)
             .NotEmpty().WithMessage("Game description is required.")
-            .MaximumLength(500).WithMessage("Game description must not exceed 500 characters.");
+            .MaximumLength(1000).WithMessage("Game description must not exceed 1000 characters.");
 
         RuleFor(x => x.ImageUrl)
             .NotEmpty().WithMessage("Image URL is required.");
@@ -28,11 +28,14 @@ public class UpdateGameCommandValidator : AbstractValidator<UpdateGameCommand>
         RuleFor(x => x.Price)
             .GreaterThanOrEqualTo(0).WithMessage("Price must be a non-negative value.");
 
-        RuleFor(x => x.FileSizeInBytes)
-            .NotEmpty().WithMessage("Game size is required.");
+        RuleFor(x => x.FileSizeInMB)
+            .GreaterThan(0).WithMessage("Game size in megabytes is required.");
 
         RuleFor(x => x.DownloadLink)
             .NotEmpty().WithMessage("Download link is required.");
+
+        RuleFor(x => x.AdditionalDownloadLink)
+            .MaximumLength(500).WithMessage("Additional download link must not exceed 500 characters.");
 
         RuleFor(x => x.CategoryId)
             .NotEmpty().WithMessage("Category id is required.");

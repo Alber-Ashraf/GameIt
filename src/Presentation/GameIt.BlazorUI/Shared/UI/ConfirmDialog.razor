@@ -13,7 +13,7 @@
             </div>
             <div class="gi-modal-footer">
                 <button type="button" class="gi-btn gi-btn-secondary" @onclick="Cancel">@CancelText</button>
-                <button type="button" class="gi-btn @(IsDestructive ? "gi-btn-danger" : "gi-btn-primary")" @onclick="Confirm">@ConfirmText</button>
+                <button type="button" class="gi-btn @((IsDanger || IsDestructive) ? "gi-btn-danger" : "gi-btn-primary")" @onclick="Confirm">@ConfirmText</button>
             </div>
         </div>
     </div>
@@ -25,12 +25,17 @@
     [Parameter] public string Message { get; set; } = "Are you sure you want to proceed?";
     [Parameter] public string ConfirmText { get; set; } = "Confirm";
     [Parameter] public string CancelText { get; set; } = "Cancel";
-    [Parameter] public bool IsDestructive { get; set; } = false;
+    [Parameter] public bool IsDanger { get; set; }
+    [Parameter] public bool IsDestructive { get; set; }
+    [Parameter] public EventCallback OnConfirm { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
     [Parameter] public EventCallback<bool> OnResult { get; set; }
 
     private async Task Confirm()
     {
         IsOpen = false;
+        if (OnConfirm.HasDelegate)
+            await OnConfirm.InvokeAsync();
         if (OnResult.HasDelegate)
             await OnResult.InvokeAsync(true);
     }
@@ -38,6 +43,8 @@
     private async Task Cancel()
     {
         IsOpen = false;
+        if (OnCancel.HasDelegate)
+            await OnCancel.InvokeAsync();
         if (OnResult.HasDelegate)
             await OnResult.InvokeAsync(false);
     }

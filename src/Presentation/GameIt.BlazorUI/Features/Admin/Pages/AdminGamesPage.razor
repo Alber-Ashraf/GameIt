@@ -83,9 +83,15 @@
                 </div>
 
                 <div class="gi-form-group">
-                    <label class="gi-label">Install Size (Bytes)</label>
-                    <InputNumber class="gi-input tabular-nums" @bind-Value="_form.FileSizeInBytes" />
-                    <ValidationMessage For="@(() => _form.FileSizeInBytes)" />
+                    <label class="gi-label">Additional Download Link (Extras / Other Files)</label>
+                    <InputText class="gi-input" placeholder="https://cdn.gameit.com/extras/..." @bind-Value="_form.AdditionalDownloadLink" />
+                    <ValidationMessage For="@(() => _form.AdditionalDownloadLink)" />
+                </div>
+
+                <div class="gi-form-group">
+                    <label class="gi-label">Install Size (MB)</label>
+                    <InputNumber class="gi-input tabular-nums" placeholder="e.g. 50000" @bind-Value="_form.FileSizeInMB" />
+                    <ValidationMessage For="@(() => _form.FileSizeInMB)" />
                 </div>
 
                 <div class="gi-form-group">
@@ -279,7 +285,8 @@ else
             ImageUrl = d.ImageUrl,
             SystemRequirements = d.SystemRequirements,
             DownloadLink = d.DownloadLink,
-            FileSizeInBytes = d.FileSizeInBytes,
+            AdditionalDownloadLink = d.AdditionalDownloadLink,
+            FileSizeInMB = d.FileSizeInMB,
             PublisherId = string.IsNullOrWhiteSpace(d.PublisherId) ? "GameIt Studios" : d.PublisherId,
             CategoryId = d.CategoryId != Guid.Empty
                 ? d.CategoryId

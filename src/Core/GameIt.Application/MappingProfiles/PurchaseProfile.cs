@@ -13,8 +13,10 @@ public class PurchaseProfile : Profile
     {
         // Entity -> List DTO
         CreateMap<Purchase, PurchaseListDto>()
+            .ForMember(dest => dest.GameId, opt => opt.MapFrom(src => src.GameId))
             .ForMember(dest => dest.GameName, opt => opt.MapFrom(src => src.Game.Name))
-            .ForMember(dest => dest.OriginalPrice, opt => opt.MapFrom(src => src.Game.Price));
+            .ForMember(dest => dest.OriginalPrice, opt => opt.MapFrom(src => src.Game.Price))
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
 
 
         // Create Command -> Entity
